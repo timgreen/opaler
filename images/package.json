@@ -1,0 +1,18 @@
+{
+  "name": "opaler-logo",
+  "version": "0.1.0",
+  "description": "Logo for Opaler.",
+  "main": "bootstrap.min.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "d3": "~3.4.3",
+    "xmldom": "~0.1.19",
+    "pretty-data": "~0.40.0",
+    "grunt": "~0.4.4",
+    "grunt-haml": "~0.9.0"
+  }
+}

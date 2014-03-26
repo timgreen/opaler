@@ -1,0 +1,86 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:paddingLeft="20dp"
+    android:paddingRight="20dp"
+    android:background="@drawable/login_background"
+    >
+
+  <RelativeLayout
+      android:id="@+id/header"
+      android:layout_weight="1"
+      android:layout_height="0dp"
+      android:layout_width="match_parent"
+      >
+
+    <ImageView
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:layout_centerInParent="true"
+        android:layout_marginTop="20dp"
+        android:src="@drawable/logo" />
+  </RelativeLayout>
+
+  <LinearLayout
+      android:id="@+id/main"
+      android:orientation="vertical"
+      android:layout_weight="0"
+      android:layout_height="wrap_content"
+      android:layout_width="match_parent"
+      android:focusableInTouchMode="true"
+      >
+    <EditText android:id="@+id/username"
+        android:inputType="textFilter"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="20dp"
+        android:singleLine="true"
+        android:selectAllOnFocus="true"
+        android:hint="Opal Username"
+        android:imeOptions="actionNext" />
+    <EditText android:id="@+id/password"
+        android:inputType="textPassword"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="20dp"
+        android:selectAllOnFocus="true"
+        android:hint="Opal Password"
+        android:imeActionLabel="Login"
+        android:imeOptions="actionDone"
+        />
+    <Button android:id="@+id/loginBtn"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:layout_marginBottom="20dp"
+        android:text="Login"
+        android:onClick="login"
+        android:paddingBottom="10dp"
+        android:paddingTop="10dp"
+        android:background="#223B74"
+        android:textColor="#FFF"
+        />
+  </LinearLayout>
+
+  <RelativeLayout
+      android:id="@+id/footer"
+      android:layout_weight="1"
+      android:layout_height="0dp"
+      android:layout_width="match_parent"
+      >
+    <TextView android:id="@+id/loginMessage"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        />
+    <TextView android:id="@+id/login_footer_html"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:paddingBottom="20dp"
+        android:gravity="center"
+        />
+  </RelativeLayout>
+</LinearLayout>

@@ -1,0 +1,25 @@
+<resources>
+  <array name="tutorial_titles">
+    <item>Welcome to Opaler!</item>
+    <item>Overview</item>
+    <item>Pull to Refresh</item>
+    <item>Activity</item>
+    <item>Widget</item>
+  </array>
+
+  <array name="tutorial_descriptions">
+    <item>Your Opal Card usage. Balance, activity and more.</item>
+    <item>Current balance and 8 journeys indicator.</item>
+    <item>Simpily pull down to sync data.</item>
+    <item>Detailed transcations and weekly summary.</item>
+    <item>Track balance with widget.</item>
+  </array>
+
+  <array name="tutorial_images">
+    <item>@drawable/tutorial_welcome</item>
+    <item>@drawable/tutorial_balance</item>
+    <item>@drawable/tutorial_pull_to_refresh</item>
+    <item>@drawable/tutorial_activity</item>
+    <item>@drawable/tutorial_widget</item>
+  </array>
+</resources>

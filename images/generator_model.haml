@@ -1,0 +1,30 @@
+!!! 5
+%html
+  %head
+    %meta(charset="utf-8")
+    %style
+    :css
+      body {
+        background: gray;
+      }
+      .model {
+        display: inline-block;
+      }
+  %body
+    .model.model-train
+    .model.model-bus
+    .model.model-ferry
+    .model.model-light-rail
+    .model.model-money
+
+    -# scripts
+    %script(src="bower_components/d3/d3.js")
+    :javascript
+      exports = {};
+    %script(src="../draw_model.js")
+    :javascript
+      exports.draw_model(d3, '.model-train', 'T');
+      exports.draw_model(d3, '.model-bus', 'B');
+      exports.draw_model(d3, '.model-ferry', 'F');
+      exports.draw_model(d3, '.model-light-rail', 'L');
+      exports.draw_model(d3, '.model-money', '$');

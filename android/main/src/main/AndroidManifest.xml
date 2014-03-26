@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="it.timgreen.opal"
+    >
+  <uses-sdk android:minSdkVersion="14" />
+
+  <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+  <uses-permission android:name="android.permission.INTERNET" />
+  <uses-permission android:name="com.android.vending.BILLING" />
+  <!-- Required to register a SyncStatusObserver to display a "syncing..." progress indicator. -->
+  <uses-permission android:name="android.permission.READ_SYNC_STATS" />
+  <!-- Required to enable our SyncAdapter after it's created. -->
+  <uses-permission android:name="android.permission.READ_SYNC_SETTINGS" />
+  <uses-permission android:name="android.permission.WRITE_SYNC_SETTINGS" />
+  <!-- Required because we're manually creating a new account. -->
+  <uses-permission android:name="android.permission.AUTHENTICATE_ACCOUNTS" />
+  <uses-permission android:name="android.permission.MANAGE_ACCOUNTS" />
+  <uses-permission android:name="android.permission.GET_ACCOUNTS" />
+
+  <application
+      android:label="@string/app_name"
+      android:icon="@drawable/ic_launcher"
+      android:allowBackup="false"
+      android:name="App"
+      >
+    <meta-data
+        android:name="com.google.android.gms.version"
+        android:value="@integer/google_play_services_version"
+        />
+    <meta-data
+        android:name="com.google.android.gms.analytics.globalConfigResource"
+        android:resource="@xml/analytics_global_config"
+        />
+
+    <activity android:name=".LoginActivity"
+        android:exported="false"
+        android:label="@string/app_name"
+        android:noHistory="true"
+        android:windowSoftInputMode="adjustResize|stateHidden"
+        android:screenOrientation="portrait"
+        android:configChanges="orientation|keyboardHidden"
+        android:theme="@android:style/Theme.Black.NoTitleBar" />
+    <activity android:name=".TutorialActivity"
+        android:exported="false"
+        android:label="@string/app_name"
+        android:screenOrientation="portrait"
+        android:configChanges="orientation|keyboardHidden"
+        android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen" />
+    <activity android:name=".CreditActivity"
+        android:exported="false"
+        android:label="@string/app_name"
+        android:screenOrientation="portrait"
+        android:configChanges="orientation|keyboardHidden"
+        android:parentActivityName=".SettingActivity" >
+      <!-- Parent activity meta-data to support 4.0 and lower -->
+      <meta-data android:name="android.support.PARENT_ACTIVITY"
+          android:value=".SettingActivity" />
+    </activity>
+    <activity android:name=".SettingActivity"
+        android:label="@string/activity_setting_title"
+        android:parentActivityName=".MainActivity" >
+      <!-- Parent activity meta-data to support 4.0 and lower -->
+      <meta-data android:name="android.support.PARENT_ACTIVITY"
+          android:value=".MainActivity" />
+      <intent-filter>
+        <action android:name="android.intent.action.MANAGE_NETWORK_USAGE" />
+        <category android:name="android.intent.category.DEFAULT" />
+      </intent-filter>
+    </activity>
+    <activity android:name=".MainActivity"
+        android:label="@string/app_name"
+        android:screenOrientation="portrait"
+        android:configChanges="orientation|keyboardHidden"
+        android:launchMode="singleTop"
+        >
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN" />
+        <category android:name="android.intent.category.LAUNCHER" />
+      </intent-filter>
+    </activity>
+
+    <activity android:name="com.google.android.gms.ads.AdActivity"
+        android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize" />
+
+    <provider
+        android:name=".provider.OpalProvider"
+        android:label="@string/opaler_content_provider_label"
+        android:authorities="${applicationId}.provider"
+        android:exported="false"
+        android:grantUriPermissions="true"
+        android:syncable="true"
+        />
+
+    <provider
+        android:name="android.support.v4.content.FileProvider"
+        android:label="@string/opaler_file_provider_label"
+        android:authorities="${applicationId}.fileprovider"
+        android:exported="false"
+        android:grantUriPermissions="true">
+      <meta-data
+          android:name="android.support.FILE_PROVIDER_PATHS"
+          android:resource="@xml/file_paths"
+          />
+    </provider>
+
+      <service android:name="it.timgreen.android.accounts.GenericAccountService">
+      <!-- Required filter used by the system to launch our account service. -->
+      <intent-filter>
+        <action android:name="android.accounts.AccountAuthenticator" />
+      </intent-filter>
+      <!-- This points to an XMLf ile which describes our account service. -->
+      <meta-data android:name="android.accounts.AccountAuthenticator" android:resource="@xml/authenticator" />
+    </service>
+
+    <service
+      android:name=".sync.SyncService"
+      android:exported="true"
+      android:process=":sync"
+      >
+      <intent-filter>
+        <action android:name="android.content.SyncAdapter" />
+      </intent-filter>
+      <meta-data android:name="android.content.SyncAdapter"
+          android:resource="@xml/sync_adapter"
+          />
+    </service>
+
+    <!-- widget -->
+    <receiver android:name=".widget.OpalWidgetProvider">
+      <intent-filter >
+        <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+      </intent-filter>
+      <meta-data
+          android:name="android.appwidget.provider"
+          android:resource="@xml/widget_provider"
+          />
+    </receiver>
+     <service
+        android:name=".widget.OpalWidgetUpdateService"
+        android:process=":configservice"
+        android:enabled="true"
+        android:exported="true"
+        />
+      <activity
+          android:label="@string/activity_widget_config_title"
+          android:name=".widget.WidgetConfigActivity"
+          android:theme="@android:style/Theme.Holo.Dialog"
+          >
+      <intent-filter>
+        <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
+      </intent-filter>
+    </activity>
+  </application>
+</manifest>

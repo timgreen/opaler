@@ -1,0 +1,6 @@
+<resources>
+  <color name="highlight_background">#333</color>
+
+  <color name="trip_view_secondary">#777</color>
+  <color name="trip_view_positive_amount">#FFFA84</color>
+</resources>

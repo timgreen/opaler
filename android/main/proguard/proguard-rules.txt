@@ -1,0 +1,72 @@
+-dontpreverify
+
+#-keep class * extends junit.framework.TestCase
+#-keepclassmembers class * extends junit.framework.TestCase { *; }
+
+# android
+-repackageclasses ''
+-allowaccessmodification
+-optimizations !code/simplification/arithmetic
+-keepattributes *Annotation*
+
+# retrace
+-renamesourcefileattribute SourceFile
+-keepattributes SourceFile,LineNumberTable
+
+-keep public class * extends android.app.Activity
+-keep public class * extends android.app.Application
+-keep public class * extends android.app.Service
+-keep public class * extends android.content.BroadcastReceiver
+-keep public class * extends android.content.ContentProvider
+
+-keep public class * extends android.view.View {
+    public <init>(android.content.Context);
+    public <init>(android.content.Context, android.util.AttributeSet);
+    public <init>(android.content.Context, android.util.AttributeSet, int);
+    public void set*(...);
+}
+
+-keepclasseswithmembers class * {
+    public <init>(android.content.Context, android.util.AttributeSet);
+}
+
+-keepclasseswithmembers class * {
+    public <init>(android.content.Context, android.util.AttributeSet, int);
+}
+
+-keepclassmembers class * extends android.content.Context {
+    public void *(android.view.View);
+    public void *(android.view.MenuItem);
+}
+
+-keepclassmembers class * implements android.os.Parcelable {
+    static ** CREATOR;
+}
+
+-keepclassmembers class **.R$* {
+    public static <fields>;
+}
+
+-keepclassmembers class * {
+    @android.webkit.JavascriptInterface <methods>;
+}
+
+# scala
+-keepattributes Signature
+-dontwarn scala.**
+#-keep class !scala.collection.** { *; }
+#-keep class scala.runtime.Statics { *; }
+-keep class scala.collection.SeqLike { public protected *; }
+
+# admob
+-keep public class com.google.android.gms.ads.** {
+    public *;
+}
+
+-keep public class com.google.ads.** {
+    public *;
+}
+
+# this app
+-keep public class it.timgreen.opal.OverviewFragment
+-keep public class it.timgreen.opal.TripFragment

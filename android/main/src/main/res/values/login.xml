@@ -1,0 +1,7 @@
+<resources>
+  <string name="login_footer">
+    <![CDATA[
+    <a href="https://timgreen.github.io/opaler/eula.html">EULA</a> & <a href="https://timgreen.github.io/opaler/privacy.html">Privacy</a>
+    ]]>
+  </string>
+</resources>

@@ -1,0 +1,172 @@
+<html>
+  <head>
+    <style type='text/css'>
+      a            { color:#a0a0e0 }
+      div.title    {
+          color:#C0F0C0;
+          font-size:1.2em;
+          font-weight:bold;
+          margin-top:1em;
+          margin-bottom:0.5em;
+          text-align:center }
+      div.subtitle {
+          color:#C0F0C0;
+          font-size:0.8em;
+          margin-bottom:1em;
+          text-align:center }
+      div.freetext { color:#F0F0F0 }
+      div.list     { color:#C0C0F0 }
+    </style>
+  </head>
+  <body>
+$ 0.8.1
+  % Version 0.8.1
+  _ 2015-02-02
+    * New icon for light rail.
+$ 0.8.0
+  % Version 0.8.0
+  _ 2015-01-31
+    * Update model icons.
+$ 0.7.9
+  % Version 0.7.9
+  _ 2015-01-28
+    * Credits page.
+$ 0.7.8
+  % Version 0.7.8
+  _ 2015-01-22
+    * Fix 'null' card name.
+    * Add denote button.
+    * Alternate trip background color base on journey number.
+    * Minor improvements.
+$ 0.7.4
+  % Version 0.7.4
+  _ 2014-12-30
+    * Increase font size for 'last sync'.
+    * Close drawer after account switch.
+$ 0.7.3
+  % Version 0.7.3
+  _ 2014-12-18
+    * Fix 12 hour format for 1230pm.
+$ 0.7.2
+  % Version 0.7.2
+  _ 2014-12-13
+    * Fix sync issue. (due to opal.com.au's update)
+$ 0.7.1
+  % Version 0.7.1
+  _ 2014-11-27
+    * Setting for 12/24 hour format.
+$ 0.7.0
+  % Version 0.7.0
+  _ 2014-11-23
+    * Fix widget in Lollipop.
+$ 0.6.4
+  % Version 0.6.4
+  _ 2014-10-13
+    * Misc UI improve.
+$ 0.6.3
+  % Version 0.6.3
+  _ 2014-10-09
+    * Optimize sync.
+$ 0.6.2
+  % Version 0.6.2
+  _ 2014-10-01
+    * Show last successful sync time.
+$ 0.6.0
+  % Version 0.6.0
+  _ 2014-09-08
+    * Share & +1 button.
+$ 0.5.17
+  % Version 0.5.17
+  _ 2014-09-01
+    * Fix crash on some devices.
+$ 0.5.16
+  % Version 0.5.16
+  _ 2014-08-25
+    * Remember last selected card.
+    * Fix crash for invalid widget. e.g. Add a widget for second card, then detach this card from account.
+$ 0.5.15
+  % Version 0.5.15
+  _ 2014-08-18
+    * Show card name on widget.
+    * Add shortcut for email Opal Customer Care on left drawer.
+$ 0.5.13
+  % Version 0.5.13
+  _ 2014-08-16
+    * Fix background sync for widget.
+$ 0.5.10
+  % Version 0.5.10
+  _ 2014-07-27
+    * Now 'Feedback' on left drawer.
+    * New tutorial.
+$ 0.5.6
+  % Version 0.5.6
+  _ 2014-06-29
+    * Bug fix. Fix layout when balance >= $100.
+    * Show "Opal customer care" in the left menu.
+$ 0.5.5
+  % Version 0.5.5
+  _ 2014-06-17
+    * Bug fix. Correctly display apostrophe in the card name.
+$ 0.5.4
+  % Version 0.5.4
+  _ 2014-06-14
+    * Bug fix. Show correct balance for non-first card in widget.
+    * Remove legacy support for v0.1.8.
+$ 0.5.1
+  % Version 0.5.1
+  _ 2014-05-23
+    * Finally, Widget!
+    * Fix incorrect balance on widget for some device.
+    * Check network before start manual sync.
+    * Show "$" icon for Adjustment & Balance transfer.
+    * Use ● ○ to denote num of journey this week in overview.
+$ 0.4.1
+  % Version 0.4.1
+  _ 2014-05-06
+    * Hotfix crash on activities on some devices.
+$ 0.4.0
+  % Version 0.4.0
+  _ 2014-05-05
+    * Adjust activity UI.
+    * Bug fix.
+$ 0.3.9
+  % Version 0.3.9
+  _ 2014-05-02
+    * Show number of journey for each week in activity page.
+$ 0.3.6
+  % Version 0.3.6
+  _ 2014-05-01
+    * Improve activity UI.
+    * Highlight no tap off & pending no tap off.
+    * Auto resync for pending no tap off records.
+$ 0.3.1
+  % Version 0.3.1
+  _ 2014-04-30
+    * Adjust sync strategy to handle record update. e.g. refresh no tap-off record with updated one.
+    * Try to fix app crash on some Galaxy S3.
+$ 0.3.0
+  % Version 0.3.0
+  _ 2014-04-28
+    * Overview UI re-design.
+    * Fix for opal.com.au update.
+    * Fully rewrite sync process.
+    * Better performance on activities page.
+    * Better notification message after sync.
+    * Disable background sync when login failed, to avoid account block.
+    * Show changelog after upgrade.
+$ 0.1.8
+  % Version 0.1.8
+  _ 2014-04-21
+  _ Fix for opal.com.au update.
+$ 0.1.3
+  % Version 0.1.3
+  _ 2014-04-13
+    * New login screen.
+    * Auto sync on start.
+$ 0.1.1
+  % Version 0.1.1
+  _ 2014-04-12
+  _ First Release.
+$ END_OF_CHANGE_LOG
+  </body>
+</html>

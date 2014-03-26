@@ -1,0 +1,81 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="512" height="512">
+    <defs>
+        <circle id="cc" cx="256" cy="256" r="200"></circle>
+        <circle id="c0" cx="256" cy="216" r="200"></circle>
+        <mask id="m0">
+            <rect x="0" y="0" width="100%" height="100%" fill="white"></rect>
+            <use xlink:href="#c0" fill="black"></use>
+            <use xlink:href="#cc" fill="black"></use>
+        </mask>
+        <circle id="c1" cx="284.2842712474619" cy="227.7157287525381" r="200"></circle>
+        <mask id="m1">
+            <rect x="0" y="0" width="100%" height="100%" fill="white"></rect>
+            <use xlink:href="#c1" fill="black"></use>
+            <use xlink:href="#cc" fill="black"></use>
+        </mask>
+        <circle id="c2" cx="296" cy="256" r="200"></circle>
+        <mask id="m2">
+            <rect x="0" y="0" width="100%" height="100%" fill="white"></rect>
+            <use xlink:href="#c2" fill="black"></use>
+            <use xlink:href="#cc" fill="black"></use>
+        </mask>
+        <circle id="c3" cx="284.2842712474619" cy="284.2842712474619" r="200"></circle>
+        <mask id="m3">
+            <rect x="0" y="0" width="100%" height="100%" fill="white"></rect>
+            <use xlink:href="#c3" fill="black"></use>
+            <use xlink:href="#cc" fill="black"></use>
+        </mask>
+        <circle id="c4" cx="256" cy="296" r="200"></circle>
+        <mask id="m4">
+            <rect x="0" y="0" width="100%" height="100%" fill="white"></rect>
+            <use xlink:href="#c4" fill="black"></use>
+            <use xlink:href="#cc" fill="black"></use>
+        </mask>
+        <circle id="c5" cx="227.7157287525381" cy="284.2842712474619" r="200"></circle>
+        <mask id="m5">
+            <rect x="0" y="0" width="100%" height="100%" fill="white"></rect>
+            <use xlink:href="#c5" fill="black"></use>
+            <use xlink:href="#cc" fill="black"></use>
+        </mask>
+        <circle id="c6" cx="216" cy="256" r="200"></circle>
+        <mask id="m6">
+            <rect x="0" y="0" width="100%" height="100%" fill="white"></rect>
+            <use xlink:href="#c6" fill="black"></use>
+            <use xlink:href="#cc" fill="black"></use>
+        </mask>
+        <circle id="c7" cx="227.7157287525381" cy="227.7157287525381" r="200"></circle>
+        <mask id="m7">
+            <rect x="0" y="0" width="100%" height="100%" fill="white"></rect>
+            <use xlink:href="#c7" fill="black"></use>
+            <use xlink:href="#cc" fill="black"></use>
+        </mask>
+    </defs>
+    <use xlink:href="#c0" fill="#E21A51" mask="url(#m1)"></use>
+    <use xlink:href="#c1" fill="#00B3EB" mask="url(#m2)"></use>
+    <use xlink:href="#c2" fill="#008BCF" mask="url(#m3)"></use>
+    <use xlink:href="#c3" fill="#5FB946" mask="url(#m4)"></use>
+    <use xlink:href="#c4" fill="#077F4F" mask="url(#m5)"></use>
+    <use xlink:href="#c5" fill="#54B647" mask="url(#m6)"></use>
+    <use xlink:href="#c6" fill="#F7941D" mask="url(#m7)"></use>
+    <use xlink:href="#c7" fill="#F05423" mask="url(#m0)"></use>
+    <use xlink:href="#cc" fill="black" opacity="0.5"></use>
+
+    <g transform="translate( 163.70395698196643 114.57864376269049 ) scale( 0.5954583420518296 )">
+      <defs>
+        <mask id="trainMask">
+          <rect fill="#fff" height="100%" width="100%" x="0" y="0"/>
+          <rect fill="#000" height="100" rx="30" width="200" x="55" y="100"/>
+          <rect fill="#000" height="40" rx="10" width="80" x="115" y="50"/>
+          <circle cx="85" cy="315" fill="#000" r="25"/>
+          <circle cx="225" cy="315" fill="#000" r="25"/>
+        </mask>
+      </defs>
+
+      <g mask="url(#trainMask)">
+        <rect fill="#fff" height="330" rx="65" width="270" x="20" y="40"/>
+        <circle cx="135" cy="20" fill="#fff" r="15"/>
+        <circle cx="175" cy="20" fill="#fff" r="15"/>
+        <polygon fill="#fff" points="0,475 70,360 240,360 310,475 265,475 220,400 90,400 45,475"/>
+      </g>
+    </g>
+</svg>

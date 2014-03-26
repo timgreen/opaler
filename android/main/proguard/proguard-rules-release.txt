@@ -1,0 +1,12 @@
+#-dontoptimize
+#-dontobfuscate
+
+# Remove log
+-assumenosideeffects class android.util.Log {
+    public static *** d(...);
+    public static *** e(...);
+}
+# Remove log
+-assumenosideeffects class it.timgreen.opal.Util {
+    public static *** debug(...);
+}

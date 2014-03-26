@@ -1,0 +1,54 @@
+<resources>
+  <string name="pref_account_title">Account</string>
+
+  <string name="pref_signout_title">Sign out</string>
+  <string name="signout_dialog_title">You are attempting to sign out …</string>
+  <string name="signout_dialog_message">Do you really want to sign out? All synced data will be clean up. You will need to sync up again if you sign in later.</string>
+  <string name="signout_dialog_ok">Sign out</string>
+  <string name="signout_dialog_cancel">Cancel</string>
+
+  <string name="pref_ads_title">Ads</string>
+  <string name="pref_disable_ads_title">Disable Ads</string>
+  <string name="pref_disable_ads_summary">Disable bottom ads</string>
+
+  <string name="pref_sync_title">Sync</string>
+  <string name="pref_sync_on_start_title">Sync on start</string>
+  <string name="pref_sync_on_start_summary">Automatically sync data when app start.</string>
+  <string name="pref_auto_sync_on_wifi_only_title">Wireless network sync only</string>
+  <string name="pref_auto_sync_on_wifi_only_summary">Automatically sync data only when connected to a wireless network.</string>
+  <string name="pref_auto_sync_title">Sync</string>
+  <string name="pref_auto_sync_summary">Automatically sync data in the background</string>
+  <string name="pref_sync_frequency_title">Sync Frequency</string>
+  <string name="pref_sync_status_title">Sync Status</string>
+
+  <string name="pref_ui_title">UI</string>
+  <string name="pref_use_24_hour_format_title">Use 24 hour format</string>
+  <string name="pref_use_24_hour_format_summary">13:00 or 01:00 PM.</string>
+
+  <string-array name="sync_frequency_entries">
+    <item>Every 2 hours</item>
+    <item>Every 4 hours</item>
+    <item>Every 1 day</item>
+    <item>Every 2 days</item>
+    <item>Every 1 week</item>
+  </string-array>
+  <string-array name="sync_frequency_entry_values">
+    <item>2h</item>
+    <item>4h</item>
+    <item>1d</item>
+    <item>2d</item>
+    <item>7d</item>
+  </string-array>
+
+  <string name="pref_misc_title">Misc</string>
+  <string name="pref_about_title">About</string>
+  <string name="pref_about_summary">Version %1$s</string>
+  <string name="pref_tutorial_title">Tutorial</string>
+  <string name="pref_tutorial_summary">Watch tutorial again.</string>
+  <string name="pref_rate_title">Rate</string>
+  <string name="pref_rate_summary">Rate this app…</string>
+  <string name="pref_credit_title">Credits</string>
+
+  <string name="pref_dev_title">Developer Options</string>
+  <string name="pref_show_fake_data_title">Show fake data</string>
+</resources>

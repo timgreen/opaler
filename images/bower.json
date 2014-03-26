@@ -1,0 +1,12 @@
+{
+  "name": "opaler-logo",
+  "version": "0.1.0",
+  "authors": [
+    "Tim Green <iamtimgreen@gmail.com>"
+  ],
+  "license": "MIT",
+  "private": true,
+  "dependencies": {
+    "d3": "~3.4.3"
+  }
+}

@@ -1,0 +1,11 @@
+<appwidget-provider
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:configure="it.timgreen.opal.widget.WidgetConfigActivity"
+    android:widgetCategory="keyguard|home_screen"
+    android:minWidth="130dp"
+    android:minHeight="56dp"
+    android:updatePeriodMillis="7200000"
+    android:initialLayout="@layout/widget"
+    android:previewImage="@drawable/widget_preview_2x1"
+    >
+</appwidget-provider>

@@ -1,0 +1,15 @@
+<resources>
+  <string name="opaler_content_provider_label">Opal Cards Activities</string>
+  <string name="opaler_file_provider_label">Opal Files</string>
+
+  <string name="empty_card_no_card">No Card</string>
+  <string name="empty_card_syncing_card_list">Sync card list …</string>
+
+  <string name="drawer_open">Drawer Open</string>
+  <string name="drawer_close">Drawer Close</string>
+
+  <string name="activity_setting_title">Settings</string>
+  <string name="action_settings">Settings</string>
+
+  <string name="activity_widget_config_title">Choose Opal Card</string>
+</resources>

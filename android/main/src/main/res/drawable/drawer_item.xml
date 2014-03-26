@@ -1,0 +1,13 @@
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+  <item
+      android:state_pressed="true"
+      android:drawable="@color/highlight_background"
+      />
+  <item
+      android:state_selected="true"
+      android:drawable="@color/highlight_background"
+      />
+  <item
+      android:drawable="@android:color/transparent"
+      />
+</selector>

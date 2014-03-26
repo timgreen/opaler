@@ -1,0 +1,167 @@
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    >
+  <LinearLayout
+      android:id="@+id/widgetContainer"
+      android:layout_width="wrap_content"
+      android:layout_height="56dp"
+      android:orientation="horizontal"
+      android:background="@drawable/widget_background"
+      >
+    <ImageView
+        android:id="@+id/icon"
+        android:layout_gravity="center"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:scaleType="center"
+        android:src="@drawable/ic_launcher"
+        />
+    <TextView
+        android:id="@+id/label"
+        android:text="Loading"
+        android:gravity="center"
+        android:layout_gravity="center"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="4dp"
+        android:textSize="20dp"
+        />
+
+    <!-- paddingTop 5 to fix vertical-center -->
+    <RelativeLayout
+        android:layout_width="23dp"
+        android:layout_height="51dp"
+        android:paddingTop="5dp"
+        android:gravity="center"
+        >
+      <!--
+            0
+              1
+              2
+              7 3
+              4
+              5
+            6
+
+        r = 48 / 2 - 10 / 2 = 19
+        d = 70 deg / 3
+      -->
+      <ImageView
+          android:id="@+id/ball3"
+          android:layout_width="wrap_content"
+          android:layout_height="10dp"
+          android:layout_centerVertical="true"
+          android:layout_alignParentRight="true"
+          />
+      <ImageView
+          android:id="@+id/ball7"
+          android:layout_width="wrap_content"
+          android:layout_height="10dp"
+          android:layout_marginRight="7.53dp"
+          android:layout_centerVertical="true"
+          android:layout_alignParentRight="true"
+          />
+      <!-- above -->
+      <!--
+                sin(d * 1) * r =  7.525515554743979
+                                 15.051031109487958
+            r - cos(d * 1) * r =  1.5538939692747924
+      -->
+      <ImageView
+          android:id="@+id/ball2"
+          android:layout_width="wrap_content"
+          android:layout_height="20.05dp"
+          android:paddingBottom="15.05dp"
+          android:layout_marginRight="1.55dp"
+          android:layout_centerVertical="true"
+          android:layout_alignParentRight="true"
+          />
+      <!--
+                sin(d * 2) * r = 13.820099189887927
+                                 27.640198379775853
+            r - cos(d * 2) * r =  5.961408880494062
+      -->
+      <ImageView
+          android:id="@+id/ball1"
+          android:layout_width="wrap_content"
+          android:layout_height="32.64dp"
+          android:paddingBottom="27.64dp"
+          android:layout_marginRight="5.96dp"
+          android:layout_centerVertical="true"
+          android:layout_alignParentRight="true"
+          />
+      <!--
+                sin(d * 3) * r = 17.854159794932258
+                                 35.708319589864516
+            r - cos(d * 3) * r = 12.501617276812294
+      -->
+      <ImageView
+          android:id="@+id/ball0"
+          android:layout_width="wrap_content"
+          android:layout_height="40.71dp"
+          android:paddingBottom="35.71dp"
+          android:layout_marginRight="12.50dp"
+          android:layout_centerVertical="true"
+          android:layout_alignParentRight="true"
+          />
+
+      <!--
+                sin(d * 1) * r =  7.525515554743979
+                                 15.051031109487958
+            r - cos(d * 1) * r =  1.5538939692747924
+      -->
+      <ImageView
+          android:id="@+id/ball4"
+          android:layout_width="wrap_content"
+          android:layout_height="20.05dp"
+          android:paddingTop="15.05dp"
+          android:layout_marginRight="1.55dp"
+          android:layout_centerVertical="true"
+          android:layout_alignParentRight="true"
+          />
+      <!--
+                sin(d * 2) * r = 13.820099189887927
+                                 27.640198379775853
+            r - cos(d * 2) * r =  5.961408880494062
+      -->
+      <ImageView
+          android:id="@+id/ball5"
+          android:layout_width="wrap_content"
+          android:layout_height="32.64dp"
+          android:paddingTop="27.64dp"
+          android:layout_marginRight="5.96dp"
+          android:layout_centerVertical="true"
+          android:layout_alignParentRight="true"
+          />
+      <!--
+                sin(d * 3) * r = 17.854159794932258
+                                 35.708319589864516
+            r - cos(d * 3) * r = 12.501617276812294
+      -->
+      <ImageView
+          android:id="@+id/ball6"
+          android:layout_width="wrap_content"
+          android:layout_height="40.71dp"
+          android:paddingTop="35.71dp"
+          android:layout_marginRight="12.50dp"
+          android:layout_centerVertical="true"
+          android:layout_alignParentRight="true"
+          />
+    </RelativeLayout>
+  </LinearLayout>
+  <TextView
+      android:id="@+id/cardName"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_gravity="center"
+      android:textSize="12sp"
+      android:textColor="#FBFBFB"
+      android:shadowColor="#7F000000"
+      android:shadowDx="1"
+      android:shadowDy="1"
+      android:shadowRadius="2"
+      />
+</LinearLayout>

@@ -1,0 +1,223 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        // android
+        classpath 'com.android.tools.build:gradle:1.0.1'
+        // android-scala
+        classpath 'jp.leafytree.gradle:gradle-android-scala-plugin:1.3.2'
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+apply plugin: 'com.android.application'
+apply plugin: 'jp.leafytree.android-scala'
+
+
+android {
+    compileSdkVersion 'android-21'
+    buildToolsVersion '21.1.2'
+
+    def versionPropsFile = file('version.properties')
+    def Properties versionProps = new Properties()
+    versionProps.load(new FileInputStream(versionPropsFile))
+    def versionNameFromFile = versionProps['VERSION_NAME']
+    def v = versionNameFromFile.split('\\.')
+    def versionCodeFromFile = (v[0].toInteger() * 10000 + v[1].toInteger() * 1000 + v[2].toInteger()) * 10
+
+    defaultConfig {
+        applicationId 'it.timgreen.opal'
+        targetSdkVersion 21
+        versionName versionNameFromFile
+        versionCode versionCodeFromFile
+    }
+
+    aaptOptions {
+        noCompress 'apk'
+    }
+
+    signingConfigs {
+        release {
+            storeFile file('../../../key/release.keystore')
+            keyAlias 'opal'
+
+            // These two lines make gradle believe that the signingConfigs
+            // section is complete. Without them, tasks like installRelease
+            // will not be available!
+            storePassword 'notYourRealPassword'
+            keyPassword 'notYourRealPassword'
+        }
+    }
+
+    buildTypes {
+        base {
+            minifyEnabled true
+
+            buildConfigField 'boolean', 'ENABLE_DENOTE', 'false'
+            buildConfigField 'boolean', 'ENABLE_FAKE_DATA', 'false'
+        }
+
+        debug.initWith(base)
+        debug {
+            debuggable true
+            signingConfig android.signingConfigs.debug
+
+            proguardFile file('proguard/proguard-rules.txt')
+            proguardFile file('proguard/proguard-rules-debug.txt')
+            applicationIdSuffix '.dev'
+            versionNameSuffix '.D'
+            resValue 'string', 'account_type', defaultConfig.applicationId + '.dev.account'
+            resValue 'string', 'content_authority', defaultConfig.applicationId + '.dev.provider'
+            resValue 'string', 'app_name', 'Opaler Dev'
+
+            buildConfigField 'boolean', 'ENABLE_DENOTE', 'true'
+            buildConfigField 'boolean', 'ENABLE_FAKE_DATA', 'true'
+        }
+
+        prod.initWith(base)
+        prod {
+            proguardFile file('proguard/proguard-rules.txt')
+            proguardFile file('proguard/proguard-rules-release.txt')
+            resValue 'string', 'account_type', defaultConfig.applicationId + '.account'
+            resValue 'string', 'content_authority', defaultConfig.applicationId + '.provider'
+            resValue 'string', 'app_name', 'Opaler'
+            signingConfig signingConfigs.release
+
+            buildConfigField 'boolean', 'ENABLE_DENOTE', 'true'
+        }
+        alpha.initWith(prod)
+        alpha {
+            versionNameSuffix '.A'
+            resValue 'string', 'app_name', 'Opaler Fishfood'
+
+            buildConfigField 'boolean', 'ENABLE_DENOTE', 'true'
+            buildConfigField 'boolean', 'ENABLE_FAKE_DATA', 'true'
+        }
+        beta.initWith(prod)
+        beta {
+            versionNameSuffix '.B'
+            resValue 'string', 'app_name', 'Opaler Dogfood'
+
+            buildConfigField 'boolean', 'ENABLE_DENOTE', 'true'
+        }
+    }
+
+    applicationVariants.all { variant ->
+        def buildType = variant.buildType
+        def manifestFile = "$buildDir/intermediates/manifests/${buildType.name}/AndroidManifest.xml"
+        variant.outputs.each { output ->
+            output.processManifest.doLast {
+                def manifestOutFile = output.processManifest.manifestOutputFile
+                def oldVersionCode = versionCodeFromFile
+                def newVersionCode = versionCodeFromFile
+                if (buildType.name == 'alpha') {
+                    newVersionCode = versionCodeFromFile + 1
+                } else if (buildType.name == 'beta') {
+                    newVersionCode = versionCodeFromFile + 2
+                } else if (buildType.name == 'prod') {
+                    newVersionCode = versionCodeFromFile + 3
+                }
+                def fromString = 'android:versionCode="' + oldVersionCode + '"'
+                def toString   = 'android:versionCode="' + newVersionCode + '"'
+                def updatedContent = manifestOutFile.getText('UTF-8').replaceAll(fromString, toString)
+                manifestOutFile.write(updatedContent, 'UTF-8')
+            }
+        }
+    }
+
+    lintOptions {
+        abortOnError false
+        fatal 'NewApi', 'InlineApi'
+        ignore 'ContentDescription'
+        ignore 'HardcodedText'
+        ignore 'InvalidPackage'
+        ignore 'RtlEnabled'
+        ignore 'RtlHardcoded'
+        ignore 'RtlSymmetry'
+        ignore 'SpUsage'
+        ignore 'TrulyRandom'
+        ignore 'TypographyQuotes'
+        ignore 'UnusedAttribute'
+        ignore 'UnusedIds'
+        ignore 'UnusedResources'
+
+        checkAllWarnings true
+        xmlReport false
+    }
+
+    packagingOptions {
+        exclude 'rootdoc.txt'
+        exclude 'library.properties'
+        exclude 'scala-xml.properties'
+        exclude 'META-INF/maven/com.nineoldandroids/library/pom.xml'
+        exclude 'META-INF/maven/com.nineoldandroids/library/pom.properties'
+    }
+}
+
+dependencies {
+    compile 'org.scala-lang:scala-library:2.11.5'
+    compile 'org.scala-lang.modules:scala-xml_2.11:1.0.3'
+    // 'com.google.android.gms:play-services:6.5.87' has bug that GoogleAnalytics.getInstance will
+    // stuck when account is syncing in the background.
+    compile 'com.google.android.gms:play-services:6.1.+'
+    compile 'com.android.support:support-v13:21.0.0'
+
+    compile 'com.github.johnpersano:supertoasts:1.3.4@aar'
+    compile 'se.emilsjolander:stickylistheaders:2.5.2@aar'
+}
+
+
+tasks.withType(ScalaCompile) {
+    // If you want to use scala compile daemon
+    scalaCompileOptions.useCompileDaemon = true
+    // Suppress deprecation warnings
+    scalaCompileOptions.deprecation = true
+    // Additional parameters
+    scalaCompileOptions.additionalParameters = [
+        '-feature',
+        '-Xlint',
+        '-language:postfixOps'
+    ]
+}
+
+
+task askForPasswords << {
+    // Must create String because System.readPassword() returns char[]
+    // (and assigning that below fails silently)
+    def p1 = 'kdialog --password Keystore'.execute()
+    p1.waitFor()
+    def storePw = p1.text
+    def p2 = 'kdialog --password Key'.execute()
+    p2.waitFor()
+    def keyPw = p2.text
+
+    android.signingConfigs.release.storePassword = storePw.trim()
+    android.signingConfigs.release.keyPassword = keyPw.trim()
+}
+tasks.whenTaskAdded { theTask ->
+    if (theTask.name.equals('packageAlpha')) {
+        theTask.dependsOn 'askForPasswords'
+    }
+    if (theTask.name.equals('packageBeta')) {
+        theTask.dependsOn 'askForPasswords'
+    }
+    if (theTask.name.equals('packageProd')) {
+        theTask.dependsOn 'askForPasswords'
+    }
+}
+
+task runDebug << {
+    def proc = 'adb shell am start -n it.timgreen.opal.dev/it.timgreen.opal.MainActivity -W'.execute()
+    proc.in.eachLine {line -> println line}
+    proc.waitFor()
+
+}
+tasks.whenTaskAdded { theTask ->
+    if (theTask.name.equals('installDebug')) {
+        runDebug.dependsOn(theTask)
+    }
+}
