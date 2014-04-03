@@ -1,0 +1,16 @@
+---
+layout: default
+title: OPALER PRIVACY POLICY
+---
+
+### Information we collect
+
+We do not collect any personal information. Only general usage will be collect by [Google Analytics](http://www.google.com.au/analytics/learn/privacy.html). Again we do not collect any personal information.
+
+### Information we share
+
+We do not share personal information with any companies, organizations and individuals. All your data stay in your device.
+
+### Information security
+
+We work hard to protect your information. You account information has been encrypted and stored only in your device. And the the transmissions between www.opal.com.au and app is secured via https.
