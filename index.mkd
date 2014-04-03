@@ -1,0 +1,7 @@
+---
+layout: default
+title: Opaler
+---
+
+   * [Privacy](privacy.html)
+   * [Eula](eula.html)
