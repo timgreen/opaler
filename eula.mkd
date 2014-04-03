@@ -1,0 +1,32 @@
+---
+layout: default
+title: LICENCE AGREEMENT FOR OPALER
+---
+
+### IMPORTANT-READ CAREFULLY
+
+This Opaler Licence Agreement ("Licence" or “Agreement”) is a legal agreement between You (either an individual or an entity, who will be referred to in this Licence as "You" or “Your”) and Opaler developer, for the use of our free Android mobile applications ("Product"). The Product also includes any software updates and upgrades that Opaler developer may provide to You or make available to You, or that You obtain after the date You obtain Your initial copy of the Product, to the extent that such items are not accompanied by a separate licence agreement or terms of use. BY ACCESSING OR OTHERWISE USING THE PRODUCT, YOU AGREE TO BE BOUND BY THE TERMS OF THIS LICENCE AGREEMENT. IF YOU DO NOT AGREE TO THE TERMS OF THIS AGREEMENT YOU HAVE NO RIGHTS TO THE PRODUCT AND SHOULD NOT INSTALL, COPY, DOWNLOAD, ACCESS OR USE THE PRODUCT.
+
+The Product is protected by copyright laws as well as other intellectual property laws. The Product is licenced and not sold.
+
+### GRANT OF LICENCE
+
+Opaler developer grants You a non-exclusive, nontransferable licence to install and use the Product subject to all the terms and conditions set forth here within.
+
+You are free to use the Product on as many devices as you wish as long as advertising material is not removed, blocked or otherwise tampered with.
+
+### ADDITIONAL LIMITATIONS
+
+You may not reverse engineer, decompile, or disassemble the Product, except and only to the extent that it is expressly permitted by applicable law notwithstanding this limitation. You may not host the Product for third parties.
+
+### INTELLECTUAL PROPERTY RIGHTS
+
+Subject to the licence grant hereunder, all right, title and interest in and to the Product, the accompanying printed materials, and any copies of the Product are owned by Opaler developer and its licensors.
+
+### WARRANTY
+
+Disclaimer. To the maximum extent permitted by applicable law, Opaler developer provides the Product  AS IS AND WITH ALL FAULTS, and hereby disclaim all other warranties and conditions, either express, implied or statutory, including, but not limited to, any implied warranties, duties or conditions of merchantability, of fitness for a particular purpose, of accuracy or completeness of responses, of results, of workmanlike effort, of lack of viruses, and of lack of negligence, all with regard to the Product, and the provision of or failure to provide support services.
+
+### GENERAL
+
+This Agreement will be governed by and construed in accordance with the laws of the State of New South Wales. The United Nations Convention on Contracts for the International Sale of Goods will not apply. Any legal action or proceeding arising under this Agreement will be brought exclusively in the federal or state courts located in New South Wales, Australia and the parties hereby irrevocably consent to the personal jurisdiction and venue therein. You may not assign this Agreement or any right or interest hereunder, by operation of law or otherwise, without Opaler developer’s express prior written consent. Any attempt to assign this Agreement, without such consent, will be null and of no effect. Subject to the foregoing, this Agreement will bind and inure to the benefit of each party's successors and permitted assigns. Except as expressly set forth in this Agreement, the exercise by either party of any of its remedies under this Agreement will be without prejudice to its other remedies under this Agreement or otherwise. If for any reason a court of competent jurisdiction finds any provision of this Agreement invalid or unenforceable, that provision of the Agreement will be enforced to the maximum extent permissible and the other provisions of this Agreement will remain in full force and effect. All notices or approvals required or permitted under this Agreement will be in writing and delivered by confirmed facsimile transmission, by overnight delivery services, or by certified mail, and in each instance will be deemed given upon receipt. All notices or approvals will be sent to the addresses set forth in the applicable ordering document or invoice or to such other address as may be specified by either party to the other in accordance with this Section. Neither party will be responsible for any failure or delay in its performance under this Agreement (except for any payment obligations) due to causes beyond its reasonable control, including, but not limited to, labor disputes, strikes, lockouts, shortages of or inability to obtain labor, energy or supplies, war, terrorism, riot, or acts of God. The failure by either party to enforce any provision of this Agreement will not constitute a waiver of future enforcement of that or any other provision. This Agreement constitutes the entire and exclusive agreement between the parties concerning its subject matter and supersedes all prior written and oral understandings and agreements between the parties regarding its subject matter.
