@@ -66,7 +66,8 @@ class MainActivity extends Activity
   with AccountHelper.Checker
   with AccountHelper.Operator
   with Ads.BottomBanner
-  with InAppBilling.BillingSupport {
+  with InAppBilling.BillingSupport
+  with RateSupport {
 
   implicit def provideActivity = this
 
