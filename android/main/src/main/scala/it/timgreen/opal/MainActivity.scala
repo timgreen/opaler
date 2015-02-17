@@ -401,10 +401,6 @@ class MainActivity extends Activity
       override def onLoaderReset(loader: Loader[Cursor]) {
         spinnerAdapter.changeCursor(null)
       }
-
-      if (!BuildConfig.ENABLE_DENOTE) {
-        drawerLayout.findViewById(R.id.denote_container).setVisibility(View.GONE)
-      }
     })
 
     spinnerAdapter.setStringConversionColumn(3)

@@ -57,7 +57,6 @@ android {
         base {
             minifyEnabled true
 
-            buildConfigField 'boolean', 'ENABLE_DENOTE', 'false'
             buildConfigField 'boolean', 'ENABLE_FAKE_DATA', 'false'
         }
 
@@ -74,7 +73,6 @@ android {
             resValue 'string', 'content_authority', defaultConfig.applicationId + '.dev.provider'
             resValue 'string', 'app_name', 'Opaler Dev'
 
-            buildConfigField 'boolean', 'ENABLE_DENOTE', 'true'
             buildConfigField 'boolean', 'ENABLE_FAKE_DATA', 'true'
         }
 
@@ -86,23 +84,18 @@ android {
             resValue 'string', 'content_authority', defaultConfig.applicationId + '.provider'
             resValue 'string', 'app_name', 'Opaler'
             signingConfig signingConfigs.release
-
-            buildConfigField 'boolean', 'ENABLE_DENOTE', 'true'
         }
         alpha.initWith(prod)
         alpha {
             versionNameSuffix '.A'
             resValue 'string', 'app_name', 'Opaler Fishfood'
 
-            buildConfigField 'boolean', 'ENABLE_DENOTE', 'true'
             buildConfigField 'boolean', 'ENABLE_FAKE_DATA', 'true'
         }
         beta.initWith(prod)
         beta {
             versionNameSuffix '.B'
             resValue 'string', 'app_name', 'Opaler Dogfood'
-
-            buildConfigField 'boolean', 'ENABLE_DENOTE', 'true'
         }
     }
 
