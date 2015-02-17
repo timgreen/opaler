@@ -1,0 +1,1 @@
+../../main/proguard/proguard-rules-release.txt
