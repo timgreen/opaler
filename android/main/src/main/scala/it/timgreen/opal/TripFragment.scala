@@ -282,7 +282,9 @@ class TransactionListAdapter(context: Context)
     row1.width = (colDateTimeW * density).toInt
     row0.height = LayoutParams.WRAP_CONTENT
     row1.height = LayoutParams.WRAP_CONTENT
-    if ((position >= 1) && (getItem(position - 1).trip.datetime.weekDay == data.trip.datetime.weekDay)) {
+    if (position >= 1 &&
+        getItem(position - 1).trip.weekDay == data.trip.weekDay &&
+        getItem(position - 1).trip.weekNumber == data.trip.weekNumber) {
       // Same day as previous row, ignore day here
       rowView.findViewById(R.id.weekDay).asInstanceOf[TextView].setText("")
       rowView.findViewById(R.id.weekDay).setLayoutParams(row1)
