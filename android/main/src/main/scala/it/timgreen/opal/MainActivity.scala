@@ -514,15 +514,15 @@ class MainActivity extends Activity
     drawerLayout.closeDrawers
   }
 
-  def denote(view: View) {
+  def donate(view: View) {
     InAppBilling.getBuyIntent("buy_timgreen_a_cake", new Date().toString, "it.timgreen.opal") match {
       case Left(pendingIntent) =>
         startIntentSenderForResult(pendingIntent.getIntentSender, 1001, new Intent, 0, 0, 0)
       case Right(r) =>
         if (r == InAppBilling.BILLING_RESPONSE_RESULT_ITEM_ALREADY_OWNED) {
-          SuperToast.create(this, "You have already denoted, Thanks!", SuperToast.Duration.SHORT).show
+          SuperToast.create(this, "You have already donated, Thanks!", SuperToast.Duration.SHORT).show
         } else {
-          SuperToast.create(this, "Can not make denote, please try again later.", SuperToast.Duration.SHORT).show
+          SuperToast.create(this, "Can not make donate, please try again later.", SuperToast.Duration.SHORT).show
         }
     }
   }

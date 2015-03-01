@@ -51,4 +51,4 @@ convert_png_for_dpis ../input/drawer/star_white.svg                     overview
 convert_png_for_dpis ../input/drawer/phone-outline-white.svg            dial              32
 convert_png_for_dpis ../input/drawer/mail-white.svg                     feedback          32
 convert_png_for_dpis ../input/drawer/thumbs-up-white.svg                share             32
-convert_png_for_dpis ../input/drawer/gift-white.svg                     denote            32
+convert_png_for_dpis ../input/drawer/gift-white.svg                     donate            32

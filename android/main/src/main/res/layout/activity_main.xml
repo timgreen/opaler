@@ -75,12 +75,12 @@
         android:layout_weight="1"
         />
     <LinearLayout
-        android:id="@+id/denote_container"
+        android:id="@+id/donate_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:clickable="true"
-        android:onClick="denote"
+        android:onClick="donate"
         android:background="@drawable/drawer_item"
         >
       <ImageView
@@ -88,7 +88,7 @@
           android:layout_height="48dp"
           android:layout_gravity="center"
           android:scaleType="center"
-          android:src="@drawable/denote"
+          android:src="@drawable/donate"
           />
       <TextView
           android:layout_width="wrap_content"
@@ -96,7 +96,7 @@
           android:layout_gravity="center"
           android:padding="4dp"
           android:textStyle="bold"
-          android:text="Denote"
+          android:text="Donate"
           />
     </LinearLayout>
     <LinearLayout
