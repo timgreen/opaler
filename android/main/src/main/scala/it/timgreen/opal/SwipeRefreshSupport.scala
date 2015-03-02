@@ -2,7 +2,6 @@ package it.timgreen.opal
 
 import android.app.Fragment
 import android.support.v4.widget.SwipeRefreshLayout
-import android.view.View
 
 import it.timgreen.opal.AnalyticsSupport._
 
