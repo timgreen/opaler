@@ -167,6 +167,7 @@ dependencies {
         transitive = true
     }
     compile 'com.amulyakhare:com.amulyakhare.textdrawable:1.0.1'
+    compile 'com.robbypond:material-dialogs:1.0.0'
 }
 
 

@@ -28,6 +28,7 @@ import android.widget.AdapterView
 import android.widget.ListView
 import com.google.android.gms.plus.PlusOneButton
 
+import com.afollestad.materialdialogs.MaterialDialog
 import com.amulyakhare.textdrawable.TextDrawable
 import com.amulyakhare.textdrawable.util.ColorGenerator
 import com.github.johnpersano.supertoasts.SuperCardToast
@@ -579,16 +580,29 @@ class MainActivity extends ActionBarActivity
   }
 
   def feedback() {
-    // TODO(timgreen): show a dialog with options: dialOpal/opalFeedback/appFeedback
+    new MaterialDialog.Builder(this)
+      .title("Feedback & Help")
+      .items(Array("Call Opal Customer Care", "Email Opal Customer Care", "Write to Developer"))
+      .itemsCallback(new MaterialDialog.ListCallback() {
+        override def onSelection(dialog: MaterialDialog, which: Int, text: String) {
+          which match {
+            case 0 => dialOpal
+            case 1 => opalFeedback
+            case 2 => appFeedback
+          }
+        }
+      })
+      .build
+      .show
   }
 
-  def dialOpal(view: View) {
+  def dialOpal() {
     val intent = new Intent(Intent.ACTION_DIAL)
     intent.setData(Uri.parse("tel:136725"))
     startActivity(Intent.createChooser(intent, "Call Opal Customer Care"))
   }
 
-  def opalFeedback(view: View) {
+  def opalFeedback() {
     val intent = new Intent(Intent.ACTION_SENDTO, Uri.fromParts("mailto", "opalcustomercare@opal.com.au", null))
     intent.putExtra(Intent.EXTRA_SUBJECT, "Opal Customer Care")
     startActivity(Intent.createChooser(intent, "Send Feedback to Opal Customer Care"))
