@@ -360,11 +360,10 @@ class MainActivity extends ActionBarActivity
       .withOnAccountHeaderListener(new AccountHeader.OnAccountHeaderListener() {
         override def onProfileChanged(view: View, profile: IProfile[_]) {
           val i = profile.asInstanceOf[ProfileDrawerItem].getIdentifier
-          currentCardIndex = Some(i)
-          Usage.lastSelectedCard() = i
-          reloadOp
+          updateCurrentAccount(i)
         }
       })
+      .withHeaderBackground(R.drawable.header_leaf)
       .build
 
     drawerResult = new Drawer()
@@ -502,14 +501,24 @@ class MainActivity extends ActionBarActivity
 
   }
 
+  private def updateCurrentAccount(i: Int) {
+    currentCardIndex = Some(i)
+    Usage.lastSelectedCard() = i
+    headerResult.setBackgroundRes(i % 4 match {
+      case 0 => R.drawable.header_leaf
+      case 1 => R.drawable.header_sun
+      case 2 => R.drawable.header_aurora
+      case 3 => R.drawable.header_ice
+    })
+    reloadOp
+  }
+
   private var accountsLoaded = false
   private def ensureInitCardIndex(intent: Intent) {
     if (intent.hasExtra(MainActivity.initCardIndex)) {
       val initCardIndex = intent.getIntExtra(MainActivity.initCardIndex, 0)
       headerResult.setActiveProfile(initCardIndex)
-      currentCardIndex = Some(initCardIndex)
-      reloadOp
-      Usage.lastSelectedCard() = initCardIndex
+      updateCurrentAccount(initCardIndex)
       Util.debug("set init cardIndex: " + initCardIndex)
       intent.removeExtra(MainActivity.initCardIndex)
     } else {
@@ -517,8 +526,7 @@ class MainActivity extends ActionBarActivity
         Util.debug("load last card: " + Usage.lastSelectedCard())
         if (headerResult.getProfiles.size > Usage.lastSelectedCard()) {
           headerResult.setActiveProfile(Usage.lastSelectedCard())
-          currentCardIndex = Some(Usage.lastSelectedCard())
-          reloadOp
+          updateCurrentAccount(Usage.lastSelectedCard())
         }
         trackEvent("Launch", "normal")
       }
