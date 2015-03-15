@@ -28,6 +28,8 @@ import android.widget.AdapterView
 import android.widget.ListView
 import com.google.android.gms.plus.PlusOneButton
 
+import com.amulyakhare.textdrawable.TextDrawable
+import com.amulyakhare.textdrawable.util.ColorGenerator
 import com.github.johnpersano.supertoasts.SuperCardToast
 import com.github.johnpersano.supertoasts.SuperToast
 import com.mikepenz.materialdrawer.Drawer
@@ -37,7 +39,7 @@ import com.mikepenz.materialdrawer.model.PrimaryDrawerItem
 import com.mikepenz.materialdrawer.model.ProfileDrawerItem
 import com.mikepenz.materialdrawer.model.SecondaryDrawerItem
 import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem
-import com.mikepenz.materialdrawer.model.interfaces.IProfile;
+import com.mikepenz.materialdrawer.model.interfaces.IProfile
 
 import it.timgreen.android.billing.InAppBilling
 import it.timgreen.android.gms.PlayServiceHelper
@@ -436,11 +438,26 @@ class MainActivity extends ActionBarActivity
 
         cursor.moveToFirst
         while (!cursor.isAfterLast) {
+          val name = cursor.getString(cursor.getColumnIndex(CardsCache.Columns.cardNickName))
+          val text = {
+            val parts = name.split(' ')
+            if (parts.length >= 2) {
+              parts(0).substring(0, 1) + parts(1).substring(0, 1)
+            } else {
+              name.substring(0, 2)
+            }
+          }
+          val icon = TextDrawable.builder
+            .beginConfig
+              .width(512)
+              .height(512)
+            .endConfig
+            .buildRect(text, ColorGenerator.MATERIAL.getColor(name))
           profiles.add(
             new ProfileDrawerItem()
-              .withName(cursor.getString(cursor.getColumnIndex(CardsCache.Columns.cardNickName)))
+              .withName(name)
               .withEmail(cursor.getString(cursor.getColumnIndex(CardsCache.Columns.cardNumber)).grouped(4).mkString(" "))
-              .withIcon(getResources.getDrawable(R.drawable.logo))
+              .withIcon(icon)
               .withIdentifier(cursor.getInt(cursor.getColumnIndex(CardsCache.Columns.id)))
           )
           cursor.moveToNext

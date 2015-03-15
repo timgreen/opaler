@@ -12,6 +12,7 @@ buildscript {
 
 repositories {
     mavenCentral()
+    maven { url 'http://dl.bintray.com/amulyakhare/maven' }
 }
 
 apply plugin: 'com.android.application'
@@ -165,6 +166,7 @@ dependencies {
     compile('com.mikepenz.materialdrawer:library:2.0.8@aar') {
         transitive = true
     }
+    compile 'com.amulyakhare:com.amulyakhare.textdrawable:1.0.1'
 }
 
 
