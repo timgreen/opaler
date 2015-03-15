@@ -1,0 +1,93 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:ignore="RequiredSize">
+  <PreferenceCategory android:title="@string/pref_account_title">
+    <Preference android:key="account_info"
+        android:persistent="false" />
+    <it.timgreen.opal.SignoutDialogPreference
+        android:persistent="false"
+        android:title="@string/pref_signout_title"
+        android:dialogTitle="@string/signout_dialog_title"
+        android:dialogMessage="@string/signout_dialog_message"
+        android:positiveButtonText="@string/signout_dialog_ok"
+        android:negativeButtonText="@string/signout_dialog_cancel" />
+  </PreferenceCategory>
+
+  <PreferenceCategory android:title="@string/pref_sync_title">
+    <SwitchPreference android:key="sync_on_start"
+        android:defaultValue="true"
+        android:persistent="true"
+        android:title="@string/pref_sync_on_start_title"
+        android:summary="@string/pref_sync_on_start_summary"
+        />
+    <CheckBoxPreference android:key="auto_sync_on_wifi_only"
+        android:defaultValue="true"
+        android:persistent="true"
+        android:title="@string/pref_auto_sync_on_wifi_only_title"
+        android:summary="@string/pref_auto_sync_on_wifi_only_summary" />
+  </PreferenceCategory>
+
+  <PreferenceCategory android:title="@string/pref_ui_title">
+    <CheckBoxPreference android:key="use_24_hour_format"
+        android:defaultValue="true"
+        android:persistent="true"
+        android:title="@string/pref_use_24_hour_format_title"
+        android:summary="@string/pref_use_24_hour_format_summary" />
+  </PreferenceCategory>
+
+  <PreferenceCategory android:title="@string/pref_ads_title">
+    <CheckBoxPreference android:key="disable_ads"
+        android:defaultValue="false"
+        android:persistent="true"
+        android:title="@string/pref_disable_ads_title"
+        android:summary="@string/pref_disable_ads_summary">
+    </CheckBoxPreference>
+  </PreferenceCategory>
+
+  <PreferenceCategory android:title="@string/pref_misc_title">
+    <Preference android:key="about"
+        android:persistent="false"
+        android:title="@string/pref_about_title"
+        android:summary="@string/pref_about_summary">
+    </Preference>
+    <Preference
+        android:persistent="false"
+        android:title="@string/pref_tutorial_title"
+        android:summary="@string/pref_tutorial_summary">
+      <intent
+          android:action="android.intent.action.VIEW"
+          android:targetPackage="it.timgreen.opal"
+          android:targetClass="it.timgreen.opal.TutorialActivity"
+          />
+    </Preference>
+    <Preference
+        android:title="@string/pref_rate_title"
+        android:summary="@string/pref_rate_summary"
+        >
+      <intent
+          android:action="android.intent.action.VIEW"
+          android:data="market://details?id=it.timgreen.opal"
+          />
+    </Preference>
+    <Preference
+        android:title="@string/pref_credit_title"
+        >
+      <intent
+          android:action="android.intent.action.VIEW"
+          android:targetPackage="it.timgreen.opal"
+          android:targetClass="it.timgreen.opal.CreditActivity"
+          />
+    </Preference>
+  </PreferenceCategory>
+
+  <PreferenceCategory
+      android:title="@string/pref_dev_title"
+      android:key="dev_group"
+      android:persistent="false">
+    <SwitchPreference android:key="show_fake_data"
+        android:defaultValue="false"
+        android:persistent="true"
+        android:title="@string/pref_show_fake_data_title"
+        />
+  </PreferenceCategory>
+</PreferenceScreen>
