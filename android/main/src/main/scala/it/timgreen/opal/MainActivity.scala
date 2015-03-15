@@ -420,6 +420,7 @@ class MainActivity extends ActionBarActivity
           }
         }
       })
+      .withTranslucentStatusBar(true)
       .withTranslucentActionBarCompatibility(false)
       .withSavedInstance(savedInstanceState)
       .build
