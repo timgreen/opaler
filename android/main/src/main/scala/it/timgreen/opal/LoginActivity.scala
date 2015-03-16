@@ -108,7 +108,6 @@ class LoginActivity extends Activity with AccountHelper.Operator {
 
       findViewById(R.id.main).requestFocus  // TODO(timgreen): clear edittext focus
       List(loginBtn, username, password) foreach { _.setEnabled(false) }
-      // TODO(timgreen): text
       loginMessage.setText("Login ...")
       new CheckLoginTask().execute(OpalAccount(username.getText.toString, password.getText.toString))
     }
@@ -121,7 +120,6 @@ class LoginActivity extends Activity with AccountHelper.Operator {
     val intent = new Intent(this, classOf[TutorialActivity])
     startActivity(intent)
 
-    // TODO(timgreen): text
     loginMessage.setText("Login Success.")
 
     finish

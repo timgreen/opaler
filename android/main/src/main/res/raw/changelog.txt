@@ -19,6 +19,10 @@
     </style>
   </head>
   <body>
+$ 0.8.6
+  % Version 0.8.1
+  _ 2015-03-15
+    * Material nav drawer.
 $ 0.8.1
   % Version 0.8.1
   _ 2015-02-02

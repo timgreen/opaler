@@ -6,11 +6,10 @@ import android.app.FragmentManager
 import android.app.LoaderManager
 import android.content.ContentResolver
 import android.content.Context
-import android.content.pm.PackageManager
 import android.content.CursorLoader
 import android.content.Intent
 import android.content.Loader
-import android.content.res.Configuration
+import android.content.pm.PackageManager
 import android.database.ContentObserver
 import android.database.Cursor
 import android.graphics.Bitmap
@@ -19,26 +18,29 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Parcelable
 import android.support.v13.app.FragmentPagerAdapter
-import android.support.v4.app.ActionBarDrawerToggle
 import android.support.v4.content.FileProvider
 import android.support.v4.view.ViewPager
 import android.support.v4.widget.DrawerLayout
-import android.view.LayoutInflater
-import android.view.MenuItem
+import android.support.v7.app.ActionBarActivity
+import android.support.v7.widget.Toolbar
 import android.view.View
-import android.view.ViewGroup
 import android.widget.AdapterView
-import android.widget.ArrayAdapter
-import android.widget.CursorAdapter
-import android.widget.ImageView
 import android.widget.ListView
-import android.widget.SimpleCursorAdapter
-import android.widget.Spinner
-import android.widget.TextView
 import com.google.android.gms.plus.PlusOneButton
 
+import com.afollestad.materialdialogs.MaterialDialog
+import com.amulyakhare.textdrawable.TextDrawable
+import com.amulyakhare.textdrawable.util.ColorGenerator
 import com.github.johnpersano.supertoasts.SuperCardToast
 import com.github.johnpersano.supertoasts.SuperToast
+import com.mikepenz.materialdrawer.Drawer
+import com.mikepenz.materialdrawer.accountswitcher.AccountHeader
+import com.mikepenz.materialdrawer.model.DividerDrawerItem
+import com.mikepenz.materialdrawer.model.PrimaryDrawerItem
+import com.mikepenz.materialdrawer.model.ProfileDrawerItem
+import com.mikepenz.materialdrawer.model.SecondaryDrawerItem
+import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem
+import com.mikepenz.materialdrawer.model.interfaces.IProfile
 
 import it.timgreen.android.billing.InAppBilling
 import it.timgreen.android.gms.PlayServiceHelper
@@ -53,8 +55,8 @@ import it.timgreen.opal.sync.Observer
 import it.timgreen.opal.sync.SyncAdapter
 import it.timgreen.opal.sync.SyncStatus
 
-import java.util.{ List => JList, Date, ArrayList }
 import java.io.File
+import java.util.{ List => JList, Date, ArrayList }
 
 import scala.collection.JavaConversions._
 
@@ -62,7 +64,7 @@ object MainActivity {
   val initCardIndex = "it.timgreen.opal.InitCardIndex"
 }
 
-class MainActivity extends Activity
+class MainActivity extends ActionBarActivity
   with AccountHelper.Checker
   with AccountHelper.Operator
   with Ads.BottomBanner
@@ -71,18 +73,14 @@ class MainActivity extends Activity
 
   implicit def provideActivity = this
 
-  var drawerToggle: Option[ActionBarDrawerToggle] = None
   var drawerMenu: Option[ListView] = None
   var viewPager: Option[ViewPager] = None
-  var spinner: Option[Spinner] = None
-  var emptyCardSpinner: Option[TextView] = None
   var plusOneButton: Option[PlusOneButton] = None
   def reloadOp() {
     Util.debug(s"reloadOp $currentCardIndex")
     getFragment(0) foreach { _.refresh(currentCardIndex) }
     getFragment(1) foreach { _.refresh(currentCardIndex) }
     updateActionBarTitle
-    updateEmptyCardText
   }
   def startRefreshOp() {
     SuperCardToast.cancelAllSuperCardToasts
@@ -97,7 +95,6 @@ class MainActivity extends Activity
 
     SyncStatus.getSyncResult foreach { syncStatus =>
       Util.debug("Show SuperCardToast")
-      // TODO(timgreen): text
       syncStatus.resultType match {
         case SyncStatus.ResultType.success =>
           // good, ignore
@@ -215,19 +212,16 @@ class MainActivity extends Activity
 
     setContentView(R.layout.activity_main)
 
-    val drawerLayout = findViewById(R.id.drawer_layout).asInstanceOf[DrawerLayout]
-    setupDrawer(drawerLayout)
+    setupDrawerAndToolbar(savedInstanceState)
 
     val appSectionsPagerAdapter = new AppSectionsPagerAdapter(this, getFragmentManager)
-    val viewPager = drawerLayout.findViewById(R.id.pager).asInstanceOf[ViewPager]
+    val viewPager = findViewById(R.id.pager).asInstanceOf[ViewPager]
     this.viewPager = Some(viewPager)
     viewPager.setAdapter(appSectionsPagerAdapter)
     viewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
       override def onPageSelected(position: Int) {
         trackEvent("UI", "switchFragment", Some("swipe"), Some(position))
-        drawerMenu foreach {
-          _.setSelection(position)
-        }
+        drawerResult.setSelectionByIdentifier(position + 1, false)
         updateActionBarTitle
       }
     })
@@ -249,11 +243,16 @@ class MainActivity extends Activity
     )
   }
 
+  override def onSaveInstanceState(outState: Bundle) {
+    val state = drawerResult.saveInstanceState(outState)
+    super.onSaveInstanceState(state)
+  }
+
   override def onNewIntent(intent: Intent) {
     super.onNewIntent(intent)
     setIntent(intent)
     Util.debug("New intent")
-    if (spinnerLoaded) {
+    if (accountsLoaded) {
       ensureInitCardIndex(intent)
     }
     if (intent.hasExtra(MainActivity.initCardIndex)) {
@@ -285,32 +284,10 @@ class MainActivity extends Activity
   }
 
   override def onDestroy() {
-    drawerToggle = None
     drawerMenu = None
     viewPager = None
 
     super.onDestroy
-  }
-
-  override protected def onPostCreate(savedInstanceState: Bundle) {
-    super.onPostCreate(savedInstanceState)
-    drawerToggle.map(_.syncState)
-  }
-
-  override def onConfigurationChanged(newConfig: Configuration) {
-    super.onConfigurationChanged(newConfig)
-    drawerToggle.map(_.onConfigurationChanged(newConfig))
-  }
-
-  override def onOptionsItemSelected(item: MenuItem): Boolean = {
-    if (drawerToggle.map(_.onOptionsItemSelected(item)).isDefined) {
-      // Pass the event to ActionBarDrawerToggle, if it returns
-      // true, then it has handled the app icon touch event
-      true
-    } else {
-      // Handle your other action bar items...
-      super.onOptionsItemSelected(item)
-    }
   }
 
   // (TODO) If left drawer is open -> close drawer
@@ -347,7 +324,7 @@ class MainActivity extends Activity
   def updateActionBarTitle() {
     viewPager foreach { vp =>
       val title = vp.getAdapter.getPageTitle(vp.getCurrentItem)
-      getActionBar.setTitle(title)
+      getSupportActionBar.setTitle(title)
       if (prevTitle != title) {
         trackView(title + "Fragment")
         prevTitle = title.toString
@@ -358,30 +335,96 @@ class MainActivity extends Activity
       } yield {
         s"${cardDetails.cardNickName} ${cardDetails.formatedCardNumber}"
       }
-      getActionBar.setSubtitle(subtitle getOrElse null)
+      getSupportActionBar.setSubtitle(subtitle getOrElse null)
     }
   }
 
   var currentCardIndex: Option[Int] = None
-  private def setupDrawer(drawerLayout: DrawerLayout) {
-    drawerToggle = Some(new OpalActionBarDrawerToggle(this, drawerLayout))
-    drawerLayout.setDrawerListener(drawerToggle.get)
-    getActionBar.setDisplayHomeAsUpEnabled(true)
-    getActionBar.setHomeButtonEnabled(true)
+  var drawerResult: Drawer.Result = null
+  var headerResult: AccountHeader.Result = null
 
-    val spinner = drawerLayout.findViewById(R.id.cards_spinner).asInstanceOf[Spinner]
-    this.spinner = Some(spinner)
-    val emptyCardSpinner = drawerLayout.findViewById(R.id.empty_cards_spinner).asInstanceOf[TextView]
-    this.emptyCardSpinner = Some(emptyCardSpinner)
-    spinner.setEmptyView(emptyCardSpinner)
-    val spinnerAdapter = new SimpleCursorAdapter(
-      this,
-      android.R.layout.simple_spinner_dropdown_item,
-      null,
-      Array("temp_name"),
-      Array(android.R.id.text1),
-      CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER
-    )
+  private def setupDrawerAndToolbar(savedInstanceState: Bundle) {
+    val toolbar = findViewById(R.id.toolbar).asInstanceOf[Toolbar]
+    setSupportActionBar(toolbar)
+    getSupportActionBar.setDisplayHomeAsUpEnabled(true)
+    getSupportActionBar.setHomeButtonEnabled(true)
+
+    headerResult = new AccountHeader()
+      .withActivity(this)
+      .addProfiles(
+        new ProfileDrawerItem()
+          .withName("No Card")
+          .withEmail(" ")
+          .withIcon(getResources.getDrawable(R.drawable.logo))
+          .withIdentifier(0)
+      )
+      .withOnAccountHeaderListener(new AccountHeader.OnAccountHeaderListener() {
+        override def onProfileChanged(view: View, profile: IProfile[_]) {
+          val i = profile.asInstanceOf[ProfileDrawerItem].getIdentifier
+          updateCurrentAccount(i)
+        }
+      })
+      .withHeaderBackground(R.drawable.header_leaf)
+      .build
+
+    drawerResult = new Drawer()
+      .withActivity(this)
+      .withToolbar(toolbar)
+      .withAccountHeader(headerResult)
+      .withActionBarDrawerToggle(true)
+      .addDrawerItems(
+        new PrimaryDrawerItem()
+          .withName("Overview")
+          .withIcon(getResources.getDrawable(R.drawable.overview))
+          .withIdentifier(Identifier.Overview)
+          .withCheckable(true),
+        new PrimaryDrawerItem()
+          .withName("Activity")
+          .withIcon(getResources.getDrawable(R.drawable.activity))
+          .withIdentifier(Identifier.Activity)
+          .withCheckable(true),
+        new DividerDrawerItem(),
+        new PrimaryDrawerItem()
+          .withName("Donate")
+          .withIcon(getResources.getDrawable(R.drawable.donate))
+          .withIdentifier(Identifier.Donate)
+          .withCheckable(false),
+        new PrimaryDrawerItem()
+          .withName("Share")
+          .withIcon(getResources.getDrawable(R.drawable.share))
+          .withIdentifier(Identifier.Share)
+          .withCheckable(false),
+        new SecondaryDrawerItem()
+          .withName("Feedback & Help")
+          .withIcon(getResources.getDrawable(R.drawable.feedback))
+          .withIdentifier(Identifier.Feedback)
+          .withCheckable(false),
+        new SecondaryDrawerItem()
+          .withName("Settings")
+          .withIcon(getResources.getDrawable(R.drawable.settings))
+          .withIdentifier(Identifier.Settings)
+          .withCheckable(false)
+      )
+      .withOnDrawerItemClickListener(new Drawer.OnDrawerItemClickListener() {
+        override def onItemClick(parent: AdapterView[_], view: View, position: Int, id: Long, drawerItem: IDrawerItem) {
+          if (drawerItem != null) {
+            drawerItem.getIdentifier match {
+              case id@(Identifier.Overview | Identifier.Activity) =>
+                viewPager foreach { _.setCurrentItem(id - 1) }
+                trackEvent("UI", "switchFragment", Some("drawerItemClick"), Some(id - 1))
+              case Identifier.Donate   => donate
+              case Identifier.Share    => share
+              case Identifier.Feedback => feedback
+              case Identifier.Settings => openSettings
+            }
+          }
+        }
+      })
+      .withTranslucentStatusBar(true)
+      .withTranslucentActionBarCompatibility(false)
+      .withSavedInstance(savedInstanceState)
+      .build
+
     getLoaderManager.initLoader(0, null, new LoaderManager.LoaderCallbacks[Cursor]() {
       override def onCreateLoader(id: Int, args: Bundle): Loader[Cursor] = {
         if (id == 0) {
@@ -392,58 +435,47 @@ class MainActivity extends Activity
       }
 
       override def onLoadFinished(loader: Loader[Cursor], cursor: Cursor) {
-        spinnerAdapter.changeCursor(cursor)
+        val profiles = new ArrayList[IProfile[_]]()
+
+        cursor.moveToFirst
+        while (!cursor.isAfterLast) {
+          val name = cursor.getString(cursor.getColumnIndex(CardsCache.Columns.cardNickName))
+          val text = {
+            val parts = name.split(' ')
+            if (parts.length >= 2) {
+              parts(0).substring(0, 1) + parts(1).substring(0, 1)
+            } else {
+              name.substring(0, 2)
+            }
+          }
+          val icon = TextDrawable.builder
+            .beginConfig
+              .width(512)
+              .height(512)
+            .endConfig
+            .buildRect(text, ColorGenerator.MATERIAL.getColor(name))
+          profiles.add(
+            new ProfileDrawerItem()
+              .withName(name)
+              .withEmail(cursor.getString(cursor.getColumnIndex(CardsCache.Columns.cardNumber)).grouped(4).mkString(" "))
+              .withIcon(icon)
+              .withIdentifier(cursor.getInt(cursor.getColumnIndex(CardsCache.Columns.id)))
+          )
+          cursor.moveToNext
+        }
+
+        headerResult.setProfiles(profiles)
+
         ensureInitCardIndex(getIntent)
-        spinnerLoaded = true
-        Util.debug("spinner loaded")
+        accountsLoaded = true
       }
 
       override def onLoaderReset(loader: Loader[Cursor]) {
-        spinnerAdapter.changeCursor(null)
+        headerResult.setProfiles(new ArrayList[IProfile[_]]())
       }
     })
 
-    spinnerAdapter.setStringConversionColumn(3)
-    spinner.setAdapter(spinnerAdapter)
-    updateEmptyCardText
-
-    spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-      override def onItemSelected(parentView: AdapterView[_], selectedItemView: View, pos: Int, id: Long) {
-        doSelect(Some(pos))
-        drawerLayout.closeDrawers
-        Usage.lastSelectedCard() = pos
-      }
-
-      override def onNothingSelected(parentView: AdapterView[_]) {
-        doSelect(None)
-      }
-
-      private def doSelect(selectedCard: Option[Int]) {
-        Util.debug(s"select card $selectedCard")
-        if (currentCardIndex != selectedCard) {
-          currentCardIndex = selectedCard
-          reloadOp
-        }
-      }
-    })
-
-    val drawerMenu = drawerLayout.findViewById(R.id.drawer_menu).asInstanceOf[ListView]
-    this.drawerMenu = Some(drawerMenu)
-    drawerMenu.setSelection(0)
-    drawerMenu.setAdapter(new DrawerMenuAdapter(this))
-    drawerMenu.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-      def onItemClick(parent: AdapterView[_], view: View, position: Int, id: Long) {
-        trackEvent("UI", "switchFragment", Some("drawerMenuClick"), Some(position))
-        Util.debug(s"onMenuItemSelected $position")
-        viewPager foreach {
-          _.setCurrentItem(position)
-        }
-        drawerLayout.closeDrawers
-      }
-      def onNothingSelected(parent: AdapterView[_]) {}
-    })
-
-    plusOneButton = Option(drawerLayout.findViewById(R.id.plus_one_button).asInstanceOf[PlusOneButton])
+    // plusOneButton = Option(drawerLayout.findViewById(R.id.plus_one_button).asInstanceOf[PlusOneButton])
   }
 
   private def setupObserver() {
@@ -471,31 +503,32 @@ class MainActivity extends Activity
 
   }
 
-  private def updateEmptyCardText() {
-    emptyCardSpinner foreach { textView =>
-      if (SyncStatus.hasSyncedBefore) {
-        textView.setText(getResources.getString(R.string.empty_card_no_card))
-      } else {
-        textView.setText(getResources.getString(R.string.empty_card_syncing_card_list))
-      }
-    }
+  private def updateCurrentAccount(i: Int) {
+    currentCardIndex = Some(i)
+    Usage.lastSelectedCard() = i
+    headerResult.setBackgroundRes(i % 4 match {
+      case 0 => R.drawable.header_leaf
+      case 1 => R.drawable.header_sun
+      case 2 => R.drawable.header_aurora
+      case 3 => R.drawable.header_ice
+    })
+    reloadOp
   }
 
-  private var spinnerLoaded = false
+  private var accountsLoaded = false
   private def ensureInitCardIndex(intent: Intent) {
     if (intent.hasExtra(MainActivity.initCardIndex)) {
       val initCardIndex = intent.getIntExtra(MainActivity.initCardIndex, 0)
-      spinner foreach { _.setSelection(initCardIndex) }
-      Usage.lastSelectedCard() = initCardIndex
+      headerResult.setActiveProfile(initCardIndex)
+      updateCurrentAccount(initCardIndex)
       Util.debug("set init cardIndex: " + initCardIndex)
       intent.removeExtra(MainActivity.initCardIndex)
     } else {
-      if (!spinnerLoaded) {
+      if (!accountsLoaded) {
         Util.debug("load last card: " + Usage.lastSelectedCard())
-        spinner foreach { s =>
-          if (s.getCount > Usage.lastSelectedCard()) {
-            s.setSelection(Usage.lastSelectedCard())
-          }
+        if (headerResult.getProfiles.size > Usage.lastSelectedCard()) {
+          headerResult.setActiveProfile(Usage.lastSelectedCard())
+          updateCurrentAccount(Usage.lastSelectedCard())
         }
         trackEvent("Launch", "normal")
       }
@@ -507,14 +540,14 @@ class MainActivity extends Activity
       (!PrefUtil.autoSyncOnWifiOnly || NetworkConnectionChecker.hasWifiConnection(this))
   }
 
-  def openSettings(view: View) {
+  def openSettings() {
     val intent = new Intent(this, classOf[SettingActivity])
     startActivity(intent)
     val drawerLayout = findViewById(R.id.drawer_layout).asInstanceOf[DrawerLayout]
     drawerLayout.closeDrawers
   }
 
-  def donate(view: View) {
+  def donate() {
     InAppBilling.getBuyIntent("buy_timgreen_a_cake", new Date().toString, "it.timgreen.opal") match {
       case Left(pendingIntent) =>
         startIntentSenderForResult(pendingIntent.getIntentSender, 1001, new Intent, 0, 0, 0)
@@ -539,7 +572,7 @@ class MainActivity extends Activity
     }
   }
 
-  def share(view: View) {
+  def share() {
     val intent = new Intent(Intent.ACTION_SEND)
     intent.setType("text/plain")
     intent.putExtra(Intent.EXTRA_SUBJECT, "Check out \"Opaler\"")
@@ -547,26 +580,43 @@ class MainActivity extends Activity
     startActivity(Intent.createChooser(intent, "Share Opaler"))
   }
 
-  def dialOpal(view: View) {
+  def feedback() {
+    new MaterialDialog.Builder(this)
+      .title("Feedback & Help")
+      .items(Array("Call Opal Customer Care", "Email Opal Customer Care", "Write to Developer"))
+      .itemsCallback(new MaterialDialog.ListCallback() {
+        override def onSelection(dialog: MaterialDialog, which: Int, text: String) {
+          which match {
+            case 0 => dialOpal
+            case 1 => opalFeedback
+            case 2 => appFeedback
+          }
+        }
+      })
+      .build
+      .show
+  }
+
+  def dialOpal() {
     val intent = new Intent(Intent.ACTION_DIAL)
     intent.setData(Uri.parse("tel:136725"))
     startActivity(Intent.createChooser(intent, "Call Opal Customer Care"))
   }
 
-  def opalFeedback(view: View) {
+  def opalFeedback() {
     val intent = new Intent(Intent.ACTION_SENDTO, Uri.fromParts("mailto", "opalcustomercare@opal.com.au", null))
     intent.putExtra(Intent.EXTRA_SUBJECT, "Opal Customer Care")
     startActivity(Intent.createChooser(intent, "Send Feedback to Opal Customer Care"))
   }
 
-  def appFeedback(view: View) {
+  def appFeedback() {
     SuperToast.create(this, "Preparing snapshots ...", SuperToast.Duration.SHORT).show
 
     new Handler().postDelayed(new Runnable() {
       override def run() {
         val intent = new Intent(Intent.ACTION_SEND_MULTIPLE)
         intent.setType("text/plain")
-        intent.putExtra(Intent.EXTRA_EMAIL, Array("iamtimgreen+playdev.opaler@gmail.com"));
+        intent.putExtra(Intent.EXTRA_EMAIL, Array("iamtimgreen+playdev.opaler@gmail.com"))
         intent.putExtra(Intent.EXTRA_SUBJECT, "Opaler Feedback")
         intent.putExtra(Intent.EXTRA_TEXT, s"\n\n\n--------\nOpaler version: ${BuildConfig.VERSION_NAME}")
 
@@ -621,12 +671,13 @@ class MainActivity extends Activity
 
   private def drawerSnapshot(filename: String): Option[Uri] = {
     val drawerLayout = findViewById(R.id.drawer_layout).asInstanceOf[DrawerLayout]
-    val spinner = drawerLayout.findViewById(R.id.cards_spinner).asInstanceOf[Spinner]
     // remove card name from snapshot
-    emptyCardSpinner foreach { textView =>
-      textView.setText(s"Card: ${spinner.getSelectedItemPosition} / ${spinner.getCount}")
+    headerResult.getProfiles foreach { p =>
+      p.setName(s"Card: ${p.getIdentifier} / ${headerResult.getProfiles.size}")
+      p.setEmail("0000 0000 0000 0000")
     }
-    spinner.getAdapter.asInstanceOf[SimpleCursorAdapter].swapCursor(null)
+    // NOTE(timgreen): trigger protected headerResult.updateHeaderAndList
+    headerResult.setProfiles(headerResult.getProfiles)
     Some(snapshot(drawerLayout, filename))
   }
 
@@ -647,9 +698,7 @@ class MainActivity extends Activity
     viewPager foreach {
       _.setCurrentItem(1)
     }
-    drawerMenu foreach {
-      _.setSelection(1)
-    }
+    drawerResult.setSelectionByIdentifier(Identifier.Activity, false)
   }
 
   def startSync() {
@@ -670,6 +719,15 @@ class MainActivity extends Activity
       }
     }
   }
+
+  object Identifier {
+    val Overview = 1  // same as position + 1 in viewPager
+    val Activity = 2  // same as position + 1 in ViewPager
+    val Donate   = 3
+    val Share    = 4
+    val Feedback = 5
+    val Settings = 6
+  }
 }
 
 class AppSectionsPagerAdapter(activity: MainActivity, fm: FragmentManager) extends FragmentPagerAdapter(fm) {
@@ -689,52 +747,10 @@ class AppSectionsPagerAdapter(activity: MainActivity, fm: FragmentManager) exten
   }
 
   override def getPageTitle(position: Int): CharSequence = {
-    // TODO(timgreen): text
     if (position == 0) {
       "Overview"
     } else {
       "Activity"
     }
-  }
-}
-
-class OpalActionBarDrawerToggle(activity: MainActivity, drawerLayout: DrawerLayout)
-  extends ActionBarDrawerToggle(activity,
-                                drawerLayout,
-                                R.drawable.ic_drawer,
-                                R.string.drawer_open,
-                                R.string.drawer_close) {
-
-  override def onDrawerClosed(view: View) {
-    super.onDrawerClosed(view)
-    activity.updateActionBarTitle
-  }
-
-  override def onDrawerOpened(drawerView: View) {
-    super.onDrawerOpened(drawerView)
-    activity.getActionBar.setTitle(R.string.app_name)
-    activity.getActionBar.setSubtitle(null)
-  }
-}
-
-// TODO(timgreen): text
-class DrawerMenuAdapter(activity: Activity) extends ArrayAdapter[String](
-  activity, R.layout.row_item_drawer_menu, Array("Overview", "Activity")) {
-  override def getView(position: Int, convertView: View, parent: ViewGroup): View = {
-    val view = if (convertView != null) {
-      convertView
-    } else {
-      val inflater = activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE).asInstanceOf[LayoutInflater]
-      inflater.inflate(R.layout.row_item_drawer_menu, parent, false)
-    }
-    view.findViewById(R.id.item).asInstanceOf[TextView].setText(getItem(position))
-    view.findViewById(R.id.icon).asInstanceOf[ImageView].setImageResource(
-      if (position == 0) {
-        R.drawable.overview
-      } else {
-        R.drawable.activity
-      }
-    )
-    view
   }
 }
