@@ -290,11 +290,13 @@ class MainActivity extends ActionBarActivity
     super.onDestroy
   }
 
-  // (TODO) If left drawer is open -> close drawer
+  // If left drawer is open -> close drawer
   // If on trip page        -> go to overview
   // If on overview         -> exit
   override def onBackPressed {
-    if (viewPager.map(_.getCurrentItem()) == Some(1)) {
+    if (drawerResult.isDrawerOpen) {
+      drawerResult.closeDrawer
+    } else if (viewPager.map(_.getCurrentItem()) == Some(1)) {
       trackEvent("UI", "switchFragment", Some("back"), Some(0))
       viewPager foreach {
         _.setCurrentItem(0)
