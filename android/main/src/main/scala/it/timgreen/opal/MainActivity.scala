@@ -672,7 +672,7 @@ class MainActivity extends ActionBarActivity
   }
 
   private def drawerSnapshot(filename: String): Option[Uri] = {
-    val drawerLayout = drawerResult.getDrawerLayout
+    val drawerLayout = drawerResult.getSlider
     // remove card name from snapshot
     headerResult.getProfiles foreach { p =>
       p.setName(s"Card: ${p.getIdentifier} / ${headerResult.getProfiles.size}")
