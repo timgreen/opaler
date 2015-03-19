@@ -443,11 +443,11 @@ class MainActivity extends ActionBarActivity
         while (!cursor.isAfterLast) {
           val name = cursor.getString(cursor.getColumnIndex(CardsCache.Columns.cardNickName))
           val text = {
-            val parts = name.split(' ')
+            val parts = name.split(' ').filter(_.nonEmpty)
             if (parts.length >= 2) {
               parts(0).substring(0, 1) + parts(1).substring(0, 1)
             } else {
-              name.substring(0, 2)
+              (name + "  ").substring(0, 2)
             }
           }
           val icon = TextDrawable.builder
