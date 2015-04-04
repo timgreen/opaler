@@ -206,7 +206,8 @@ object TransactionDetails {
   }
 
   case class FromTo(from: String, to: String) extends TransactionDetails(s"$from to $to") {
-    def isNoTapOff = to == "No tap off"
+    def isNoTapOn = from.trim.toLowerCase == "no tap on"
+    def isNoTapOff = to.trim.toLowerCase == "no tap off"
     def isPendingNoTapOff(cardTransaction: CardTransaction) = {
       val next5am = new Time(cardTransaction.datetime)
       next5am.set(0, 0, 5, next5am.monthDay, next5am.month, next5am.year)
