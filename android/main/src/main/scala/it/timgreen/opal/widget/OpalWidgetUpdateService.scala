@@ -30,7 +30,7 @@ class OpalWidgetUpdateService extends Service {
   override def onBind(intent: Intent): IBinder = null
 
   override def onStartCommand(intent: Intent, flags: Int, startId: Int): Int = {
-    if (!intent.getBooleanExtra(OpalWidgetUpdateService.updateWidgetOnlyKey, false)) {
+    if (intent == null || !intent.getBooleanExtra(OpalWidgetUpdateService.updateWidgetOnlyKey, false)) {
       sync
     }
     updateWidgets
