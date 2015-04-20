@@ -361,9 +361,10 @@ class MainActivity extends ActionBarActivity
           .withIdentifier(0)
       )
       .withOnAccountHeaderListener(new AccountHeader.OnAccountHeaderListener() {
-        override def onProfileChanged(view: View, profile: IProfile[_]) {
+        override def onProfileChanged(view: View, profile: IProfile[_], current: Boolean): Boolean = {
           val i = profile.asInstanceOf[ProfileDrawerItem].getIdentifier
           updateCurrentAccount(i)
+          true
         }
       })
       .withHeaderBackground(R.drawable.header_leaf)
