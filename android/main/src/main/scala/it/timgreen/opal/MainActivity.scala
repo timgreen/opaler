@@ -13,6 +13,7 @@ import android.content.pm.PackageManager
 import android.database.ContentObserver
 import android.database.Cursor
 import android.graphics.Bitmap
+import android.graphics.PorterDuff
 import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
@@ -209,6 +210,7 @@ class MainActivity extends ActionBarActivity
 
   override def onCreate(savedInstanceState: Bundle) {
     super.onCreate(savedInstanceState)
+    setTheme(PrefUtil.getTheme)
 
     setContentView(R.layout.activity_main)
 
@@ -370,6 +372,12 @@ class MainActivity extends ActionBarActivity
       .withHeaderBackground(R.drawable.header_leaf)
       .build
 
+    def drawableFor(drawableRes: Int) = {
+      val drawable = getResources.getDrawable(drawableRes)
+      drawable.setColorFilter(0xFF000000, PorterDuff.Mode.SRC_IN)
+      drawable
+    }
+
     drawerResult = new Drawer()
       .withActivity(this)
       .withToolbar(toolbar)
@@ -378,33 +386,33 @@ class MainActivity extends ActionBarActivity
       .addDrawerItems(
         new PrimaryDrawerItem()
           .withName("Overview")
-          .withIcon(getResources.getDrawable(R.drawable.overview))
+          .withIcon(drawableFor(R.drawable.overview))
           .withIdentifier(Identifier.Overview)
           .withCheckable(true),
         new PrimaryDrawerItem()
           .withName("Activity")
-          .withIcon(getResources.getDrawable(R.drawable.activity))
+          .withIcon(drawableFor(R.drawable.activity))
           .withIdentifier(Identifier.Activity)
           .withCheckable(true),
         new DividerDrawerItem(),
         new PrimaryDrawerItem()
           .withName("Donate")
-          .withIcon(getResources.getDrawable(R.drawable.donate))
+          .withIcon(drawableFor(R.drawable.donate))
           .withIdentifier(Identifier.Donate)
           .withCheckable(false),
         new PrimaryDrawerItem()
           .withName("Share")
-          .withIcon(getResources.getDrawable(R.drawable.share))
+          .withIcon(drawableFor(R.drawable.share))
           .withIdentifier(Identifier.Share)
           .withCheckable(false),
         new SecondaryDrawerItem()
           .withName("Feedback & Help")
-          .withIcon(getResources.getDrawable(R.drawable.feedback))
+          .withIcon(drawableFor(R.drawable.feedback))
           .withIdentifier(Identifier.Feedback)
           .withCheckable(false),
         new SecondaryDrawerItem()
           .withName("Settings")
-          .withIcon(getResources.getDrawable(R.drawable.settings))
+          .withIcon(drawableFor(R.drawable.settings))
           .withIdentifier(Identifier.Settings)
           .withCheckable(false)
       )

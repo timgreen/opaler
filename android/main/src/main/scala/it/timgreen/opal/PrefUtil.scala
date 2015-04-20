@@ -21,6 +21,13 @@ object PrefUtil {
   def isAdDisabled(implicit context: Context) =
     prefs.getBoolean("disable_ads", false)
 
+  def getTheme(implicit context: Context) = {
+    prefs.getString("theme", "dark") match {
+      case "dark" => R.style.AppTheme_Dark
+      case "light" => R.style.AppTheme_Light
+    }
+  }
+
   // Flags
   def enableFakeData(implicit context: Context) = {
     BuildConfig.ENABLE_FAKE_DATA && prefs.getBoolean("show_fake_data", false)
