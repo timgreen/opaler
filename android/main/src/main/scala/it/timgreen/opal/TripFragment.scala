@@ -106,17 +106,20 @@ class TripFragment extends Fragment with RefreshOps with SwipeRefreshSupport wit
     var lastColor = false
     var lastJourneyNumber: Option[Int] = None
 
-    TransactionTable.convert(cursor) map { cardTransaction =>
-      val alternateColor = if (lastJourneyNumber == cardTransaction.journeyNumber || lastJourneyNumber == None) {
+    TransactionTable.convert(cursor).toList.reverse map { cardTransaction =>
+      val alternateColor = if (lastJourneyNumber == cardTransaction.journeyNumber || cardTransaction.journeyNumber == None) {
         lastColor
       } else {
         !lastColor
       }
-      lastJourneyNumber = cardTransaction.journeyNumber
+
+      if (cardTransaction.journeyNumber != None) {
+        lastJourneyNumber = cardTransaction.journeyNumber
+      }
       lastColor = alternateColor
 
       TransactionViewData(cardTransaction, alternateColor)
-    } toList
+    } reverse
   }
 
   override def onViewCreated(view: View, savedInstanceState: Bundle) {
