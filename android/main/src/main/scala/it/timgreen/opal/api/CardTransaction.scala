@@ -61,7 +61,7 @@ object CardTransaction {
       model             = parseModel(tds(2), details),
       details           = details,
       journeyNumber     = optNum(tds(4).text, _.toInt),
-      fareApplied       = FareApplied(tds(5).text, optNum(tds(6).text, _.toDouble)),
+      fareApplied       = FareApplied(tds(5).text, optNum(tds(8).text, _.toDouble)),
       fare              = optNum(tds(6).text, _.toDouble),
       discount          = optNum(tds(7).text, _.toDouble),
       amount            = optNum(tds(8).text, _.toDouble),
@@ -223,7 +223,7 @@ sealed class FareApplied(fareApplied: String) {
   override def toString = fareApplied
 }
 object FareApplied {
-  def apply(fareApplied: String, fare: Option[Double]): FareApplied = fareApplied match {
+  def apply(fareApplied: String, amount: Option[Double]): FareApplied = fareApplied match {
     case "" => Normal
     case "Off-peak" => OffPeak
     case "Default fare" => DefaultFare
@@ -231,7 +231,7 @@ object FareApplied {
     case "Travel Reward" =>
       // Remove label 'Travel Reward' for the trip is not covered the reward, e.g. internation
       // airport line.
-      if (fare.map(_ > 0) == Some(true)) Normal else TravelReward
+      if (amount.map(_ > 0) == Some(true)) Normal else TravelReward
     case _ => new Unknown(fareApplied)
   }
 

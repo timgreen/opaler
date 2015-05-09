@@ -307,7 +307,7 @@ object TransactionTable {
       model             = Model(c.getString(2)),
       details           = TransactionDetails(c.getString(3)),
       journeyNumber     = if (c.isNull(4)) None else Some(c.getInt(4)),
-      fareApplied       = FareApplied(c.getString(5), if (c.isNull(6)) None else Some(c.getDouble(6))),
+      fareApplied       = FareApplied(c.getString(5), if (c.isNull(8)) None else Some(c.getDouble(8))),
       fare              = if (c.isNull(6)) None else Some(c.getDouble(6)),
       discount          = if (c.isNull(7)) None else Some(c.getDouble(7)),
       amount            = if (c.isNull(8)) None else Some(c.getDouble(8)),
