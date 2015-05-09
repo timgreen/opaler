@@ -24,7 +24,7 @@ object PrefUtil {
   def getTheme(implicit context: Context) = {
     prefs.getString("theme", "dark") match {
       case "dark" => R.style.AppTheme_Dark
-      case "light" => R.style.AppTheme_Light
+      case "light" | _ => R.style.AppTheme_Light
     }
   }
 
