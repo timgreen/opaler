@@ -27,19 +27,14 @@
   <string name="pref_use_24_hour_format_title">Use 24 hour format</string>
   <string name="pref_use_24_hour_format_summary">13:00 or 01:00 PM.</string>
 
-  <string-array name="sync_frequency_entries">
-    <item>Every 2 hours</item>
-    <item>Every 4 hours</item>
-    <item>Every 1 day</item>
-    <item>Every 2 days</item>
-    <item>Every 1 week</item>
+  <string-array name="themes">
+    <item>Dark</item>
+    <item>Light</item>
   </string-array>
-  <string-array name="sync_frequency_entry_values">
-    <item>2h</item>
-    <item>4h</item>
-    <item>1d</item>
-    <item>2d</item>
-    <item>7d</item>
+
+  <string-array name="themeValues">
+    <item>dark</item>
+    <item>light</item>
   </string-array>
 
   <string name="pref_misc_title">Misc</string>
