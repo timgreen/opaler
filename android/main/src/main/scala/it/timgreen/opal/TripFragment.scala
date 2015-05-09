@@ -340,11 +340,7 @@ class TransactionListAdapter(context: Context)
         if (fromTo.isNoTapOn) {
           detailsTextView.setText(Html.fromHtml(s"<font color='#F2977B'>${fromTo.from}</font> <font color='#${context.getResources.getString(R.color.trip_view_secondary).substring(3)}'>→</font> ${fromTo.to}"))
         } else if (fromTo.isNoTapOff) {
-          if (fromTo.isPendingNoTapOff(data.trip)) {
-            detailsTextView.setText(Html.fromHtml(s"${fromTo.from} <font color='#${context.getResources.getString(R.color.trip_view_secondary).substring(3)}'>→</font> <font color='#F05423'>Pending</font>"))
-          } else {
-            detailsTextView.setText(Html.fromHtml(s"${fromTo.from} <font color='#${context.getResources.getString(R.color.trip_view_secondary).substring(3)}'>→</font> <font color='#F2977B'>${fromTo.to}</font>"))
-          }
+          detailsTextView.setText(Html.fromHtml(s"${fromTo.from} <font color='#${context.getResources.getString(R.color.trip_view_secondary).substring(3)}'>→</font> <font color='#F2977B'>${fromTo.to}</font>"))
         } else {
           detailsTextView.setText(Html.fromHtml(s"${fromTo.from} <font color='#${context.getResources.getString(R.color.trip_view_secondary).substring(3)}'>→</font> ${fromTo.to}"))
         }

@@ -137,10 +137,7 @@ class SyncAdapter(context: Context, autoInitialize: Boolean, allowParallelSyncs:
     val c = context.getContentResolver.query(OpalProvider.Uris.activitiesMaxId(cardDetails.index), null, null, null, null)
     c.moveToFirst
     val maxTransactionNumber = c.getInt(0)
-
-    val idNeedResync = SyncStatus.getIdNeedResync(cardDetails.index)(context)
-    val syncStopPoint = Math.min(maxTransactionNumber, idNeedResync)
-    Util.debug(s"Sync card ${cardDetails.index} maxid $maxTransactionNumber idNeedResync $idNeedResync")
+    val syncStopPoint = maxTransactionNumber
 
     val overrideRecordNum = Gtm.getOverrideRecordNum(context)
     @tailrec
@@ -169,7 +166,6 @@ class SyncAdapter(context: Context, autoInitialize: Boolean, allowParallelSyncs:
       )
       syncResult.stats.numInserts += updates.size
       checkUpdates(updates)
-      markNeedResync(cardDetails.index, updates)
 
       val newMaxTransactionNumber = updates.head.transactionNumber
       if (Usage.numOfTransaction()(context) < newMaxTransactionNumber) {
@@ -197,19 +193,6 @@ class SyncAdapter(context: Context, autoInitialize: Boolean, allowParallelSyncs:
       trackEvent("SelfCheckError", "unknownDetails", Some(BuildConfig.VERSION_CODE + ": " + unknownDetails))(context)
       Util.debug(s"SelfCheckError unknownDetails: $unknownDetails")
     }
-  }
-
-  private def markNeedResync(cardIndex: Int, updates: List[CardTransaction]) {
-    val list = updates collect {
-      case data@CardTransaction(id, _, _, fromTo: TransactionDetails.FromTo, _, _, _, _, _, _) =>
-        id -> fromTo.needReSync(data)
-    } filter { _._2 }
-    val idNeedResync = if (list.isEmpty) {
-      Int.MaxValue
-    } else {
-      list.map(_._1).min
-    }
-    SyncStatus.setIdNeedResync(cardIndex, idNeedResync)(context)
   }
 }
 

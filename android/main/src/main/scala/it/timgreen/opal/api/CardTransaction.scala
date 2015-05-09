@@ -208,17 +208,6 @@ object TransactionDetails {
   case class FromTo(from: String, to: String) extends TransactionDetails(s"$from to $to") {
     def isNoTapOn = from.trim.toLowerCase == "no tap on"
     def isNoTapOff = to.trim.toLowerCase == "no tap off"
-    def isPendingNoTapOff(cardTransaction: CardTransaction) = {
-      val next5am = new Time(cardTransaction.datetime)
-      next5am.set(0, 0, 5, next5am.monthDay, next5am.month, next5am.year)
-      val next5amInMillis = next5am.toMillis(false) + 3600 * 24 * 1000
-      Util.debug(s"isPendingNoTapOff $next5amInMillis ${cardTransaction.updatedTime}")
-      isNoTapOff && (next5amInMillis >= cardTransaction.updatedTime)
-    }
-    def needReSync(cardTransaction: CardTransaction) = {
-      val twoDaysLater = cardTransaction.datetime.toMillis(false) + 3600 * 24 * 1000 * 2
-      isNoTapOff && (twoDaysLater >= cardTransaction.updatedTime)
-    }
   }
   case class TapOnReversal(stop: String) extends TransactionDetails(tapOnReversalPrefix + stop)
   class TopUp(details: String) extends TransactionDetails(details)
