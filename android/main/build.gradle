@@ -4,7 +4,7 @@ buildscript {
     }
     dependencies {
         // android
-        classpath 'com.android.tools.build:gradle:1.1.3'
+        classpath 'com.android.tools.build:gradle:1.2.3'
         // android-scala
         classpath 'jp.leafytree.gradle:gradle-android-scala-plugin:1.4'
     }
@@ -156,14 +156,14 @@ android {
 
 dependencies {
     compile 'org.scala-lang:scala-library:2.11.6'
-    compile 'org.scala-lang.modules:scala-xml_2.11:1.0.3'
+    compile 'org.scala-lang.modules:scala-xml_2.11:1.0.4'
     compile 'com.google.android.gms:play-services:7.0.0'
     compile 'com.android.support:support-v13:21.0.0'
 
     compile 'com.github.fernandodev.easyratingdialog:easyratingdialog:+'
     compile 'com.github.johnpersano:supertoasts:1.3.4@aar'
     compile 'se.emilsjolander:stickylistheaders:2.6.0@aar'
-    compile('com.mikepenz.materialdrawer:library:2.7.9@aar') {
+    compile('com.mikepenz.materialdrawer:library:2.9.2@aar') {
         transitive = true
     }
     compile 'com.amulyakhare:com.amulyakhare.textdrawable:1.0.1'
