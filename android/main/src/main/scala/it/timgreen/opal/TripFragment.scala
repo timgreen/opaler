@@ -337,9 +337,9 @@ class TransactionListAdapter(context: Context)
     val detailsTextView = rowView.findViewById(R.id.details).asInstanceOf[TextView]
     data.trip.details match {
       case fromTo: TransactionDetails.FromTo =>
-        if (fromTo.isNoTapOn && data.trip.amount.map(_ > 0) == Some(true)) {
+        if (fromTo.isNoTapOn && data.trip.amount.map(_ < 0) == Some(true)) {
           detailsTextView.setText(Html.fromHtml(s"<font color='#F2977B'>${fromTo.from}</font> <font color='#${context.getResources.getString(R.color.trip_view_secondary).substring(3)}'>→</font> ${fromTo.to}"))
-        } else if (fromTo.isNoTapOff && data.trip.amount.map(_ > 0) == Some(true)) {
+        } else if (fromTo.isNoTapOff && data.trip.amount.map(_ < 0) == Some(true)) {
           detailsTextView.setText(Html.fromHtml(s"${fromTo.from} <font color='#${context.getResources.getString(R.color.trip_view_secondary).substring(3)}'>→</font> <font color='#F2977B'>${fromTo.to}</font>"))
         } else {
           detailsTextView.setText(Html.fromHtml(s"${fromTo.from} <font color='#${context.getResources.getString(R.color.trip_view_secondary).substring(3)}'>→</font> ${fromTo.to}"))
