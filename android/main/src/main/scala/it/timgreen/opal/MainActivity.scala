@@ -380,33 +380,33 @@ class MainActivity extends ActionBarActivity
       .addDrawerItems(
         new PrimaryDrawerItem()
           .withName("Overview")
-          .withIcon(R.drawable.overview)
+          .withIcon(R.drawable.overview_white)
           .withIdentifier(Identifier.Overview)
           .withCheckable(true),
         new PrimaryDrawerItem()
           .withName("Activity")
-          .withIcon(R.drawable.activity)
+          .withIcon(R.drawable.activity_white)
           .withIdentifier(Identifier.Activity)
           .withCheckable(true),
         new DividerDrawerItem(),
         new PrimaryDrawerItem()
           .withName("Donate")
-          .withIcon(R.drawable.donate)
+          .withIcon(R.drawable.donate_white)
           .withIdentifier(Identifier.Donate)
           .withCheckable(false),
         new PrimaryDrawerItem()
           .withName("Share")
-          .withIcon(R.drawable.share)
+          .withIcon(R.drawable.share_white)
           .withIdentifier(Identifier.Share)
           .withCheckable(false),
         new SecondaryDrawerItem()
           .withName("Feedback & Help")
-          .withIcon(R.drawable.feedback)
+          .withIcon(R.drawable.feedback_white)
           .withIdentifier(Identifier.Feedback)
           .withCheckable(false),
         new SecondaryDrawerItem()
           .withName("Settings")
-          .withIcon(R.drawable.settings)
+          .withIcon(R.drawable.settings_white)
           .withIdentifier(Identifier.Settings)
           .withCheckable(false)
       )

@@ -44,11 +44,17 @@ convert_png_for_dpis ../tmp/model-F.svg                                 model_fe
 convert_png_for_dpis ../tmp/model-B.svg                                 model_bus         32
 convert_png_for_dpis ../tmp/model-L.svg                                 model_light_rail  32
 # drawer
-convert_png_for_dpis ../input/drawer/card_white.svg                     card              32
-convert_png_for_dpis ../input/drawer/th-menu-outline-white.svg          activity          32
-convert_png_for_dpis ../input/drawer/settings_white.svg                 settings          32
-convert_png_for_dpis ../input/drawer/star_white.svg                     overview          32
-convert_png_for_dpis ../input/drawer/phone-outline-white.svg            dial              32
-convert_png_for_dpis ../input/drawer/mail-white.svg                     feedback          32
-convert_png_for_dpis ../input/drawer/thumbs-up-white.svg                share             32
-convert_png_for_dpis ../input/drawer/gift-white.svg                     donate            32
+convert_png_for_dpis ../input/drawer/gift-white.svg                     donate_white      32
+convert_png_for_dpis ../input/drawer/gift-black.svg                     donate_black      32
+convert_png_for_dpis ../input/drawer/mail-white.svg                     feedback_white    32
+convert_png_for_dpis ../input/drawer/mail-black.svg                     feedback_black    32
+convert_png_for_dpis ../input/drawer/phone-outline-white.svg            dial_white        32
+convert_png_for_dpis ../input/drawer/phone-outline-black.svg            dial_black        32
+convert_png_for_dpis ../input/drawer/settings-white.svg                 settings_white    32
+convert_png_for_dpis ../input/drawer/settings-black.svg                 settings_black    32
+convert_png_for_dpis ../input/drawer/star-white.svg                     overview_white    32
+convert_png_for_dpis ../input/drawer/star-black.svg                     overview_black    32
+convert_png_for_dpis ../input/drawer/th-menu-outline-white.svg          activity_white    32
+convert_png_for_dpis ../input/drawer/th-menu-outline-black.svg          activity_black    32
+convert_png_for_dpis ../input/drawer/thumbs-up-white.svg                share_white       32
+convert_png_for_dpis ../input/drawer/thumbs-up-black.svg                share_black       32
