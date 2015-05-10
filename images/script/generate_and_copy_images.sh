@@ -48,8 +48,6 @@ convert_png_for_dpis ../input/drawer/gift-white.svg                     donate_w
 convert_png_for_dpis ../input/drawer/gift-black.svg                     donate_black      32
 convert_png_for_dpis ../input/drawer/mail-white.svg                     feedback_white    32
 convert_png_for_dpis ../input/drawer/mail-black.svg                     feedback_black    32
-convert_png_for_dpis ../input/drawer/phone-outline-white.svg            dial_white        32
-convert_png_for_dpis ../input/drawer/phone-outline-black.svg            dial_black        32
 convert_png_for_dpis ../input/drawer/settings-white.svg                 settings_white    32
 convert_png_for_dpis ../input/drawer/settings-black.svg                 settings_black    32
 convert_png_for_dpis ../input/drawer/star-white.svg                     overview_white    32

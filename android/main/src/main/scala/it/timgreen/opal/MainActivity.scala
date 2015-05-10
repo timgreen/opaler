@@ -371,6 +371,16 @@ class MainActivity extends ThemedActivity
       .withHeaderBackground(R.drawable.header_leaf)
       .build
 
+    val attrs = Array[Int](
+      R.attr.overview,
+      R.attr.activity,
+      R.attr.donate,
+      R.attr.share,
+      R.attr.feedback,
+      R.attr.settings
+    )
+    val typedArray = obtainStyledAttributes(attrs)
+
     drawerResult = new Drawer()
       .withActivity(this)
       .withToolbar(toolbar)
@@ -379,33 +389,33 @@ class MainActivity extends ThemedActivity
       .addDrawerItems(
         new PrimaryDrawerItem()
           .withName("Overview")
-          .withIcon(R.drawable.overview_white)
+          .withIcon(typedArray.getDrawable(0))
           .withIdentifier(Identifier.Overview)
           .withCheckable(true),
         new PrimaryDrawerItem()
           .withName("Activity")
-          .withIcon(R.drawable.activity_white)
+          .withIcon(typedArray.getDrawable(1))
           .withIdentifier(Identifier.Activity)
           .withCheckable(true),
         new DividerDrawerItem(),
         new PrimaryDrawerItem()
           .withName("Donate")
-          .withIcon(R.drawable.donate_white)
+          .withIcon(typedArray.getDrawable(2))
           .withIdentifier(Identifier.Donate)
           .withCheckable(false),
         new PrimaryDrawerItem()
           .withName("Share")
-          .withIcon(R.drawable.share_white)
+          .withIcon(typedArray.getDrawable(3))
           .withIdentifier(Identifier.Share)
           .withCheckable(false),
         new SecondaryDrawerItem()
           .withName("Feedback & Help")
-          .withIcon(R.drawable.feedback_white)
+          .withIcon(typedArray.getDrawable(4))
           .withIdentifier(Identifier.Feedback)
           .withCheckable(false),
         new SecondaryDrawerItem()
           .withName("Settings")
-          .withIcon(R.drawable.settings_white)
+          .withIcon(typedArray.getDrawable(5))
           .withIdentifier(Identifier.Settings)
           .withCheckable(false)
       )
@@ -428,6 +438,8 @@ class MainActivity extends ThemedActivity
       .withTranslucentActionBarCompatibility(false)
       .withSavedInstance(savedInstanceState)
       .build
+
+    typedArray.recycle
 
     getLoaderManager.initLoader(0, null, new LoaderManager.LoaderCallbacks[Cursor]() {
       override def onCreateLoader(id: Int, args: Bundle): Loader[Cursor] = {

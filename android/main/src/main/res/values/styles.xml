@@ -1,7 +1,19 @@
 <resources>
   <style name="AppTheme.Dark" parent="MaterialDrawerTheme.TranslucentStatus">
+    <item name="donate">@drawable/donate_white</item>
+    <item name="feedback">@drawable/feedback_white</item>
+    <item name="settings">@drawable/settings_white</item>
+    <item name="overview">@drawable/overview_white</item>
+    <item name="activity">@drawable/activity_white</item>
+    <item name="share">@drawable/share_white</item>
   </style>
 
   <style name="AppTheme.Light" parent="MaterialDrawerTheme.Light.TranslucentStatus">
+    <item name="donate">@drawable/donate_black</item>
+    <item name="feedback">@drawable/feedback_black</item>
+    <item name="settings">@drawable/settings_black</item>
+    <item name="overview">@drawable/overview_black</item>
+    <item name="activity">@drawable/activity_black</item>
+    <item name="share">@drawable/share_black</item>
   </style>
 </resources>

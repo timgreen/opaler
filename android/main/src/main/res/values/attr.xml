@@ -1,0 +1,10 @@
+<resources>
+  <declare-styleable name="DrawerIcon">
+    <attr name="donate"   format="integer" />
+    <attr name="feedback" format="integer" />
+    <attr name="settings" format="integer" />
+    <attr name="overview" format="integer" />
+    <attr name="activity" format="integer" />
+    <attr name="share"    format="integer" />
+  </declare-styleable>
+</resources>
