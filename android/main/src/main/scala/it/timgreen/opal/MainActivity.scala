@@ -22,7 +22,6 @@ import android.support.v13.app.FragmentPagerAdapter
 import android.support.v4.content.FileProvider
 import android.support.v4.view.ViewPager
 import android.support.v4.widget.DrawerLayout
-import android.support.v7.app.ActionBarActivity
 import android.support.v7.widget.Toolbar
 import android.view.View
 import android.widget.AdapterView
@@ -65,7 +64,7 @@ object MainActivity {
   val initCardIndex = "it.timgreen.opal.InitCardIndex"
 }
 
-class MainActivity extends ActionBarActivity
+class MainActivity extends ThemedActivity
   with AccountHelper.Checker
   with AccountHelper.Operator
   with Ads.BottomBanner

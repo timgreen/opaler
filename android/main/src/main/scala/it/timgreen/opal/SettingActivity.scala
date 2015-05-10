@@ -7,7 +7,6 @@ import android.preference.DialogPreference
 import android.preference.Preference
 import android.preference.PreferenceFragment
 import android.provider.Settings
-import android.support.v7.app.ActionBarActivity
 import android.support.v7.widget.Toolbar
 import android.util.AttributeSet
 import android.view.MenuItem
@@ -18,7 +17,7 @@ import it.timgreen.opal.AnalyticsSupport._
 import it.timgreen.opal.account.AccountUtil
 import it.timgreen.opal.provider.OpalProvider
 
-class SettingActivity extends ActionBarActivity with AccountHelper.Operator {
+class SettingActivity extends ThemedActivity with AccountHelper.Operator {
   implicit def getActivity = this
 
   override def onResume() {
