@@ -388,33 +388,33 @@ class MainActivity extends ThemedActivity
       .withActionBarDrawerToggle(true)
       .addDrawerItems(
         new PrimaryDrawerItem()
-          .withName("Overview")
+          .withName(R.string.drawer_overview)
           .withIcon(typedArray.getDrawable(0))
           .withIdentifier(Identifier.Overview)
           .withCheckable(true),
         new PrimaryDrawerItem()
-          .withName("Activity")
+          .withName(R.string.drawer_activity)
           .withIcon(typedArray.getDrawable(1))
           .withIdentifier(Identifier.Activity)
           .withCheckable(true),
         new DividerDrawerItem(),
         new PrimaryDrawerItem()
-          .withName("Donate")
+          .withName(R.string.drawer_donate)
           .withIcon(typedArray.getDrawable(2))
           .withIdentifier(Identifier.Donate)
           .withCheckable(false),
         new PrimaryDrawerItem()
-          .withName("Share")
+          .withName(R.string.drawer_share)
           .withIcon(typedArray.getDrawable(3))
           .withIdentifier(Identifier.Share)
           .withCheckable(false),
         new SecondaryDrawerItem()
-          .withName("Feedback & Help")
+          .withName(R.string.drawer_feedback_and_help)
           .withIcon(typedArray.getDrawable(4))
           .withIdentifier(Identifier.Feedback)
           .withCheckable(false),
         new SecondaryDrawerItem()
-          .withName("Settings")
+          .withName(R.string.drawer_settings)
           .withIcon(typedArray.getDrawable(5))
           .withIdentifier(Identifier.Settings)
           .withCheckable(false)
@@ -598,7 +598,7 @@ class MainActivity extends ThemedActivity
 
   def feedback() {
     new MaterialDialog.Builder(this)
-      .title("Feedback & Help")
+      .title(getResources.getString(R.string.drawer_feedback_and_help))
       .items(Array("Call Opal Customer Care", "Email Opal Customer Care", "Write to Developer"))
       .itemsCallback(new MaterialDialog.ListCallback() {
         override def onSelection(dialog: MaterialDialog, which: Int, text: String) {
@@ -764,9 +764,9 @@ class AppSectionsPagerAdapter(activity: MainActivity, fm: FragmentManager) exten
 
   override def getPageTitle(position: Int): CharSequence = {
     if (position == 0) {
-      "Overview"
+      activity.getResources.getString(R.string.drawer_overview)
     } else {
-      "Activity"
+      activity.getResources.getString(R.string.drawer_activity)
     }
   }
 }

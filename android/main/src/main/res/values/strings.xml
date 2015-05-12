@@ -5,4 +5,12 @@
   <string name="activity_setting_title">Settings</string>
 
   <string name="activity_widget_config_title">Choose Opal Card</string>
+
+  <!-- Drawer -->
+  <string name="drawer_overview">Overview</string>
+  <string name="drawer_activity">Activity</string>
+  <string name="drawer_donate">Donate</string>
+  <string name="drawer_share">Share</string>
+  <string name="drawer_feedback_and_help">Feedback &amp; Help</string>
+  <string name="drawer_settings">Settings</string>
 </resources>
