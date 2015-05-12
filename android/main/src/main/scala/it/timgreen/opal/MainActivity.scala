@@ -71,6 +71,7 @@ class MainActivity extends ThemedActivity
   with InAppBilling.BillingSupport
   with RateSupport {
 
+  override val translucentStatus = true
   implicit def provideActivity = this
 
   var drawerMenu: Option[ListView] = None
@@ -209,7 +210,6 @@ class MainActivity extends ThemedActivity
 
   override def onCreate(savedInstanceState: Bundle) {
     super.onCreate(savedInstanceState)
-    setTheme(PrefUtil.getTheme)
 
     setContentView(R.layout.activity_main)
 

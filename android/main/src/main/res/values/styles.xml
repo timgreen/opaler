@@ -1,19 +1,31 @@
 <resources>
-  <style name="AppTheme.Dark" parent="MaterialDrawerTheme.TranslucentStatus">
+  <style name="AppTheme.Dark" parent="MaterialDrawerTheme">
     <item name="donate">@drawable/donate_white</item>
     <item name="feedback">@drawable/feedback_white</item>
     <item name="settings">@drawable/settings_white</item>
     <item name="overview">@drawable/overview_white</item>
     <item name="activity">@drawable/activity_white</item>
     <item name="share">@drawable/share_white</item>
+
+    <item name="colorPrimaryDark">@color/primary_dark_material_dark</item>
+    <item name="colorPrimary">@color/primary_material_dark</item>
+    <item name="colorAccent">@color/accent_material_dark</item>
   </style>
 
-  <style name="AppTheme.Light" parent="MaterialDrawerTheme.Light.TranslucentStatus">
+  <style name="AppTheme.Dark.TranslucentStatus" parent="AppTheme.Dark"></style>
+
+  <style name="AppTheme.Light" parent="MaterialDrawerTheme.Light">
     <item name="donate">@drawable/donate_black</item>
     <item name="feedback">@drawable/feedback_black</item>
     <item name="settings">@drawable/settings_black</item>
     <item name="overview">@drawable/overview_black</item>
     <item name="activity">@drawable/activity_black</item>
     <item name="share">@drawable/share_black</item>
+
+    <item name="colorPrimaryDark">@color/primary_dark_material_light</item>
+    <item name="colorPrimary">@color/primary_material_light</item>
+    <item name="colorAccent">@color/accent_material_light</item>
   </style>
+
+  <style name="AppTheme.Light.TranslucentStatus" parent="AppTheme.Light"></style>
 </resources>
