@@ -6,6 +6,8 @@ Open source android app for [NSW Opal Card](https://www.opal.com.au).
 
 [![Get it on Google Play](https://developer.android.com/images/brand/en_generic_rgb_wo_45.png)](https://play.google.com/store/apps/details?id=it.timgreen.opal)
 
+[![Crowdin](https://d322cqt584bo4o.cloudfront.net/opaler/localized.png)](https://crowdin.com/project/opaler)
+
 ## Credit
 [Credit](http://htmlpreview.github.io/?https://github.com/timgreen/opaler/blob/master/android/main/src/main/res/raw/credit.html)
 
