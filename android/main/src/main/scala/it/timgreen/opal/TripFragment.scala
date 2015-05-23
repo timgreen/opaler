@@ -164,6 +164,22 @@ class TransactionListAdapter(context: Context)
 
   private var headerData = Map[Int, WeekGroup]()
 
+  private val (textColorPrimary, tripBackground, tripAlternateBackground) = obtainColors
+
+  private def obtainColors = {
+    val typedArray = context.obtainStyledAttributes(Array(
+      android.R.attr.textColorPrimary,
+      R.attr.tripBackground,
+      R.attr.tripAlternateBackground
+    ))
+    val textColorPrimary = typedArray.getColor(0, 0)
+    val tripBackground = typedArray.getColor(1, 0)
+    val tripAlternateBackground = typedArray.getColor(2, 0)
+    typedArray.recycle
+
+    (textColorPrimary, tripBackground, tripAlternateBackground)
+  }
+
   override def addAll(items: TransactionViewData*) {
     super.addAll(items: _*)
     headerData = generateHeaderData(items)
@@ -297,7 +313,13 @@ class TransactionListAdapter(context: Context)
       rowView.findViewById(R.id.time).setLayoutParams(row1)
     }
 
-    rowView.setBackgroundColor(if (data.alternateColor) 0xFF303030 else 0xFF212121)
+    rowView.setBackgroundColor(
+      if (data.alternateColor) {
+        tripAlternateBackground
+      } else {
+        tripBackground
+      }
+    )
 
     rowView.findViewById(R.id.time).asInstanceOf[TextView].setText(
       Util.format(
@@ -314,7 +336,7 @@ class TransactionListAdapter(context: Context)
     if (data.trip.amount.filter(_ > 0).isDefined) {
       amountText.setTextColor(context.getResources.getColor(R.color.trip_view_positive_amount))
     } else {
-      amountText.setTextColor(context.getResources.getColor(android.R.color.primary_text_dark))
+      amountText.setTextColor(textColorPrimary)
     }
 
     val fareApplied = rowView.findViewById(R.id.fareApplied).asInstanceOf[TextView]

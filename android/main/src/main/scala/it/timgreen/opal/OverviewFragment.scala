@@ -142,9 +142,11 @@ class OverviewFragment extends Fragment with RefreshOps with SwipeRefreshSupport
           R.id.ball6,
           R.id.ball7
         ).zipWithIndex foreach { case (r, i) =>
-          val image = balls(i) match {
-            case '●' => R.drawable.dot_solid
-            case '○' => R.drawable.dot
+          val image = (balls(i), PrefUtil.prefs(getActivity).getString("theme", "dark")) match {
+            case ('●', "dark") => R.drawable.dot_solid
+            case ('○', "dark") => R.drawable.dot
+            case ('●', "light") => R.drawable.dot_solid_light
+            case ('○', "light") | _ => R.drawable.dot_light
           }
           rv.findViewById(r).asInstanceOf[ImageView].setImageResource(image)
         }

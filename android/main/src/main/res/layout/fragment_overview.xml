@@ -30,7 +30,7 @@
             android:paddingTop="5dp"
             android:gravity="center"
             android:textSize="12dp"
-            android:textColor="#575659"
+            android:textColor="?android:textColorSecondary"
             />
         <TextView
             android:layout_width="match_parent"
@@ -52,7 +52,7 @@
               android:layout_width="wrap_content"
               android:layout_height="wrap_content"
               android:textSize="50dp"
-              android:textColor="#AFAEB3"
+              android:textColor="?android:textColorSecondary"
               android:gravity="center"
               android:text="$"
               />
@@ -62,7 +62,7 @@
               android:layout_height="wrap_content"
               android:includeFontPadding="false"
               android:textSize="140dp"
-              android:textColor="#FFFFFF"
+              android:textColor="?android:textColorPrimary"
               android:gravity="center"
               android:text="0"
               />
@@ -71,7 +71,7 @@
               android:layout_width="wrap_content"
               android:layout_height="wrap_content"
               android:textSize="50dp"
-              android:textColor="#AFAEB3"
+              android:textColor="?android:textColorSecondary"
               android:gravity="center"
               android:text=".00"
               />
@@ -174,14 +174,14 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:orientation="vertical"
-            android:background="@drawable/border"
+            android:background="?blockBackground"
             >
           <TextView
               android:layout_height="wrap_content"
               android:layout_width="match_parent"
               android:gravity="center"
               android:text="TODAY"
-              android:textColor="#AFAEB3"
+              android:textColor="?android:textColorSecondary"
               />
           <TextView
               android:id="@+id/today_spending"
@@ -189,7 +189,7 @@
               android:layout_width="match_parent"
               android:gravity="center"
               android:text="--"
-              android:textColor="#FFFFFF"
+              android:textColor="?android:textColorPrimary"
               />
         </LinearLayout>
         <LinearLayout
@@ -197,14 +197,14 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:orientation="vertical"
-            android:background="@drawable/border"
+            android:background="?blockBackground"
             >
           <TextView
               android:layout_height="wrap_content"
               android:layout_width="match_parent"
               android:gravity="center"
               android:text="THIS WEEK"
-              android:textColor="#AFAEB3"
+              android:textColor="?android:textColorSecondary"
               />
           <TextView
               android:id="@+id/this_week_spending"
@@ -212,7 +212,7 @@
               android:layout_width="match_parent"
               android:gravity="center"
               android:text="--"
-              android:textColor="#FFFFFF"
+              android:textColor="?android:textColorPrimary"
               />
         </LinearLayout>
         <LinearLayout
@@ -220,14 +220,14 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:orientation="vertical"
-            android:background="@drawable/border"
+            android:background="?blockBackground"
             >
           <TextView
               android:layout_height="wrap_content"
               android:layout_width="match_parent"
               android:gravity="center"
               android:text="LAST WEEK"
-              android:textColor="#AFAEB3"
+              android:textColor="?android:textColorSecondary"
               />
           <TextView
               android:id="@+id/last_week_spending"
@@ -235,7 +235,7 @@
               android:layout_width="match_parent"
               android:gravity="center"
               android:text="--"
-              android:textColor="#FFFFFF"
+              android:textColor="?android:textColorPrimary"
               />
         </LinearLayout>
       </LinearLayout>

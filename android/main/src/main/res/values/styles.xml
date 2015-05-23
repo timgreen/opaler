@@ -10,6 +10,11 @@
     <item name="colorPrimaryDark">@color/primary_dark_material_dark</item>
     <item name="colorPrimary">@color/primary_material_dark</item>
     <item name="colorAccent">@color/accent_material_dark</item>
+
+    <item name="blockBackground">@drawable/border_dark</item>
+
+    <item name="tripBackground">#FF212121</item>
+    <item name="tripAlternateBackground">#FF303030</item>
   </style>
 
   <style name="AppTheme.Dark.TranslucentStatus" parent="AppTheme.Dark"></style>
@@ -25,6 +30,11 @@
     <item name="colorPrimaryDark">@color/primary_dark_material_light</item>
     <item name="colorPrimary">@color/primary_material_light</item>
     <item name="colorAccent">@color/accent_material_light</item>
+
+    <item name="blockBackground">@drawable/border_light</item>
+
+    <item name="tripBackground">#FF212121</item>
+    <item name="tripAlternateBackground">#FF303030</item>
   </style>
 
   <style name="AppTheme.Light.TranslucentStatus" parent="AppTheme.Light"></style>

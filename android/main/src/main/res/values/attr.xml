@@ -7,4 +7,13 @@
     <attr name="activity" format="integer" />
     <attr name="share"    format="integer" />
   </declare-styleable>
+
+  <declare-styleable name="Overview">
+    <attr name="blockBackground" format="integer" />
+  </declare-styleable>
+
+  <declare-styleable name="Trip">
+    <attr name="tripBackground" format="color" />
+    <attr name="tripAlternateBackground" format="color" />
+  </declare-styleable>
 </resources>
