@@ -34,7 +34,9 @@ import com.amulyakhare.textdrawable.util.ColorGenerator
 import com.github.johnpersano.supertoasts.SuperCardToast
 import com.github.johnpersano.supertoasts.SuperToast
 import com.mikepenz.materialdrawer.Drawer
+import com.mikepenz.materialdrawer.DrawerBuilder
 import com.mikepenz.materialdrawer.accountswitcher.AccountHeader
+import com.mikepenz.materialdrawer.accountswitcher.AccountHeaderBuilder
 import com.mikepenz.materialdrawer.model.DividerDrawerItem
 import com.mikepenz.materialdrawer.model.PrimaryDrawerItem
 import com.mikepenz.materialdrawer.model.ProfileDrawerItem
@@ -222,7 +224,7 @@ class MainActivity extends ThemedActivity
     viewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
       override def onPageSelected(position: Int) {
         trackEvent("UI", "switchFragment", Some("swipe"), Some(position))
-        drawerResult.setSelectionByIdentifier(position + 1, false)
+        drawer.setSelectionByIdentifier(position + 1, false)
         updateActionBarTitle
       }
     })
@@ -245,7 +247,7 @@ class MainActivity extends ThemedActivity
   }
 
   override def onSaveInstanceState(outState: Bundle) {
-    val state = drawerResult.saveInstanceState(outState)
+    val state = drawer.saveInstanceState(outState)
     super.onSaveInstanceState(state)
   }
 
@@ -295,8 +297,8 @@ class MainActivity extends ThemedActivity
   // If on trip page        -> go to overview
   // If on overview         -> exit
   override def onBackPressed {
-    if (drawerResult.isDrawerOpen) {
-      drawerResult.closeDrawer
+    if (drawer.isDrawerOpen) {
+      drawer.closeDrawer
     } else if (viewPager.map(_.getCurrentItem()) == Some(1)) {
       trackEvent("UI", "switchFragment", Some("back"), Some(0))
       viewPager foreach {
@@ -343,8 +345,8 @@ class MainActivity extends ThemedActivity
   }
 
   var currentCardIndex: Option[Int] = None
-  var drawerResult: Drawer.Result = null
-  var headerResult: AccountHeader.Result = null
+  var drawer: Drawer = null
+  var header: AccountHeader = null
 
   private def setupDrawerAndToolbar(savedInstanceState: Bundle) {
     val toolbar = findViewById(R.id.toolbar).asInstanceOf[Toolbar]
@@ -352,7 +354,7 @@ class MainActivity extends ThemedActivity
     getSupportActionBar.setDisplayHomeAsUpEnabled(true)
     getSupportActionBar.setHomeButtonEnabled(true)
 
-    headerResult = new AccountHeader()
+    header = new AccountHeaderBuilder()
       .withActivity(this)
       .addProfiles(
         new ProfileDrawerItem()
@@ -381,10 +383,10 @@ class MainActivity extends ThemedActivity
     )
     val typedArray = obtainStyledAttributes(attrs)
 
-    drawerResult = new Drawer()
+    drawer = new DrawerBuilder()
       .withActivity(this)
       .withToolbar(toolbar)
-      .withAccountHeader(headerResult)
+      .withAccountHeader(header)
       .withActionBarDrawerToggle(true)
       .addDrawerItems(
         new PrimaryDrawerItem()
@@ -420,7 +422,7 @@ class MainActivity extends ThemedActivity
           .withCheckable(false)
       )
       .withOnDrawerItemClickListener(new Drawer.OnDrawerItemClickListener() {
-        override def onItemClick(parent: AdapterView[_], view: View, position: Int, id: Long, drawerItem: IDrawerItem) {
+        override def onItemClick(parent: AdapterView[_], view: View, position: Int, id: Long, drawerItem: IDrawerItem): Boolean = {
           if (drawerItem != null) {
             drawerItem.getIdentifier match {
               case id@(Identifier.Overview | Identifier.Activity) =>
@@ -431,7 +433,9 @@ class MainActivity extends ThemedActivity
               case Identifier.Feedback => feedback
               case Identifier.Settings => openSettings
             }
+            true
           }
+          false
         }
       })
       .withTranslucentStatusBar(true)
@@ -480,14 +484,14 @@ class MainActivity extends ThemedActivity
           cursor.moveToNext
         }
 
-        headerResult.setProfiles(profiles)
+        header.setProfiles(profiles)
 
         ensureInitCardIndex(getIntent)
         accountsLoaded = true
       }
 
       override def onLoaderReset(loader: Loader[Cursor]) {
-        headerResult.setProfiles(new ArrayList[IProfile[_]]())
+        header.setProfiles(new ArrayList[IProfile[_]]())
       }
     })
 
@@ -522,7 +526,7 @@ class MainActivity extends ThemedActivity
   private def updateCurrentAccount(i: Int) {
     currentCardIndex = Some(i)
     Usage.lastSelectedCard() = i
-    headerResult.setBackgroundRes(i % 4 match {
+    header.setBackgroundRes(i % 4 match {
       case 0 => R.drawable.header_leaf
       case 1 => R.drawable.header_sun
       case 2 => R.drawable.header_aurora
@@ -535,15 +539,15 @@ class MainActivity extends ThemedActivity
   private def ensureInitCardIndex(intent: Intent) {
     if (intent.hasExtra(MainActivity.initCardIndex)) {
       val initCardIndex = intent.getIntExtra(MainActivity.initCardIndex, 0)
-      headerResult.setActiveProfile(initCardIndex)
+      header.setActiveProfile(initCardIndex)
       updateCurrentAccount(initCardIndex)
       Util.debug("set init cardIndex: " + initCardIndex)
       intent.removeExtra(MainActivity.initCardIndex)
     } else {
       if (!accountsLoaded) {
         Util.debug("load last card: " + Usage.lastSelectedCard())
-        if (headerResult.getProfiles.size > Usage.lastSelectedCard()) {
-          headerResult.setActiveProfile(Usage.lastSelectedCard())
+        if (header.getProfiles.size > Usage.lastSelectedCard()) {
+          header.setActiveProfile(Usage.lastSelectedCard())
           updateCurrentAccount(Usage.lastSelectedCard())
         }
         trackEvent("Launch", "normal")
@@ -686,14 +690,14 @@ class MainActivity extends ThemedActivity
   }
 
   private def drawerSnapshot(filename: String): Option[Uri] = {
-    val drawerLayout = drawerResult.getSlider
+    val drawerLayout = drawer.getSlider
     // remove card name from snapshot
-    headerResult.getProfiles foreach { p =>
-      p.setName(s"Card: ${p.getIdentifier} / ${headerResult.getProfiles.size}")
+    header.getProfiles foreach { p =>
+      p.setName(s"Card: ${p.getIdentifier} / ${header.getProfiles.size}")
       p.setEmail("0000 0000 0000 0000")
     }
-    // NOTE(timgreen): trigger protected headerResult.updateHeaderAndList
-    headerResult.setProfiles(headerResult.getProfiles)
+    // NOTE(timgreen): trigger protected header.updateHeaderAndList
+    header.setProfiles(header.getProfiles)
     Some(snapshot(drawerLayout, filename))
   }
 
@@ -714,7 +718,7 @@ class MainActivity extends ThemedActivity
     viewPager foreach {
       _.setCurrentItem(1)
     }
-    drawerResult.setSelectionByIdentifier(Identifier.Activity, false)
+    drawer.setSelectionByIdentifier(Identifier.Activity, false)
   }
 
   def startSync() {
