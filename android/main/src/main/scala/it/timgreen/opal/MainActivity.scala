@@ -548,8 +548,8 @@ class MainActivity extends ThemedActivity
         Util.debug("load last card: " + Usage.lastSelectedCard())
         if (header.getProfiles.size > Usage.lastSelectedCard()) {
           header.setActiveProfile(Usage.lastSelectedCard())
-          updateCurrentAccount(Usage.lastSelectedCard())
         }
+        updateCurrentAccount(Usage.lastSelectedCard())
         trackEvent("Launch", "normal")
       }
     }
@@ -763,6 +763,11 @@ class AppSectionsPagerAdapter(activity: MainActivity, fm: FragmentManager) exten
     if (activity.isSyncing) {
       fragment.onRefreshStart
     }
+    new Handler().postDelayed(new Runnable() {
+      override def run() {
+        activity.reloadOp
+      }
+    }, 0)
     fragment
   }
 

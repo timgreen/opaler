@@ -131,7 +131,7 @@ class TripFragment extends Fragment with RefreshOps with SwipeRefreshSupport wit
     syncRefreshStatus
   }
 
-  private var currentCardIndex = Option(0)
+  private var currentCardIndex: Option[Int] = None
   override def refresh(cardIndex: Option[Int]) {
     currentCardIndex = cardIndex
     cardIndex foreach { cardIndex =>
