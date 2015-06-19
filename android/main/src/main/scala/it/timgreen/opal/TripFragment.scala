@@ -130,7 +130,7 @@ class TripFragment extends Fragment with SwipeRefreshSupport with SnapshotAware 
     swipeRefreshLayout =
       rootView.map(_.findViewById(R.id.swipe_container).asInstanceOf[SwipeRefreshLayout]).toList :::
       rootView.map(_.findViewById(android.R.id.empty).asInstanceOf[SwipeRefreshLayout]).toList
-    initSwipeOptions(isSyncing)
+    initSwipeOptions
   }
 
   private def refresh() {

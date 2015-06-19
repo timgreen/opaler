@@ -41,7 +41,7 @@ class OverviewFragment extends Fragment with SwipeRefreshSupport
 
   override def onViewCreated(view: View, savedInstanceState: Bundle) {
     swipeRefreshLayout = rootView.map(_.findViewById(R.id.swipe_container).asInstanceOf[SwipeRefreshLayout]).toList
-    initSwipeOptions(isSyncing)
+    initSwipeOptions
   }
 
   private val CARDS_LOADER_ID = -1

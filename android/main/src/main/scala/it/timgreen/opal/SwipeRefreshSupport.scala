@@ -7,11 +7,12 @@ import it.timgreen.android.model.ValueModel
 import it.timgreen.opal.AnalyticsSupport._
 
 trait SwipeRefreshSupport { self: Fragment =>
+  import it.timgreen.opal.Bus.isSyncing
   import it.timgreen.opal.Bus.syncTrigger
 
   var swipeRefreshLayout: List[SwipeRefreshLayout]
 
-  def initSwipeOptions(isSyncing: ValueModel[Boolean]) {
+  def initSwipeOptions() {
     setAppearance
     swipeRefreshLayout foreach {
       _.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
@@ -23,13 +24,18 @@ trait SwipeRefreshSupport { self: Fragment =>
       })
     }
 
-    isSyncing.on { syncing =>
+    isSyncing.on(tag = self) { syncing =>
       if (syncing) {
         onRefreshStart
       } else {
         onRefreshEnd
       }
     }
+  }
+
+  override def onStop {
+    self.onStop
+    isSyncing.removeByTag(self)
   }
 
   private def setAppearance() {
