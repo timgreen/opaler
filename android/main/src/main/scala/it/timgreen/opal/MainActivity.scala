@@ -75,11 +75,11 @@ class MainActivity extends ThemedActivity
   with RateSupport {
 
   import Bus._
+  val currentFragmentId = ValueModel(Identifier.Overview)
 
   override val translucentStatus = true
   implicit def provideActivity = this
 
-  var drawerMenu: Option[ListView] = None
   var viewPager: Option[ViewPager] = None
   var plusOneButton: Option[PlusOneButton] = None
 
@@ -216,13 +216,11 @@ class MainActivity extends ThemedActivity
     viewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
       override def onPageSelected(position: Int) {
         trackEvent("UI", "switchFragment", Some("swipe"), Some(position))
-        drawer.setSelectionByIdentifier(position + 1, false)
-        updateActionBarTitle
+        currentFragmentId() = (position + 1)
       }
     })
 
     setupObserver
-    updateActionBarTitle
 
     setCustomDimensions(
       dimensionAd                   -> (if (PrefUtil.isAdDisabled) "disabled" else "enabled"),
@@ -236,7 +234,14 @@ class MainActivity extends ThemedActivity
       metricNumOfTransaction        -> Usage.numOfTransaction(),
       metricNumberOfWidgets         -> Usage.numOfWidgets()
     )
+
+    currentFragmentId.on { fragmentId =>
+      drawer.setSelectionByIdentifier(fragmentId, false)
+      viewPager.setCurrentItem(fragmentId - 1)
+      updateActionBarTitle
+    }
   }
+
 
   override def onSaveInstanceState(outState: Bundle) {
     val state = drawer.saveInstanceState(outState)
@@ -279,7 +284,6 @@ class MainActivity extends ThemedActivity
   }
 
   override def onDestroy() {
-    drawerMenu = None
     viewPager = None
 
     super.onDestroy
@@ -293,12 +297,7 @@ class MainActivity extends ThemedActivity
       drawer.closeDrawer
     } else if (viewPager.map(_.getCurrentItem()) == Some(1)) {
       trackEvent("UI", "switchFragment", Some("back"), Some(0))
-      viewPager foreach {
-        _.setCurrentItem(0)
-      }
-      drawerMenu foreach {
-        _.setSelection(0)
-      }
+      currentFragmentId() == Identifier.Overview
     } else {
       finish
     }
@@ -417,7 +416,7 @@ class MainActivity extends ThemedActivity
           if (drawerItem != null) {
             drawerItem.getIdentifier match {
               case id@(Identifier.Overview | Identifier.Activity) =>
-                viewPager foreach { _.setCurrentItem(id - 1) }
+                currentFragmentId() = id
                 trackEvent("UI", "switchFragment", Some("drawerItemClick"), Some(id - 1))
               case Identifier.Donate   => donate
               case Identifier.Share    => share
@@ -704,10 +703,7 @@ class MainActivity extends ThemedActivity
 
   def spending(view: View) {
     trackEvent("UI", "switchFragment", Some("clickSpending"), Some(1))
-    viewPager foreach {
-      _.setCurrentItem(1)
-    }
-    drawer.setSelectionByIdentifier(Identifier.Activity, false)
+    currentFragmentId() = Identifier.Activity
   }
 
   private def startSync() {
