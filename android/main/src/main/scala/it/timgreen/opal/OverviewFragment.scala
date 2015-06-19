@@ -98,8 +98,6 @@ class OverviewFragment extends Fragment with SwipeRefreshSupport
       getLoaderManager.restartLoader(cardIndex, null, this)
     }
   }
-  currentCardIndex.on { _ => refresh }
-  fragmentRefreshTrigger.on { () => refresh }
 
   override def onCreateLoader(cardIndex: Int, args: Bundle): Loader[OverviewData] = {
     Util.debug(s"overview, create loader $cardIndex")
@@ -160,6 +158,18 @@ class OverviewFragment extends Fragment with SwipeRefreshSupport
         textView.setText(textView.getText.toString.replaceAll("[0-9]", "0"))
       }
     }
+  }
+
+  override def onStart() {
+    super.onStart
+    currentCardIndex.on(tag = this) { _ => refresh }
+    fragmentRefreshTrigger.on(tag = this) { () => refresh }
+  }
+
+  override def onStop() {
+    currentCardIndex.removeByTag(this)
+    fragmentRefreshTrigger.removeByTag(this)
+    super.onStop
   }
 }
 

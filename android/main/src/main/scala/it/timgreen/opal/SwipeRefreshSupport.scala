@@ -6,7 +6,7 @@ import android.support.v4.widget.SwipeRefreshLayout
 import it.timgreen.android.model.ValueModel
 import it.timgreen.opal.AnalyticsSupport._
 
-trait SwipeRefreshSupport { self: Fragment =>
+trait SwipeRefreshSupport extends Fragment {
   import it.timgreen.opal.Bus.isSyncing
   import it.timgreen.opal.Bus.syncTrigger
 
@@ -18,13 +18,13 @@ trait SwipeRefreshSupport { self: Fragment =>
       _.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
         def onRefresh {
           Util.debug(s"swipe refresh")
-          trackEvent("UI", "pullToRefresh", Some(self.getClass.getSimpleName))(getActivity)
+          trackEvent("UI", "pullToRefresh", Some(this.getClass.getSimpleName))(getActivity)
           syncTrigger.fire
         }
       })
     }
 
-    isSyncing.on(tag = self) { syncing =>
+    isSyncing.on(tag = this) { syncing =>
       if (syncing) {
         onRefreshStart
       } else {
@@ -34,8 +34,8 @@ trait SwipeRefreshSupport { self: Fragment =>
   }
 
   override def onStop() {
-    self.onStop
-    isSyncing.removeByTag(self)
+    isSyncing.removeByTag(this)
+    super.onStop
   }
 
   private def setAppearance() {

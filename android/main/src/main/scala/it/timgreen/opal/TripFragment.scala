@@ -139,8 +139,6 @@ class TripFragment extends Fragment with SwipeRefreshSupport with SnapshotAware 
       getLoaderManager.restartLoader(cardIndex, null, loaderCallbacks)
     }
   }
-  currentCardIndex.on { _ => refresh }
-  fragmentRefreshTrigger.on { () => refresh }
 
   override def preSnapshot() {
     rootView foreach { rv =>
@@ -157,6 +155,18 @@ class TripFragment extends Fragment with SwipeRefreshSupport with SnapshotAware 
         }
       }
     }
+  }
+
+  override def onStart() {
+    super.onStart
+    currentCardIndex.on(tag = this) { _ => refresh }
+    fragmentRefreshTrigger.on(tag = this) { () => refresh }
+  }
+
+  override def onStop() {
+    currentCardIndex.removeByTag(this)
+    fragmentRefreshTrigger.removeByTag(this)
+    super.onStop
   }
 }
 
