@@ -2,21 +2,19 @@ package it.timgreen.android.model
 
 import scala.collection.mutable
 
-class Trigger {
+class Trigger extends Listenable[Trigger.Listener] {
   private val listeners = mutable.MutableList[() => Unit]()
 
-  def on(listener: () => Unit) {
-    listener()
-    listeners += listener
+  def fire() {
+    invokeAll
   }
 
-  def fire() {
-    listeners foreach { listener =>
-      listener()
-    }
+  protected def invoke(listener: Trigger.Listener) {
+    listener()
   }
 }
 
 object Trigger {
+  type Listener = () => Unit
   def apply() = new Trigger
 }

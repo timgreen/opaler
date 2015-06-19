@@ -2,33 +2,24 @@ package it.timgreen.android.model
 
 import scala.collection.mutable
 
-class ValueModel[T](defaultValue: T) {
+class ValueModel[T](defaultValue: T) extends Listenable[ValueModel.Listener[T]] {
   private var value: T = defaultValue
-  private val listeners = mutable.MutableList[T => Unit]()
 
   def apply(): T = value
 
   def update(newValue: T) {
     if (value != newValue) {
       value = newValue
-      fireChange
+      invokeAll
     }
   }
 
-  def on(listener: T => Unit) {
+  protected def invoke(listener: ValueModel.Listener[T]) {
     listener(value)
-    listeners += listener
   }
-
-  private def fireChange() {
-    listeners foreach { listener =>
-      listener(value)
-    }
-  }
-
-  // TODO(timgreen): remove listener
 }
 
 object ValueModel {
+  type Listener[T] = T => Unit
   def apply[T](defaultValue: T) = new ValueModel[T](defaultValue)
 }
