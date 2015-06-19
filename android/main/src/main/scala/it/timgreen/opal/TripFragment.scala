@@ -34,7 +34,9 @@ import it.timgreen.opal.provider.TransactionTable
 
 import scala.collection.mutable
 
-class TripFragment(currentCardIndex: ValueModel[Option[Int]], isSyncing: ValueModel[Boolean]) extends Fragment with RefreshOps with SwipeRefreshSupport with SnapshotAware {
+class TripFragment extends Fragment with RefreshOps with SwipeRefreshSupport with SnapshotAware {
+
+  import Bus._
 
   var adapter: TransactionListAdapter = _
   var rootView: Option[View] = None

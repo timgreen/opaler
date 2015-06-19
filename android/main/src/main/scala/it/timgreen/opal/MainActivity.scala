@@ -74,15 +74,14 @@ class MainActivity extends ThemedActivity
   with InAppBilling.BillingSupport
   with RateSupport {
 
+  import Bus._
+
   override val translucentStatus = true
   implicit def provideActivity = this
 
   var drawerMenu: Option[ListView] = None
   var viewPager: Option[ViewPager] = None
   var plusOneButton: Option[PlusOneButton] = None
-
-  val currentCardIndex = ValueModel[Option[Int]](None)
-  val isSyncing = ValueModel(false)
 
   def reloadOp() {
     Util.debug(s"reloadOp ${currentCardIndex()}")
@@ -752,9 +751,9 @@ class AppSectionsPagerAdapter(activity: MainActivity, fm: FragmentManager) exten
 
   override def getItem(i: Int): Fragment = {
     val fragment = if (i == 0) {
-      new OverviewFragment(activity.currentCardIndex, activity.isSyncing)
+      new OverviewFragment
     } else {
-      new TripFragment(activity.currentCardIndex, activity.isSyncing)
+      new TripFragment
     }
     fragment
   }

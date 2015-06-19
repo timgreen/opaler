@@ -23,8 +23,10 @@ import it.timgreen.opal.provider.CardsCache
 import it.timgreen.opal.provider.OpalProvider
 import it.timgreen.opal.sync.SyncStatus
 
-class OverviewFragment(currentCardIndex: ValueModel[Option[Int]], isSyncing: ValueModel[Boolean]) extends Fragment with RefreshOps with SwipeRefreshSupport
+class OverviewFragment extends Fragment with RefreshOps with SwipeRefreshSupport
   with LoaderManager.LoaderCallbacks[OverviewData] with SnapshotAware {
+
+  import Bus._
 
   var rootView: Option[View] = None
   var swipeRefreshLayout: List[SwipeRefreshLayout] = Nil
