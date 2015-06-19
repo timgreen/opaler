@@ -85,12 +85,8 @@ class MainActivity extends ThemedActivity
 
   def reloadOp() {
     Util.debug(s"reloadOp ${currentCardIndex()}")
-    getFragment(0) foreach { _.refresh }
-    getFragment(1) foreach { _.refresh }
+    fragmentRefreshTrigger.fire
     updateActionBarTitle
-  }
-  def startRefreshOp() {
-    SuperCardToast.cancelAllSuperCardToasts
   }
   def endRefreshOp() {
     // NOTE(timgreen): this is a hack for startRefreshOp haven't cancel toasts.
@@ -110,7 +106,7 @@ class MainActivity extends ThemedActivity
           t.setOnClickWrapper(
             new com.github.johnpersano.supertoasts.util.OnClickWrapper("retry", new SuperToast.OnClickListener() {
               override def onClick(view: View, token: Parcelable) {
-                MainActivity.this.startSync
+                syncTrigger.fire
               }
             })
           )
@@ -124,7 +120,7 @@ class MainActivity extends ThemedActivity
           t.setOnClickWrapper(
             new com.github.johnpersano.supertoasts.util.OnClickWrapper("retry", new SuperToast.OnClickListener() {
               override def onClick(view: View, token: Parcelable) {
-                MainActivity.this.startSync
+                syncTrigger.fire
               }
             })
           )
@@ -138,7 +134,7 @@ class MainActivity extends ThemedActivity
           t.setOnClickWrapper(
             new com.github.johnpersano.supertoasts.util.OnClickWrapper("retry", new SuperToast.OnClickListener() {
               override def onClick(view: View, token: Parcelable) {
-                MainActivity.this.startSync
+                syncTrigger.fire
               }
             })
           )
@@ -169,7 +165,7 @@ class MainActivity extends ThemedActivity
           t.setOnClickWrapper(
             new com.github.johnpersano.supertoasts.util.OnClickWrapper("retry", new SuperToast.OnClickListener() {
               override def onClick(view: View, token: Parcelable) {
-                MainActivity.this.startSync
+                syncTrigger.fire
               }
             })
           )
@@ -178,10 +174,10 @@ class MainActivity extends ThemedActivity
     }
   }
 
-  private def getFragment(index: Int): Option[Fragment with RefreshOps with SnapshotAware] = {
+  private def getFragment(index: Int): Option[Fragment with SnapshotAware] = {
     viewPager flatMap { vp =>
       val tag = s"android:switcher:${vp.getId}:$index"
-      Option(getFragmentManager.findFragmentByTag(tag).asInstanceOf[Fragment with RefreshOps with SnapshotAware])
+      Option(getFragmentManager.findFragmentByTag(tag).asInstanceOf[Fragment with SnapshotAware])
     }
   }
 
@@ -268,7 +264,7 @@ class MainActivity extends ThemedActivity
     if (hasLogin &&
         hasSuitableConnection &&
         (!SyncStatus.hasSyncedBefore || (enableSyncOnStart && SyncStatus.needSync))) {
-      startSync
+      syncTrigger.fire
     }
 
     val PLUS_URL = "https://play.google.com/store/apps/details?id=it.timgreen.opal"
@@ -312,7 +308,7 @@ class MainActivity extends ThemedActivity
   def refreshTripIfNecessary() {
     val use24hourFormat = PrefUtil.use24hourFormat
     if (currentValueOfUse24hourFormat != None && currentValueOfUse24hourFormat != Some(use24hourFormat)) {
-      getFragment(1) foreach { _.refresh }
+      fragmentRefreshTrigger.fire
     }
     currentValueOfUse24hourFormat = Some(use24hourFormat)
   }
@@ -501,16 +497,14 @@ class MainActivity extends ThemedActivity
         currentCardIndex() foreach { cardIndex =>
           if (uri == OpalProvider.Uris.activities(cardIndex)) {
             Util.debug("ContentObserver     ==================== do load")
-            getFragment(0) foreach { _.refresh }
-            getFragment(1) foreach { _.refresh }
+            fragmentRefreshTrigger.fire
           }
         }
       }
 
       override def onChange(selfChange: Boolean) {
         Util.debug("ContentObserver     ====================")
-        getFragment(0) foreach { _.refresh }
-        getFragment(1) foreach { _.refresh }
+        fragmentRefreshTrigger.fire
       }
     }
     // TODO(timgreen): more accurate uri.
@@ -716,9 +710,9 @@ class MainActivity extends ThemedActivity
     drawer.setSelectionByIdentifier(Identifier.Activity, false)
   }
 
-  def startSync() {
+  private def startSync() {
     AccountUtil.getAccount foreach { account =>
-      startRefreshOp
+      SuperCardToast.cancelAllSuperCardToasts
       ContentResolver.cancelSync(account, OpalProvider.AUTHORITY)
       if (hasSuitableConnection) {
         val extras = new Bundle()
@@ -734,6 +728,7 @@ class MainActivity extends ThemedActivity
       }
     }
   }
+  syncTrigger.on { () => startSync }
 
   object Identifier {
     val Overview = 1  // same as position + 1 in viewPager

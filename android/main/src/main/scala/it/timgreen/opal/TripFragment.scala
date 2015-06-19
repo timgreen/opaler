@@ -34,7 +34,7 @@ import it.timgreen.opal.provider.TransactionTable
 
 import scala.collection.mutable
 
-class TripFragment extends Fragment with RefreshOps with SwipeRefreshSupport with SnapshotAware {
+class TripFragment extends Fragment with SwipeRefreshSupport with SnapshotAware {
 
   import Bus._
 
@@ -133,19 +133,14 @@ class TripFragment extends Fragment with RefreshOps with SwipeRefreshSupport wit
     initSwipeOptions(isSyncing)
   }
 
-  override def refresh() {
+  private def refresh() {
     currentCardIndex() foreach { cardIndex =>
       // TODO(timgreen): change to initLoader
       getLoaderManager.restartLoader(cardIndex, null, loaderCallbacks)
     }
   }
-
-  currentCardIndex.on { cardIndexOption =>
-    cardIndexOption foreach { cardIndex =>
-      // TODO(timgreen): change to initLoader
-      getLoaderManager.restartLoader(cardIndex, null, loaderCallbacks)
-    }
-  }
+  currentCardIndex.on { _ => refresh }
+  fragmentRefreshTrigger.on { () => refresh }
 
   override def preSnapshot() {
     rootView foreach { rv =>

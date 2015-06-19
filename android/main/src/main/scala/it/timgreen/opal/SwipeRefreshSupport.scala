@@ -7,6 +7,7 @@ import it.timgreen.android.model.ValueModel
 import it.timgreen.opal.AnalyticsSupport._
 
 trait SwipeRefreshSupport { self: Fragment =>
+  import it.timgreen.opal.Bus.syncTrigger
 
   var swipeRefreshLayout: List[SwipeRefreshLayout]
 
@@ -17,7 +18,7 @@ trait SwipeRefreshSupport { self: Fragment =>
         def onRefresh {
           Util.debug(s"swipe refresh")
           trackEvent("UI", "pullToRefresh", Some(self.getClass.getSimpleName))(getActivity)
-          getActivity.asInstanceOf[MainActivity].startSync
+          syncTrigger.fire
         }
       })
     }

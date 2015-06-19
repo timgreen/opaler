@@ -23,7 +23,7 @@ import it.timgreen.opal.provider.CardsCache
 import it.timgreen.opal.provider.OpalProvider
 import it.timgreen.opal.sync.SyncStatus
 
-class OverviewFragment extends Fragment with RefreshOps with SwipeRefreshSupport
+class OverviewFragment extends Fragment with SwipeRefreshSupport
   with LoaderManager.LoaderCallbacks[OverviewData] with SnapshotAware {
 
   import Bus._
@@ -92,18 +92,14 @@ class OverviewFragment extends Fragment with RefreshOps with SwipeRefreshSupport
     }
   }
 
-  override def refresh() {
+  private def refresh() {
     currentCardIndex() foreach { cardIndex =>
       getLoaderManager.restartLoader(CARDS_LOADER_ID, null, cardsLoaderCallbacks)
       getLoaderManager.restartLoader(cardIndex, null, this)
     }
   }
-  currentCardIndex.on { cardIndexOption =>
-    cardIndexOption foreach { cardIndex =>
-      getLoaderManager.restartLoader(CARDS_LOADER_ID, null, cardsLoaderCallbacks)
-      getLoaderManager.restartLoader(cardIndex, null, this)
-    }
-  }
+  currentCardIndex.on { _ => refresh }
+  fragmentRefreshTrigger.on { () => refresh }
 
   override def onCreateLoader(cardIndex: Int, args: Bundle): Loader[OverviewData] = {
     Util.debug(s"overview, create loader $cardIndex")
