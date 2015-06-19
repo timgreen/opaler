@@ -295,9 +295,9 @@ class MainActivity extends ThemedActivity
   override def onBackPressed {
     if (drawer.isDrawerOpen) {
       drawer.closeDrawer
-    } else if (viewPager.map(_.getCurrentItem()) == Some(1)) {
+    } else if (currentFragmentId() != Identifier.Overview) {
       trackEvent("UI", "switchFragment", Some("back"), Some(0))
-      currentFragmentId() == Identifier.Overview
+      currentFragmentId() = Identifier.Overview
     } else {
       finish
     }
