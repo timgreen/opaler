@@ -16,13 +16,14 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 
+import it.timgreen.android.model.ValueModel
 import it.timgreen.opal.AnalyticsSupport._
 import it.timgreen.opal.api.CardTransaction
 import it.timgreen.opal.provider.CardsCache
 import it.timgreen.opal.provider.OpalProvider
 import it.timgreen.opal.sync.SyncStatus
 
-class OverviewFragment extends Fragment with RefreshOps with SwipeRefreshSupport
+class OverviewFragment(currentCardIndex: ValueModel[Option[Int]]) extends Fragment with RefreshOps with SwipeRefreshSupport
   with LoaderManager.LoaderCallbacks[OverviewData] with SnapshotAware {
 
   var rootView: Option[View] = None
@@ -32,12 +33,6 @@ class OverviewFragment extends Fragment with RefreshOps with SwipeRefreshSupport
     savedInstanceState: Bundle): View = {
     val rootView = inflater.inflate(R.layout.fragment_overview, container, false)
     this.rootView = Some(rootView)
-
-    try {
-      refresh(Some(0))
-    } catch {
-      case _: Throwable =>
-    }
 
     rootView
   }
@@ -69,7 +64,7 @@ class OverviewFragment extends Fragment with RefreshOps with SwipeRefreshSupport
     override def onLoadFinished(loader: Loader[Cursor], cursor: Cursor) {
       rootView foreach { rv =>
         val (balance, balanceSmall) =
-          currentCardIndex flatMap { cardIndex =>
+          currentCardIndex() flatMap { cardIndex =>
             if (cursor != null && cursor.moveToPosition(cardIndex)) {
               val balance = cursor.getInt(cursor.getColumnIndex(CardsCache.Columns.cardBalance)) +
                 cursor.getInt(cursor.getColumnIndex(CardsCache.Columns.svPending))
@@ -104,10 +99,14 @@ class OverviewFragment extends Fragment with RefreshOps with SwipeRefreshSupport
     }
   }
 
-  private var currentCardIndex: Option[Int] = None
-  override def refresh(cardIndex: Option[Int]) {
-    currentCardIndex = cardIndex
-    cardIndex foreach { cardIndex =>
+  override def refresh() {
+    currentCardIndex() foreach { cardIndex =>
+      getLoaderManager.restartLoader(CARDS_LOADER_ID, null, cardsLoaderCallbacks)
+      getLoaderManager.restartLoader(cardIndex, null, this)
+    }
+  }
+  currentCardIndex.on { cardIndexOption =>
+    cardIndexOption foreach { cardIndex =>
       getLoaderManager.restartLoader(CARDS_LOADER_ID, null, cardsLoaderCallbacks)
       getLoaderManager.restartLoader(cardIndex, null, this)
     }
@@ -119,7 +118,7 @@ class OverviewFragment extends Fragment with RefreshOps with SwipeRefreshSupport
   }
   override def onLoadFinished(loader: Loader[OverviewData], data: OverviewData) {
     Util.debug(s"overview, load finished " + data)
-    if (currentCardIndex == Some(data.cardIndex)) {
+    if (currentCardIndex() == Some(data.cardIndex)) {
       rootView foreach { rv =>
         rv.findViewById(R.id.today_spending).asInstanceOf[TextView].setText(
           CardTransaction.formatMoney(data.today, "--")

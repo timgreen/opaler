@@ -46,6 +46,7 @@ import com.mikepenz.materialdrawer.model.interfaces.IProfile
 
 import it.timgreen.android.billing.InAppBilling
 import it.timgreen.android.gms.PlayServiceHelper
+import it.timgreen.android.model.ValueModel
 import it.timgreen.android.net.NetworkConnectionChecker
 import it.timgreen.android.util.Snapshot
 import it.timgreen.opal.AnalyticsSupport._
@@ -81,8 +82,8 @@ class MainActivity extends ThemedActivity
   var plusOneButton: Option[PlusOneButton] = None
   def reloadOp() {
     Util.debug(s"reloadOp $currentCardIndex")
-    getFragment(0) foreach { _.refresh(currentCardIndex) }
-    getFragment(1) foreach { _.refresh(currentCardIndex) }
+    getFragment(0) foreach { _.refresh }
+    getFragment(1) foreach { _.refresh }
     updateActionBarTitle
   }
   def startRefreshOp() {
@@ -316,7 +317,7 @@ class MainActivity extends ThemedActivity
   def refreshTripIfNecessary() {
     val use24hourFormat = PrefUtil.use24hourFormat
     if (currentValueOfUse24hourFormat != None && currentValueOfUse24hourFormat != Some(use24hourFormat)) {
-      getFragment(1) foreach { _.refresh(currentCardIndex) }
+      getFragment(1) foreach { _.refresh }
     }
     currentValueOfUse24hourFormat = Some(use24hourFormat)
   }
@@ -335,7 +336,7 @@ class MainActivity extends ThemedActivity
         prevTitle = title.toString
       }
       val subtitle = for {
-        i <- currentCardIndex
+        i <- currentCardIndex()
         cardDetails <- CardsCache.getCards.lift(i)
       } yield {
         s"${cardDetails.cardNickName} ${cardDetails.formatedCardNumber}"
@@ -344,7 +345,7 @@ class MainActivity extends ThemedActivity
     }
   }
 
-  var currentCardIndex: Option[Int] = None
+  val currentCardIndex = ValueModel[Option[Int]](None)
   var drawer: Drawer = null
   var header: AccountHeader = null
 
@@ -503,19 +504,19 @@ class MainActivity extends ThemedActivity
     val contentObserver = new ContentObserver(handler) {
       override def onChange(selfChange: Boolean, uri: Uri) {
         Util.debug("ContentObserver     ==================== " + uri)
-        currentCardIndex foreach { cardIndex =>
+        currentCardIndex() foreach { cardIndex =>
           if (uri == OpalProvider.Uris.activities(cardIndex)) {
             Util.debug("ContentObserver     ==================== do load")
-            getFragment(0) foreach { _.refresh(currentCardIndex) }
-            getFragment(1) foreach { _.refresh(currentCardIndex) }
+            getFragment(0) foreach { _.refresh }
+            getFragment(1) foreach { _.refresh }
           }
         }
       }
 
       override def onChange(selfChange: Boolean) {
         Util.debug("ContentObserver     ====================")
-        getFragment(0) foreach { _.refresh(currentCardIndex) }
-        getFragment(1) foreach { _.refresh(currentCardIndex) }
+        getFragment(0) foreach { _.refresh }
+        getFragment(1) foreach { _.refresh }
       }
     }
     // TODO(timgreen): more accurate uri.
@@ -524,7 +525,7 @@ class MainActivity extends ThemedActivity
   }
 
   private def updateCurrentAccount(i: Int) {
-    currentCardIndex = Some(i)
+    currentCardIndex() = Some(i)
     Usage.lastSelectedCard() = i
     header.setBackgroundRes(i % 4 match {
       case 0 => R.drawable.header_leaf
@@ -756,18 +757,13 @@ class AppSectionsPagerAdapter(activity: MainActivity, fm: FragmentManager) exten
 
   override def getItem(i: Int): Fragment = {
     val fragment = if (i == 0) {
-      new OverviewFragment
+      new OverviewFragment(activity.currentCardIndex)
     } else {
-      new TripFragment
+      new TripFragment(activity.currentCardIndex)
     }
     if (activity.isSyncing) {
       fragment.onRefreshStart
     }
-    new Handler().postDelayed(new Runnable() {
-      override def run() {
-        activity.reloadOp
-      }
-    }, 0)
     fragment
   }
 

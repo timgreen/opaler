@@ -24,6 +24,7 @@ import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter
 import se.emilsjolander.stickylistheaders.StickyListHeadersListView
 
 import it.timgreen.android.conversion.View._
+import it.timgreen.android.model.ValueModel
 import it.timgreen.opal.AnalyticsSupport._
 import it.timgreen.opal.api.CardTransaction
 import it.timgreen.opal.api.Model
@@ -33,7 +34,7 @@ import it.timgreen.opal.provider.TransactionTable
 
 import scala.collection.mutable
 
-class TripFragment extends Fragment with RefreshOps with SwipeRefreshSupport with SnapshotAware {
+class TripFragment(currentCardIndex: ValueModel[Option[Int]]) extends Fragment with RefreshOps with SwipeRefreshSupport with SnapshotAware {
 
   var adapter: TransactionListAdapter = _
   var rootView: Option[View] = None
@@ -69,7 +70,7 @@ class TripFragment extends Fragment with RefreshOps with SwipeRefreshSupport wit
       }
       override def onLoadFinished(loader: Loader[Cursor], cursor: Cursor) {
         Util.debug("trip, load finished " + loader.getId)
-        if (currentCardIndex == Some(loader.getId)) {
+        if (currentCardIndex() == Some(loader.getId)) {
           adapter.setNotifyOnChange(false)
           adapter.clear
           adapter.addAll(processCursor(cursor): _*)
@@ -83,7 +84,7 @@ class TripFragment extends Fragment with RefreshOps with SwipeRefreshSupport wit
       }
       override def onLoaderReset(loader: Loader[Cursor]) {
         Util.debug("trip, load reset " + loader.getId)
-        if (currentCardIndex == Some(loader.getId)) {
+        if (currentCardIndex() == Some(loader.getId)) {
           adapter.clear
 
           updateEmptyView
@@ -131,10 +132,15 @@ class TripFragment extends Fragment with RefreshOps with SwipeRefreshSupport wit
     syncRefreshStatus
   }
 
-  private var currentCardIndex: Option[Int] = None
-  override def refresh(cardIndex: Option[Int]) {
-    currentCardIndex = cardIndex
-    cardIndex foreach { cardIndex =>
+  override def refresh() {
+    currentCardIndex() foreach { cardIndex =>
+      // TODO(timgreen): change to initLoader
+      getLoaderManager.restartLoader(cardIndex, null, loaderCallbacks)
+    }
+  }
+
+  currentCardIndex.on { cardIndexOption =>
+    cardIndexOption foreach { cardIndex =>
       // TODO(timgreen): change to initLoader
       getLoaderManager.restartLoader(cardIndex, null, loaderCallbacks)
     }
