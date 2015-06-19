@@ -9,7 +9,11 @@ class Trigger extends Listenable[Trigger.Listener] {
     invokeAll
   }
 
-  protected def invoke(listener: Trigger.Listener) {
+  override def on(listener: Trigger.Listener) {
+    on(invokeOnRegister = false)(listener)
+  }
+
+  protected override def invoke(listener: Trigger.Listener) {
     listener()
   }
 }

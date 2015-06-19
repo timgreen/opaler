@@ -14,7 +14,7 @@ class ValueModel[T](defaultValue: T) extends Listenable[ValueModel.Listener[T]] 
     }
   }
 
-  protected def invoke(listener: ValueModel.Listener[T]) {
+  protected override def invoke(listener: ValueModel.Listener[T]) {
     listener(value)
   }
 }

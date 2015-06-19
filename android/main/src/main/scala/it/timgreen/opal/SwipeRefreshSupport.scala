@@ -33,7 +33,7 @@ trait SwipeRefreshSupport { self: Fragment =>
     }
   }
 
-  override def onStop {
+  override def onStop() {
     self.onStop
     isSyncing.removeByTag(self)
   }
