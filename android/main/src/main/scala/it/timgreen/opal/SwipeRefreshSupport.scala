@@ -3,14 +3,14 @@ package it.timgreen.opal
 import android.app.Fragment
 import android.support.v4.widget.SwipeRefreshLayout
 
+import it.timgreen.android.model.ValueModel
 import it.timgreen.opal.AnalyticsSupport._
 
 trait SwipeRefreshSupport { self: Fragment =>
 
   var swipeRefreshLayout: List[SwipeRefreshLayout]
-  var isRefreshing = false
 
-  def initSwipeOptions() {
+  def initSwipeOptions(isSyncing: ValueModel[Boolean]) {
     setAppearance
     swipeRefreshLayout foreach {
       _.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
@@ -21,9 +21,17 @@ trait SwipeRefreshSupport { self: Fragment =>
         }
       })
     }
+
+    isSyncing.on { syncing =>
+      if (syncing) {
+        onRefreshStart
+      } else {
+        onRefreshEnd
+      }
+    }
   }
 
-  def setAppearance() {
+  private def setAppearance() {
     swipeRefreshLayout foreach {
       _.setColorSchemeResources(
         android.R.color.holo_blue_bright,
@@ -34,24 +42,14 @@ trait SwipeRefreshSupport { self: Fragment =>
     }
   }
 
-  def syncRefreshStatus() {
-    if (isRefreshing) {
-      onRefreshStart
-    } else {
-      onRefreshEnd
-    }
-  }
-
-  def onRefreshStart() {
-    isRefreshing = true
+  private def onRefreshStart() {
     swipeRefreshLayout foreach { srl =>
       srl.setRefreshing(true)
       srl.setEnabled(false)
     }
   }
 
-  def onRefreshEnd() {
-    isRefreshing = false
+  private def onRefreshEnd() {
     swipeRefreshLayout foreach { srl =>
       srl.setRefreshing(false)
       srl.setEnabled(true)

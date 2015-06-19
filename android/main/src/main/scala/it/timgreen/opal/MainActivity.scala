@@ -80,22 +80,22 @@ class MainActivity extends ThemedActivity
   var drawerMenu: Option[ListView] = None
   var viewPager: Option[ViewPager] = None
   var plusOneButton: Option[PlusOneButton] = None
+
+  val currentCardIndex = ValueModel[Option[Int]](None)
+  val isSyncing = ValueModel(false)
+
   def reloadOp() {
-    Util.debug(s"reloadOp $currentCardIndex")
+    Util.debug(s"reloadOp ${currentCardIndex()}")
     getFragment(0) foreach { _.refresh }
     getFragment(1) foreach { _.refresh }
     updateActionBarTitle
   }
   def startRefreshOp() {
     SuperCardToast.cancelAllSuperCardToasts
-    getFragment(0) foreach { _.onRefreshStart }
-    getFragment(1) foreach { _.onRefreshStart }
   }
   def endRefreshOp() {
     // NOTE(timgreen): this is a hack for startRefreshOp haven't cancel toasts.
     SuperCardToast.cancelAllSuperCardToasts
-    getFragment(0) foreach { _.onRefreshEnd }
-    getFragment(1) foreach { _.onRefreshEnd }
 
     SyncStatus.getSyncResult foreach { syncStatus =>
       Util.debug("Show SuperCardToast")
@@ -179,28 +179,24 @@ class MainActivity extends ThemedActivity
     }
   }
 
-  private def getFragment(index: Int): Option[Fragment with RefreshOps with SwipeRefreshSupport with SnapshotAware] = {
+  private def getFragment(index: Int): Option[Fragment with RefreshOps with SnapshotAware] = {
     viewPager flatMap { vp =>
       val tag = s"android:switcher:${vp.getId}:$index"
-      Option(getFragmentManager.findFragmentByTag(tag).asInstanceOf[Fragment with RefreshOps with SwipeRefreshSupport with SnapshotAware])
+      Option(getFragmentManager.findFragmentByTag(tag).asInstanceOf[Fragment with RefreshOps with SnapshotAware])
     }
   }
 
-  var isSyncing = false
   val syncSyncStatusOp = { () =>
     runOnUiThread(new Runnable {
       override def run() {
-        val isSyncingBefore = isSyncing
-        isSyncing = AccountUtil.getAccount map { account =>
+        val isSyncingBefore = isSyncing()
+        isSyncing() = AccountUtil.getAccount map { account =>
           Observer.isSyncActive(account, OpalProvider.AUTHORITY)
         } getOrElse false
-        Util.debug(s"sync status op: $isSyncingBefore -> $isSyncing")
+        Util.debug(s"sync status op: $isSyncingBefore -> ${isSyncing()}")
 
-        if (isSyncingBefore != isSyncing) {
-          if (isSyncing) {
-            startRefreshOp
-          } else {
-            endRefreshOp
+        if (isSyncingBefore != isSyncing()) {
+          if (!isSyncing()) {
             // TODO(timgreen): optimise it
             reloadOp
           }
@@ -345,7 +341,6 @@ class MainActivity extends ThemedActivity
     }
   }
 
-  val currentCardIndex = ValueModel[Option[Int]](None)
   var drawer: Drawer = null
   var header: AccountHeader = null
 
@@ -757,12 +752,9 @@ class AppSectionsPagerAdapter(activity: MainActivity, fm: FragmentManager) exten
 
   override def getItem(i: Int): Fragment = {
     val fragment = if (i == 0) {
-      new OverviewFragment(activity.currentCardIndex)
+      new OverviewFragment(activity.currentCardIndex, activity.isSyncing)
     } else {
-      new TripFragment(activity.currentCardIndex)
-    }
-    if (activity.isSyncing) {
-      fragment.onRefreshStart
+      new TripFragment(activity.currentCardIndex, activity.isSyncing)
     }
     fragment
   }

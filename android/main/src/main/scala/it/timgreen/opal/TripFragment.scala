@@ -34,7 +34,7 @@ import it.timgreen.opal.provider.TransactionTable
 
 import scala.collection.mutable
 
-class TripFragment(currentCardIndex: ValueModel[Option[Int]]) extends Fragment with RefreshOps with SwipeRefreshSupport with SnapshotAware {
+class TripFragment(currentCardIndex: ValueModel[Option[Int]], isSyncing: ValueModel[Boolean]) extends Fragment with RefreshOps with SwipeRefreshSupport with SnapshotAware {
 
   var adapter: TransactionListAdapter = _
   var rootView: Option[View] = None
@@ -128,8 +128,7 @@ class TripFragment(currentCardIndex: ValueModel[Option[Int]]) extends Fragment w
     swipeRefreshLayout =
       rootView.map(_.findViewById(R.id.swipe_container).asInstanceOf[SwipeRefreshLayout]).toList :::
       rootView.map(_.findViewById(android.R.id.empty).asInstanceOf[SwipeRefreshLayout]).toList
-    initSwipeOptions
-    syncRefreshStatus
+    initSwipeOptions(isSyncing)
   }
 
   override def refresh() {

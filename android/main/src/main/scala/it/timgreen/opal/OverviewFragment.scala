@@ -23,7 +23,7 @@ import it.timgreen.opal.provider.CardsCache
 import it.timgreen.opal.provider.OpalProvider
 import it.timgreen.opal.sync.SyncStatus
 
-class OverviewFragment(currentCardIndex: ValueModel[Option[Int]]) extends Fragment with RefreshOps with SwipeRefreshSupport
+class OverviewFragment(currentCardIndex: ValueModel[Option[Int]], isSyncing: ValueModel[Boolean]) extends Fragment with RefreshOps with SwipeRefreshSupport
   with LoaderManager.LoaderCallbacks[OverviewData] with SnapshotAware {
 
   var rootView: Option[View] = None
@@ -39,16 +39,7 @@ class OverviewFragment(currentCardIndex: ValueModel[Option[Int]]) extends Fragme
 
   override def onViewCreated(view: View, savedInstanceState: Bundle) {
     swipeRefreshLayout = rootView.map(_.findViewById(R.id.swipe_container).asInstanceOf[SwipeRefreshLayout]).toList
-    initSwipeOptions
-    syncRefreshStatus
-  }
-
-  override def onRefreshStart() {
-    super.onRefreshStart
-  }
-
-  override def onRefreshEnd() {
-    super.onRefreshEnd
+    initSwipeOptions(isSyncing)
   }
 
   private val CARDS_LOADER_ID = -1
