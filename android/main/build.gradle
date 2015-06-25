@@ -59,6 +59,7 @@ android {
             minifyEnabled true
 
             buildConfigField 'boolean', 'ENABLE_FAKE_DATA', 'false'
+            buildConfigField 'boolean', 'ENABLE_THEME', 'false'
         }
 
         debug.initWith(base)
@@ -76,6 +77,7 @@ android {
             resValue 'string', 'app_name', 'Opaler Dev'
 
             buildConfigField 'boolean', 'ENABLE_FAKE_DATA', 'true'
+            buildConfigField 'boolean', 'ENABLE_THEME', 'true'
         }
 
         prod.initWith(base)
@@ -94,6 +96,7 @@ android {
             resValue 'string', 'app_name', 'Opaler Fishfood'
 
             buildConfigField 'boolean', 'ENABLE_FAKE_DATA', 'true'
+            buildConfigField 'boolean', 'ENABLE_THEME', 'true'
         }
         beta.initWith(prod)
         beta {

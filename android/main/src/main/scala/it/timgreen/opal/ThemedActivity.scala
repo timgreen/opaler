@@ -12,7 +12,13 @@ abstract class ThemedActivity extends AppCompatActivity {
   }
 
   private def theme: Int = {
-    (translucentStatus, PrefUtil.prefs(this).getString("theme", "dark")) match {
+    val theme = if (BuildConfig.ENABLE_THEME) {
+      PrefUtil.prefs(this).getString("theme", "dark")
+    } else {
+      "dark"
+    }
+
+    (translucentStatus, theme) match {
       case (true, "dark") => R.style.AppTheme_Dark_TranslucentStatus
       case (false, "dark") => R.style.AppTheme_Dark
       case (true, "light") => R.style.AppTheme_Light_TranslucentStatus

@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.preference.DialogPreference
 import android.preference.Preference
 import android.preference.PreferenceFragment
+import android.preference.PreferenceGroup
 import android.provider.Settings
 import android.support.v7.widget.Toolbar
 import android.util.AttributeSet
@@ -97,6 +98,12 @@ class SettingsFragment extends PreferenceFragment {
       case _ =>
         devGroup.setEnabled(false)
         getPreferenceScreen.removePreference(devGroup)
+    }
+
+    val theme = findPreference("theme")
+    if (!BuildConfig.ENABLE_THEME) {
+      theme.setEnabled(false)
+      findPreference("ui_group").asInstanceOf[PreferenceGroup].removePreference(theme)
     }
   }
 }

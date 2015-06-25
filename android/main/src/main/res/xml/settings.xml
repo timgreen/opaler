@@ -27,7 +27,9 @@
         android:summary="@string/pref_auto_sync_on_wifi_only_summary" />
   </PreferenceCategory>
 
-  <PreferenceCategory android:title="@string/pref_ui_title">
+  <PreferenceCategory android:title="@string/pref_ui_title"
+      android:key="ui_group"
+      >
     <ListPreference
         android:key="theme"
         android:title="@string/pref_theme_title"
