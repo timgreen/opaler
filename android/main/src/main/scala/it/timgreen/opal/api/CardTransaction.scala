@@ -71,7 +71,7 @@ object CardTransaction {
 
   private def optNum[T](text: String, op: String => T): Option[T] = (text match {
     case "" => None
-    case _ => Some(text.replace("$", ""))
+    case _ => Some(text.replace("$", "").trim)
   }).map(op)
 
   // NOTE(timgreen): ignore timezone, trust as UTC.
