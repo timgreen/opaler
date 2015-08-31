@@ -37,40 +37,52 @@ object OpalApi {
     LoginResult(response)
   }
 
-  def getCardDetailsList(implicit opalAccount: OpalAccount): Either[List[CardDetails], Throwable] = try {
-    withAutoLogin {
-      Http.get(cardDetailsUrl).asJsonArray
-    }.left map CardDetails.parseList
-  } catch {
-    case e: Throwable => Right(e)
+  def getCardDetailsList(implicit opalAccount: OpalAccount): Either[List[CardDetails], Throwable] = withRetry(3) {
+    CardDetails.parseList {
+      withAutoLogin {
+        Http.get(cardDetailsUrl).asJsonArray
+      }
+    }
   }
 
-  def getCardTransactions(cardIndex: Int, pageIndex: Int, updatedTime: Long)(implicit opalAccount: OpalAccount) = try {
-    withAutoLogin {
-      Http.get(cardTransactionsUrl(cardIndex, pageIndex))
-    }.left map CardTransaction.parseList(updatedTime)
-  } catch {
-    case e: Throwable => Right(e)
+  def getCardTransactions(cardIndex: Int, pageIndex: Int, updatedTime: Long)(implicit opalAccount: OpalAccount) = withRetry(3) {
+    CardTransaction.parseList(updatedTime) {
+      withAutoLogin {
+        Http.get(cardTransactionsUrl(cardIndex, pageIndex))
+      }
+    }
   }
-
 
   private def withAutoLogin[T](op: => Http.Response[T])
-                              (implicit opalAccount: OpalAccount): Either[T, Throwable] = {
-    try {
-      op match {
-        case Http.Response(_, Left(r)) =>
-          Left(r)
-        case Http.Response(302, _) =>
-          login match {
-            case LoginSuccess => op.result
-            case failed: LoginFailed => Right(new LoginFailedException(failed))
-            case LoginError(e) => Right(e)
-          }
-        case Http.Response(_, Right(t)) =>
-          Right(t)
-      }
+                              (implicit opalAccount: OpalAccount): T = {
+    op match {
+      case Http.Response(_, Left(r)) => r
+      case Http.Response(302, _) =>
+        login match {
+          case LoginSuccess => op.result.left.get
+          case failed: LoginFailed => throw new LoginFailedException(failed)
+          case LoginError(e) => throw e
+        }
+      case Http.Response(_, Right(t)) => throw t
+    }
+  }
+
+  private def withRetry[T](retriesLeft: Int)
+                          (op: => T)
+                          (implicit opalAccount: OpalAccount): Either[T, Throwable] = {
+    val result = try {
+      Left(op)
     } catch {
       case e: Throwable => Right(e)
+    }
+
+    if (retriesLeft > 0) {
+      result match {
+        case Left(_) => result
+        case Right(_) => withRetry(retriesLeft - 1)(op)
+      }
+    } else {
+      result
     }
   }
 
