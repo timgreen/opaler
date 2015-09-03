@@ -20,8 +20,9 @@ object OpalApi {
 
   val LOGIN_URL = "https://www.opal.com.au/login/registeredUserUsernameAndPasswordLogin"
 
+  // TODO(timgreen): use GTM to update this field
   // NOTE(timgreen): set desktop userAgent to avoid redirect to https://m.opal.com.au.
-  implicit val connWithDesktopUserAgent = ConnSetting(userAgent = Some("Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36"))
+  implicit val connWithDesktopUserAgent = ConnSetting(userAgent = Some("Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Ubuntu Chromium/44.0.2403.89 Chrome/44.0.2403.89 Safari/537.36"))
 
   def login(implicit opalAccount: OpalAccount): LoginResult = {
     Util.debug("Login...")
