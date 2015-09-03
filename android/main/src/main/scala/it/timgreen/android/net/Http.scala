@@ -2,26 +2,26 @@ package it.timgreen.android.net
 
 import scala.io.Source
 
-import java.net.HttpURLConnection
-import java.net.URL
-import java.net.URLEncoder
-
 import org.json.JSONArray
 import org.json.JSONObject
 
 import android.os.Build
 
+import com.squareup.okhttp.FormEncodingBuilder
+import com.squareup.okhttp.OkHttpClient
+import com.squareup.okhttp.{ Request => OkRequest, Response => OkResponse }
+
 object Http {
 
   case class ConnSetting(
-    readTimeoutInMilli: Int = 10000,
-    connectTimeoutInMilli: Int = 15000,
-    followRedirects: Boolean = false,
+    client: OkHttpClient,
     getResponseOn: Int => Boolean = ConnSetting.onlyAccpet(200),
     userAgent: Option[String] = None
   )
   object ConnSetting {
+    val defaultClient = new OkHttpClient
     implicit val lowPriorityProvider = ConnSetting(
+      client = defaultClient,
       getResponseOn = onlyAccpet(200)
     )
 
@@ -52,49 +52,35 @@ object Http {
     }
   }
 
-  def withConn[R](url: String)(op: HttpURLConnection => R)(implicit setting: ConnSetting): R = {
-    val conn = getConn(url)
-    val r = op(conn)
-    conn.disconnect
-    r
-  }
-
-  private def getConn(url: String)(implicit setting: ConnSetting) = {
-    val conn = new URL(url).openConnection().asInstanceOf[HttpURLConnection]
-    conn.setInstanceFollowRedirects(setting.followRedirects)
-    conn.setReadTimeout(setting.readTimeoutInMilli)
-    conn.setConnectTimeout(setting.connectTimeoutInMilli)
+  private def getRequestBuilder(url: String)(implicit setting: ConnSetting): OkRequest.Builder = {
+    val builder = (new OkRequest.Builder)
+      .url(url)
     setting.userAgent foreach { userAgent =>
-      conn.setRequestProperty("User-agent", userAgent)
+      builder.header("User-agent", userAgent)
     }
-    if (Build.VERSION.SDK_INT > 13) {
-      conn.setRequestProperty("Connection", "close")
-    }
-    conn
+
+    builder
   }
 
-  private def safeGetResponse(conn: HttpURLConnection, code: Int)
+  private def safeGetResponse(response: OkResponse)
                              (implicit setting: ConnSetting): String = {
-    val is = conn.getInputStream
-    val str = Source.fromInputStream(is).mkString
-    is.close
-    if (setting.getResponseOn(code)) {
-      str
+    if (setting.getResponseOn(response.code)) {
+      response.body.string
     } else {
-      throw UnexpectedResponseCode(code, conn.getHeaderFields + "\n" + str)
+      throw UnexpectedResponseCode(response.code, response.headers + "\n" + response.body.string)
     }
   }
 
   def get(url: String)(implicit setting: ConnSetting): Response[String] = {
-    var code = -1;
+    var code = -1
+    val request = getRequestBuilder(url)
+      .get
+      .build
     try {
-      val str = withConn(url) { conn =>
-        conn.setRequestMethod("GET")
-        conn.connect
-        code = conn.getResponseCode()
-        safeGetResponse(conn, code)
-      }
-      Response(code, Left(str))
+      val response = setting.client.newCall(request).execute
+      code = response.code
+      val str = safeGetResponse(response)
+      Response(response.code, Left(str))
     } catch {
       case e: Throwable =>  Response(code, Right(e))
     }
@@ -102,29 +88,19 @@ object Http {
 
   def post(url: String, params: (String, String)*)
           (implicit setting: ConnSetting): Response[String] = {
-    var code = -1;
+    var code = -1
+    val formBodyBuilder = new FormEncodingBuilder
+    params foreach { case (k, v) =>
+      formBodyBuilder.add(k, v)
+    }
+    val request = getRequestBuilder(url)
+      .post(formBodyBuilder.build)
+      .build
     try {
-      val str = withConn(url) { conn =>
-        conn.setRequestMethod("POST")
-        conn.setDoOutput(true)
-        conn.setDoInput(true)
-
-        val postBody = params map { case (k, v) =>
-          k + "=" + URLEncoder.encode(v, "UTF-8")
-        } mkString("&")
-
-        conn.setFixedLengthStreamingMode(postBody.getBytes("UTF-8").length)
-        conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded")
-
-        val os = conn.getOutputStream
-        os.write(postBody.getBytes("UTF-8"))
-        os.flush
-        os.close
-
-        code = conn.getResponseCode()
-        safeGetResponse(conn, code)
-      }
-      Response(code, Left(str))
+      val response = setting.client.newCall(request).execute
+      code = response.code
+      val str = safeGetResponse(response)
+      Response(response.code, Left(str))
     } catch {
       case e: Throwable =>  Response(code, Right(e))
     }
