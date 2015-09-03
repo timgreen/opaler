@@ -390,13 +390,12 @@ class MainActivity extends ThemedActivity
           .withIcon(typedArray.getDrawable(1))
           .withIdentifier(Identifier.Activity)
           .withSelectable(true),
-        new DividerDrawerItem(),
-        new PrimaryDrawerItem()
+        new SecondaryDrawerItem()
           .withName(R.string.drawer_donate)
           .withIcon(typedArray.getDrawable(2))
           .withIdentifier(Identifier.Donate)
           .withSelectable(false),
-        new PrimaryDrawerItem()
+        new SecondaryDrawerItem()
           .withName(R.string.drawer_share)
           .withIcon(typedArray.getDrawable(3))
           .withIdentifier(Identifier.Share)
