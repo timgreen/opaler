@@ -38,7 +38,7 @@ object OpalApi {
     LoginResult(response)
   }
 
-  def getCardDetailsList(implicit opalAccount: OpalAccount): Either[List[CardDetails], Throwable] = withRetry(3) {
+  def getCardDetailsList(implicit opalAccount: OpalAccount): Either[List[CardDetails], Throwable] = withRetry(5) {
     CardDetails.parseList {
       withAutoLogin {
         Http.get(cardDetailsUrl).asJsonArray
@@ -46,7 +46,7 @@ object OpalApi {
     }
   }
 
-  def getCardTransactions(cardIndex: Int, pageIndex: Int, updatedTime: Long)(implicit opalAccount: OpalAccount) = withRetry(3) {
+  def getCardTransactions(cardIndex: Int, pageIndex: Int, updatedTime: Long)(implicit opalAccount: OpalAccount) = withRetry(5) {
     CardTransaction.parseList(updatedTime) {
       withAutoLogin {
         Http.get(cardTransactionsUrl(cardIndex, pageIndex))
@@ -77,7 +77,7 @@ object OpalApi {
       case e: Throwable => Right(e)
     }
 
-    if (retriesLeft > 0) {
+    if (retriesLeft >= 0) {
       result match {
         case Left(_) => result
         case Right(_) => withRetry(retriesLeft - 1)(op)
