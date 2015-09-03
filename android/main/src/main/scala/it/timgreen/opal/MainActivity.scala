@@ -33,10 +33,10 @@ import com.amulyakhare.textdrawable.TextDrawable
 import com.amulyakhare.textdrawable.util.ColorGenerator
 import com.github.johnpersano.supertoasts.SuperCardToast
 import com.github.johnpersano.supertoasts.SuperToast
+import com.mikepenz.materialdrawer.AccountHeader
+import com.mikepenz.materialdrawer.AccountHeaderBuilder
 import com.mikepenz.materialdrawer.Drawer
 import com.mikepenz.materialdrawer.DrawerBuilder
-import com.mikepenz.materialdrawer.accountswitcher.AccountHeader
-import com.mikepenz.materialdrawer.accountswitcher.AccountHeaderBuilder
 import com.mikepenz.materialdrawer.model.DividerDrawerItem
 import com.mikepenz.materialdrawer.model.PrimaryDrawerItem
 import com.mikepenz.materialdrawer.model.ProfileDrawerItem
@@ -236,7 +236,7 @@ class MainActivity extends ThemedActivity
     )
 
     currentFragmentId.on { fragmentId =>
-      drawer.setSelectionByIdentifier(fragmentId, false)
+      drawer.setSelection(fragmentId, false)
       viewPager.setCurrentItem(fragmentId - 1)
       updateActionBarTitle
     }
@@ -383,36 +383,36 @@ class MainActivity extends ThemedActivity
           .withName(R.string.drawer_overview)
           .withIcon(typedArray.getDrawable(0))
           .withIdentifier(Identifier.Overview)
-          .withCheckable(true),
+          .withSelectable(true),
         new PrimaryDrawerItem()
           .withName(R.string.drawer_activity)
           .withIcon(typedArray.getDrawable(1))
           .withIdentifier(Identifier.Activity)
-          .withCheckable(true),
+          .withSelectable(true),
         new DividerDrawerItem(),
         new PrimaryDrawerItem()
           .withName(R.string.drawer_donate)
           .withIcon(typedArray.getDrawable(2))
           .withIdentifier(Identifier.Donate)
-          .withCheckable(false),
+          .withSelectable(false),
         new PrimaryDrawerItem()
           .withName(R.string.drawer_share)
           .withIcon(typedArray.getDrawable(3))
           .withIdentifier(Identifier.Share)
-          .withCheckable(false),
+          .withSelectable(false),
         new SecondaryDrawerItem()
           .withName(R.string.drawer_feedback_and_help)
           .withIcon(typedArray.getDrawable(4))
           .withIdentifier(Identifier.Feedback)
-          .withCheckable(false),
+          .withSelectable(false),
         new SecondaryDrawerItem()
           .withName(R.string.drawer_settings)
           .withIcon(typedArray.getDrawable(5))
           .withIdentifier(Identifier.Settings)
-          .withCheckable(false)
+          .withSelectable(false)
       )
       .withOnDrawerItemClickListener(new Drawer.OnDrawerItemClickListener() {
-        override def onItemClick(parent: AdapterView[_], view: View, position: Int, id: Long, drawerItem: IDrawerItem): Boolean = {
+        override def onItemClick(view: View, position: Int, drawerItem: IDrawerItem[_]): Boolean = {
           if (drawerItem != null) {
             drawerItem.getIdentifier match {
               case id@(Identifier.Overview | Identifier.Activity) =>
@@ -429,7 +429,6 @@ class MainActivity extends ThemedActivity
         }
       })
       .withTranslucentStatusBar(true)
-      .withTranslucentActionBarCompatibility(false)
       .withSavedInstance(savedInstanceState)
       .build
 
@@ -551,8 +550,7 @@ class MainActivity extends ThemedActivity
   def openSettings() {
     val intent = new Intent(this, classOf[SettingActivity])
     startActivity(intent)
-    val drawerLayout = findViewById(R.id.drawer_layout).asInstanceOf[DrawerLayout]
-    drawerLayout.closeDrawers
+    drawer.closeDrawer
   }
 
   def donate() {
@@ -681,8 +679,8 @@ class MainActivity extends ThemedActivity
     val drawerLayout = drawer.getSlider
     // remove card name from snapshot
     header.getProfiles foreach { p =>
-      p.setName(s"Card: ${p.getIdentifier} / ${header.getProfiles.size}")
-      p.setEmail("0000 0000 0000 0000")
+      p.withName(s"Card: ${p.getIdentifier} / ${header.getProfiles.size}")
+      p.withEmail("0000 0000 0000 0000")
     }
     // NOTE(timgreen): trigger protected header.updateHeaderAndList
     header.setProfiles(header.getProfiles)
