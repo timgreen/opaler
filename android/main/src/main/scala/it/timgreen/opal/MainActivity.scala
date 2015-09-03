@@ -41,6 +41,7 @@ import com.mikepenz.materialdrawer.model.DividerDrawerItem
 import com.mikepenz.materialdrawer.model.PrimaryDrawerItem
 import com.mikepenz.materialdrawer.model.ProfileDrawerItem
 import com.mikepenz.materialdrawer.model.SecondaryDrawerItem
+import com.mikepenz.materialdrawer.model.SectionDrawerItem
 import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem
 import com.mikepenz.materialdrawer.model.interfaces.IProfile
 
@@ -399,7 +400,12 @@ class MainActivity extends ThemedActivity
           .withName(R.string.drawer_share)
           .withIcon(typedArray.getDrawable(3))
           .withIdentifier(Identifier.Share)
-          .withSelectable(false),
+          .withSelectable(false)
+      )
+      .addStickyDrawerItems(
+        new SectionDrawerItem()
+          .withName(BuildConfig.VERSION_NAME)
+          .setDivider(false),
         new SecondaryDrawerItem()
           .withName(R.string.drawer_feedback_and_help)
           .withIcon(typedArray.getDrawable(4))
