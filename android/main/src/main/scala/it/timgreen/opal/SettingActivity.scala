@@ -80,7 +80,7 @@ class SettingsFragment extends PreferenceFragment {
     })
 
     val pInfo = getActivity.getPackageManager.getPackageInfo(getActivity.getPackageName, 0)
-    val version = pInfo.versionName
+    val version = pInfo.versionName + " (" + BuildConfig.GIT_REVISION + ")"
     val about = findPreference("about")
     about.setSummary(
       String.format(getResources.getString(R.string.pref_about_summary), version))
