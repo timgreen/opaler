@@ -71,6 +71,9 @@
 -keep public class com.google.android.gms.**
 -dontwarn com.google.android.gms.**
 
+# OkHttp
+-dontwarn okio.**
+
 # this app
 -keep public class it.timgreen.opal.OverviewFragment
 -keep public class it.timgreen.opal.TripFragment
