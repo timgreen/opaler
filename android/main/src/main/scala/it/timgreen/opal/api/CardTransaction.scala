@@ -32,7 +32,13 @@ object CardTransaction {
   def parseList(updatedTime: Long)(html: String): (Boolean, List[CardTransaction]) = {
     // TODO(timgreen): hack fix for entities in html.
     val fixedHtml = html.replaceAll("&[a-zA-Z]+;", "").replaceAll("&", "&amp;")
-    val htmlXml = XML.loadString(s"<div>$fixedHtml</div>")
+    val htmlXml = try {
+      XML.loadString(s"<div>$fixedHtml</div>")
+    } catch {
+      case e: Throwable =>
+        Util.debug("Faild to parse xml:\n" + fixedHtml, e)
+        throw e
+    }
     val Some(tableXml) = (htmlXml \\ "table") find { _ \ "@id" exists (_.text == "transaction-data") }
     val optPaginationXml = (htmlXml \\ "div") find { _ \ "@id" exists (_.text == "pagination") }
 

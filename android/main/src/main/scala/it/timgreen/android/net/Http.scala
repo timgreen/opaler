@@ -40,7 +40,9 @@ object Http {
         try {
           result.left.map(op)
         } catch {
-          case e: Throwable => Right(e)
+          case e: Throwable =>
+            android.util.Log.d("TIM_HTTP_DEBUG", "Faild to parse res:\n" + result.left, e)
+            Right(e)
         }
       )
   }
