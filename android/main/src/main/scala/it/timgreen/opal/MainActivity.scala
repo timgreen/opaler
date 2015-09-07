@@ -40,7 +40,6 @@ import com.mikepenz.materialdrawer.DrawerBuilder
 import com.mikepenz.materialdrawer.model.DividerDrawerItem
 import com.mikepenz.materialdrawer.model.PrimaryDrawerItem
 import com.mikepenz.materialdrawer.model.ProfileDrawerItem
-import com.mikepenz.materialdrawer.model.SecondaryDrawerItem
 import com.mikepenz.materialdrawer.model.SectionDrawerItem
 import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem
 import com.mikepenz.materialdrawer.model.interfaces.IProfile
@@ -390,12 +389,12 @@ class MainActivity extends ThemedActivity
           .withIcon(typedArray.getDrawable(1))
           .withIdentifier(Identifier.Activity)
           .withSelectable(true),
-        new SecondaryDrawerItem()
+        new PrimaryDrawerItem()
           .withName(R.string.drawer_donate)
           .withIcon(typedArray.getDrawable(2))
           .withIdentifier(Identifier.Donate)
           .withSelectable(false),
-        new SecondaryDrawerItem()
+        new PrimaryDrawerItem()
           .withName(R.string.drawer_share)
           .withIcon(typedArray.getDrawable(3))
           .withIdentifier(Identifier.Share)
@@ -405,12 +404,12 @@ class MainActivity extends ThemedActivity
         new SectionDrawerItem()
           .withName(BuildConfig.VERSION_NAME)
           .setDivider(false),
-        new SecondaryDrawerItem()
+        new PrimaryDrawerItem()
           .withName(R.string.drawer_feedback_and_help)
           .withIcon(typedArray.getDrawable(4))
           .withIdentifier(Identifier.Feedback)
           .withSelectable(false),
-        new SecondaryDrawerItem()
+        new PrimaryDrawerItem()
           .withName(R.string.drawer_settings)
           .withIcon(typedArray.getDrawable(5))
           .withIdentifier(Identifier.Settings)
