@@ -14,8 +14,8 @@
   <string name="pref_sync_title">Sync</string>
   <string name="pref_sync_on_start_title">Sync on start</string>
   <string name="pref_sync_on_start_summary">Automatically sync data when app start.</string>
-  <string name="pref_auto_sync_on_wifi_only_title">Wireless network sync only</string>
-  <string name="pref_auto_sync_on_wifi_only_summary">Automatically sync data only when connected to a wireless network.</string>
+  <string name="pref_auto_sync_on_wifi_only_title">Wi-Fi sync only</string>
+  <string name="pref_auto_sync_on_wifi_only_summary">Automatically sync data only when connected to Wi-Fi.</string>
   <string name="pref_auto_sync_title">Sync</string>
   <string name="pref_auto_sync_summary">Automatically sync data in the background</string>
   <string name="pref_sync_frequency_title">Sync Frequency</string>
