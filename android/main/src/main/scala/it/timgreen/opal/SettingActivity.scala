@@ -101,6 +101,12 @@ class SettingsFragment extends PreferenceFragment {
     }
 
     val theme = findPreference("theme")
+    theme.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+      override def onPreferenceChange(preference: Preference, newValue: Any): Boolean = {
+        getActivity.recreate
+        true
+      }
+    })
     if (!BuildConfig.ENABLE_THEME) {
       theme.setEnabled(false)
       findPreference("ui_group").asInstanceOf[PreferenceGroup].removePreference(theme)

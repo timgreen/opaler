@@ -5,10 +5,19 @@ import android.support.v7.app.AppCompatActivity
 
 abstract class ThemedActivity extends AppCompatActivity {
   val translucentStatus = false
+  private var currentTheme: Int = _
 
   override def onCreate(savedInstanceState: Bundle) {
-    setTheme(theme)
+    currentTheme = theme
+    setTheme(currentTheme)
     super.onCreate(savedInstanceState)
+  }
+
+  override def onResume() {
+    super.onResume
+    if (currentTheme != theme) {
+      recreate
+    }
   }
 
   private def theme: Int = {
