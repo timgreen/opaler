@@ -119,7 +119,7 @@ class SyncAdapter(context: Context, autoInitialize: Boolean, allowParallelSyncs:
     Util.debug("SyncAdapter, cards: " + cardDetailsList)
     updateWidget
 
-    cardDetailsList foreach { cardDetails =>
+    cardDetailsList.par foreach { cardDetails =>
       syncCardTransaction(cardDetails)
     }
     updateWidget
