@@ -23,7 +23,10 @@ trait SwipeRefreshSupport extends Fragment {
         }
       })
     }
+  }
 
+  override def onResume() {
+    super.onResume
     isSyncing.on(tag = this) { syncing =>
       if (syncing) {
         onRefreshStart
@@ -33,9 +36,9 @@ trait SwipeRefreshSupport extends Fragment {
     }
   }
 
-  override def onStop() {
+  override def onPause() {
     isSyncing.removeByTag(this)
-    super.onStop
+    super.onPause
   }
 
   private def setAppearance() {
