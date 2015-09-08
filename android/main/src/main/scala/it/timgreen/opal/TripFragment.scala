@@ -24,7 +24,7 @@ import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter
 import se.emilsjolander.stickylistheaders.StickyListHeadersListView
 
 import it.timgreen.android.conversion.View._
-import it.timgreen.android.model.ValueModel
+import it.timgreen.android.model.SingleValue
 import it.timgreen.opal.AnalyticsSupport._
 import it.timgreen.opal.api.CardTransaction
 import it.timgreen.opal.api.Model

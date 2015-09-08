@@ -3,7 +3,7 @@ package it.timgreen.opal
 import android.app.Fragment
 import android.support.v4.widget.SwipeRefreshLayout
 
-import it.timgreen.android.model.ValueModel
+import it.timgreen.android.model.SingleValue
 import it.timgreen.opal.AnalyticsSupport._
 
 trait SwipeRefreshSupport extends Fragment {

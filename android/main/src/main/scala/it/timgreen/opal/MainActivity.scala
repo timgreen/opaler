@@ -46,7 +46,7 @@ import com.mikepenz.materialdrawer.model.interfaces.IProfile
 
 import it.timgreen.android.billing.InAppBilling
 import it.timgreen.android.gms.PlayServiceHelper
-import it.timgreen.android.model.ValueModel
+import it.timgreen.android.model.SingleValue
 import it.timgreen.android.net.NetworkConnectionChecker
 import it.timgreen.android.util.Snapshot
 import it.timgreen.opal.AnalyticsSupport._
@@ -75,7 +75,7 @@ class MainActivity extends ThemedActivity
   with RateSupport {
 
   import Bus._
-  val currentFragmentId = ValueModel(Identifier.Overview)
+  val currentFragmentId = SingleValue(Identifier.Overview)
 
   override val translucentStatus = true
   implicit def provideActivity = this
