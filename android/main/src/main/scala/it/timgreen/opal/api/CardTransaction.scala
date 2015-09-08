@@ -194,6 +194,8 @@ object TransactionDetails {
       Adjustment
     } else if (details == "Balance transfer") {
       BalanceTransfer
+    } else if (details == "No details available") {
+      NoDetailsAvailable
     } else if (details.startsWith(tapOnReversalPrefix)) {
       val stop = details.substring(tapOnReversalPrefix.size)
       new TapOnReversal(stop)
@@ -222,6 +224,7 @@ object TransactionDetails {
   object BalanceTransfer extends TransactionDetails("Balance transfer")
   case class Blocked(stop: String) extends TransactionDetails(blockedPrefix + stop)
   case class RejectedAction(stop: String) extends TransactionDetails(rejectedActionPrefix + stop)
+  object NoDetailsAvailable extends TransactionDetails("No details available")
   class Unknown(details: String) extends TransactionDetails(details)
 }
 
