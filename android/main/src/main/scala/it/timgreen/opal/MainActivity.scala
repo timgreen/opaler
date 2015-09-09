@@ -47,10 +47,13 @@ import com.mikepenz.materialdrawer.model.interfaces.IProfile
 import it.timgreen.android.billing.InAppBilling
 import it.timgreen.android.gms.PlayServiceHelper
 import it.timgreen.android.model.SingleValue
+import it.timgreen.android.model.Value
+import it.timgreen.android.model.ListenableAwareActivity
 import it.timgreen.android.net.NetworkConnectionChecker
 import it.timgreen.android.util.Snapshot
 import it.timgreen.opal.AnalyticsSupport._
 import it.timgreen.opal.account.AccountUtil
+import it.timgreen.opal.api.CardDetails
 import it.timgreen.opal.provider.CardsCache
 import it.timgreen.opal.provider.OpalProvider
 import it.timgreen.opal.provider.TransactionTable
@@ -72,13 +75,34 @@ class MainActivity extends ThemedActivity
   with AccountHelper.Operator
   with Ads.BottomBanner
   with InAppBilling.BillingSupport
-  with RateSupport {
-
-  import Bus._
-  val currentFragmentId = SingleValue(Identifier.Overview)
+  with RateSupport
+  with ListenableAwareActivity {
 
   override val translucentStatus = true
   implicit def provideActivity = this
+
+  // Reactive models
+  import Bus.currentCardIndex
+  import Bus.isSyncing
+  import Bus.syncTrigger
+  import Bus.fragmentRefreshTrigger
+  val currentFragmentId = SingleValue(Identifier.Overview)
+  // TODO(timgreen): handle card list reload
+  val cards = SingleValue(List[CardDetails]())
+
+  val actionBarSubtitle: Value[Option[String]] = (currentCardIndex & cards) map { case (cardIndex, cards) =>
+    for {
+      i <- cardIndex
+      cardDetails <- cards.lift(i)
+    } yield {
+      s"${cardDetails.cardNickName} ${cardDetails.formatedCardNumber}"
+    }
+  }
+
+  // Bind reactive models to view
+  actionBarSubtitle duringResumePause { subtitle =>
+    getSupportActionBar.setSubtitle(subtitle getOrElse null)
+  }
 
   var viewPager: Option[ViewPager] = None
   var plusOneButton: Option[PlusOneButton] = None
@@ -240,6 +264,9 @@ class MainActivity extends ThemedActivity
       viewPager.setCurrentItem(fragmentId - 1)
       updateActionBarTitle
     }
+
+    // TODO(timgreen): find a better way to init the value.
+    cards() = CardsCache.getCards
   }
 
 
@@ -325,13 +352,6 @@ class MainActivity extends ThemedActivity
         trackView(title + "Fragment")
         prevTitle = title.toString
       }
-      val subtitle = for {
-        i <- currentCardIndex()
-        cardDetails <- CardsCache.getCards.lift(i)
-      } yield {
-        s"${cardDetails.cardNickName} ${cardDetails.formatedCardNumber}"
-      }
-      getSupportActionBar.setSubtitle(subtitle getOrElse null)
     }
   }
 
