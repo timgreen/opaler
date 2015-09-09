@@ -98,6 +98,32 @@ class MainActivity extends ThemedActivity
       s"${cardDetails.cardNickName} ${cardDetails.formatedCardNumber}"
     }
   }
+  val drawerProfiles: Value[ArrayList[IProfile[_]]] = cards map { cards =>
+    val profiles = cards map { card =>
+      val name = card.cardNickName
+      val text = {
+        val parts = name.split(' ').filter(_.nonEmpty)
+        if (parts.length >= 2) {
+          parts(0).substring(0, 1) + parts(1).substring(0, 1)
+        } else {
+          (name + "  ").substring(0, 2)
+        }
+      }
+      val icon = TextDrawable.builder
+        .beginConfig
+          .width(512)
+          .height(512)
+        .endConfig
+        .buildRect(text, ColorGenerator.MATERIAL.getColor(name))
+      new ProfileDrawerItem()
+        .withName(name)
+        .withEmail(card.cardNumber.grouped(4).mkString(" "))
+        .withIcon(icon)
+        .withIdentifier(card.index)
+    }
+
+    new ArrayList(profiles)
+  }
 
   // Bind reactive models to view
   //// Update ActionBar
@@ -118,6 +144,13 @@ class MainActivity extends ThemedActivity
   currentFragmentId duringResumePause { fragmentId =>
     drawer.setSelection(fragmentId, false)
     viewPager foreach { _.setCurrentItem(fragmentId - 1) }
+  }
+
+  //// Update drawer profiles
+  drawerProfiles duringResumePause { profiles =>
+    if (header != null) {
+      header.setProfiles(profiles)
+    }
   }
 
   var viewPager: Option[ViewPager] = None
@@ -464,43 +497,13 @@ class MainActivity extends ThemedActivity
       }
 
       override def onLoadFinished(loader: Loader[Cursor], cursor: Cursor) {
-        val profiles = new ArrayList[IProfile[_]]()
-
-        cursor.moveToFirst
-        while (!cursor.isAfterLast) {
-          val name = cursor.getString(cursor.getColumnIndex(CardsCache.Columns.cardNickName))
-          val text = {
-            val parts = name.split(' ').filter(_.nonEmpty)
-            if (parts.length >= 2) {
-              parts(0).substring(0, 1) + parts(1).substring(0, 1)
-            } else {
-              (name + "  ").substring(0, 2)
-            }
-          }
-          val icon = TextDrawable.builder
-            .beginConfig
-              .width(512)
-              .height(512)
-            .endConfig
-            .buildRect(text, ColorGenerator.MATERIAL.getColor(name))
-          profiles.add(
-            new ProfileDrawerItem()
-              .withName(name)
-              .withEmail(cursor.getString(cursor.getColumnIndex(CardsCache.Columns.cardNumber)).grouped(4).mkString(" "))
-              .withIcon(icon)
-              .withIdentifier(cursor.getInt(cursor.getColumnIndex(CardsCache.Columns.id)))
-          )
-          cursor.moveToNext
-        }
-
-        header.setProfiles(profiles)
-
         ensureInitCardIndex(getIntent)
         accountsLoaded = true
+        cards() = CardsCache.getCards
       }
 
       override def onLoaderReset(loader: Loader[Cursor]) {
-        header.setProfiles(new ArrayList[IProfile[_]]())
+        cards() = List()
       }
     })
 
