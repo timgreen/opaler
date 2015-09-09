@@ -100,8 +100,24 @@ class MainActivity extends ThemedActivity
   }
 
   // Bind reactive models to view
+  //// Update ActionBar
   actionBarSubtitle duringResumePause { subtitle =>
     getSupportActionBar.setSubtitle(subtitle getOrElse null)
+  }
+  currentFragmentId duringResumePause { i =>
+    val title = getResources.getString(
+      if (i != Identifier.Activity) {
+        R.string.drawer_overview
+      } else {
+        R.string.drawer_activity
+      })
+    getSupportActionBar.setTitle(title)
+  }
+
+  //// Sync fragment selection
+  currentFragmentId duringResumePause { fragmentId =>
+    drawer.setSelection(fragmentId, false)
+    viewPager foreach { _.setCurrentItem(fragmentId - 1) }
   }
 
   var viewPager: Option[ViewPager] = None
@@ -110,7 +126,6 @@ class MainActivity extends ThemedActivity
   def reloadOp() {
     Util.debug(s"reloadOp ${currentCardIndex()}")
     fragmentRefreshTrigger.fire
-    updateActionBarTitle
   }
   def endRefreshOp() {
     // NOTE(timgreen): this is a hack for startRefreshOp haven't cancel toasts.
@@ -230,7 +245,6 @@ class MainActivity extends ThemedActivity
     super.onCreate(savedInstanceState)
 
     setContentView(R.layout.activity_main)
-
     setupDrawerAndToolbar(savedInstanceState)
 
     val appSectionsPagerAdapter = new AppSectionsPagerAdapter(this, getFragmentManager)
@@ -258,12 +272,6 @@ class MainActivity extends ThemedActivity
       metricNumOfTransaction        -> Usage.numOfTransaction(),
       metricNumberOfWidgets         -> Usage.numOfWidgets()
     )
-
-    currentFragmentId.on { fragmentId =>
-      drawer.setSelection(fragmentId, false)
-      viewPager.setCurrentItem(fragmentId - 1)
-      updateActionBarTitle
-    }
 
     // TODO(timgreen): find a better way to init the value.
     cards() = CardsCache.getCards
@@ -341,18 +349,6 @@ class MainActivity extends ThemedActivity
 
   def hasSuitableConnection: Boolean = {
     NetworkConnectionChecker.hasConnection(this)
-  }
-
-  private var prevTitle = ""
-  def updateActionBarTitle() {
-    viewPager foreach { vp =>
-      val title = vp.getAdapter.getPageTitle(vp.getCurrentItem)
-      getSupportActionBar.setTitle(title)
-      if (prevTitle != title) {
-        trackView(title + "Fragment")
-        prevTitle = title.toString
-      }
-    }
   }
 
   var drawer: Drawer = null
