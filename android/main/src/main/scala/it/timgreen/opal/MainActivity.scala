@@ -152,6 +152,20 @@ class MainActivity extends ThemedActivity
       header.setProfiles(profiles)
     }
   }
+  //// Update drawer header
+  currentCardIndex duringResumePause { cardIndex =>
+    for {
+      i <- cardIndex
+      h <- Option(header)
+    } {
+      h.setBackgroundRes(i % 4 match {
+        case 0 => R.drawable.header_leaf
+        case 1 => R.drawable.header_sun
+        case 2 => R.drawable.header_aurora
+        case 3 => R.drawable.header_ice
+      })
+    }
+  }
 
   var viewPager: Option[ViewPager] = None
   var plusOneButton: Option[PlusOneButton] = None
@@ -536,12 +550,6 @@ class MainActivity extends ThemedActivity
   private def updateCurrentAccount(i: Int) {
     currentCardIndex() = Some(i)
     Usage.lastSelectedCard() = i
-    header.setBackgroundRes(i % 4 match {
-      case 0 => R.drawable.header_leaf
-      case 1 => R.drawable.header_sun
-      case 2 => R.drawable.header_aurora
-      case 3 => R.drawable.header_ice
-    })
     reloadOp
   }
 
