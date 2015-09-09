@@ -18,6 +18,10 @@ trait Listenable[Listener] {
   }
 
   def on(invokeOnRegister: Boolean = true, tag: Any = null)(listener: Listener) {
+    if (listeners.isEmpty) {
+      preAddFirstListener
+    }
+
     if (invokeOnRegister) {
       invoke(listener)
     }
@@ -27,5 +31,12 @@ trait Listenable[Listener] {
 
   def removeByTag(removeTag: Any) {
     listeners = listeners.filterNot { case (_, tag) => tag == removeTag }
+
+    if (listeners.isEmpty) {
+      postRemoveLastListener
+    }
   }
+
+  protected def preAddFirstListener() {}
+  protected def postRemoveLastListener() {}
 }

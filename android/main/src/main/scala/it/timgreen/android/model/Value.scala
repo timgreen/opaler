@@ -27,8 +27,15 @@ object Value {
 }
 
 private[model] class CombinedValue[A, B](a: Value[A], b: Value[B]) extends Value[(A, B)](a() -> b()) {
-  a.on(invokeOnRegister = false, tag = this)(onParentChange)
-  b.on(invokeOnRegister = false, tag = this)(onParentChange)
+  override protected def preAddFirstListener() {
+    a.on(invokeOnRegister = false, tag = this)(onParentChange)
+    b.on(invokeOnRegister = true,  tag = this)(onParentChange)
+  }
+
+  override protected def postRemoveLastListener() {
+    a.removeByTag(this)
+    b.removeByTag(this)
+  }
 
   private def onParentChange[T](t: T) {
     update(a() -> b())
@@ -45,7 +52,13 @@ object SingleValue {
 }
 
 private [model] class MappedValue[T, U](orignal: Value[T], op: T => U) extends Value[U](op(orignal())) {
-  orignal.on(invokeOnRegister = false, tag = this)(onOrignalChange)
+  override protected def preAddFirstListener() {
+    orignal.on(invokeOnRegister = true, tag = this)(onOrignalChange)
+  }
+
+  override protected def postRemoveLastListener() {
+    orignal.removeByTag(this)
+  }
 
   private def onOrignalChange(t: T) {
     update(op(t))
