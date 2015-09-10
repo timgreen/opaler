@@ -146,6 +146,15 @@ class MainActivity extends ThemedActivity
     viewPager foreach { _.setCurrentItem(fragmentId - 1) }
   }
 
+  ////
+  currentCardIndex duringResumePause { cardIndex =>
+    // TODO(timgreen): remove reloadOp
+    reloadOp
+    cardIndex foreach { i =>
+      Usage.lastSelectedCard() = i
+    }
+  }
+
   //// Update drawer profiles
   drawerProfiles duringResumePause { profiles =>
     if (header != null) {
@@ -419,7 +428,7 @@ class MainActivity extends ThemedActivity
       .withOnAccountHeaderListener(new AccountHeader.OnAccountHeaderListener() {
         override def onProfileChanged(view: View, profile: IProfile[_], current: Boolean): Boolean = {
           val i = profile.asInstanceOf[ProfileDrawerItem].getIdentifier
-          updateCurrentAccount(i)
+          currentCardIndex() = Some(i)
           true
         }
       })
@@ -544,13 +553,6 @@ class MainActivity extends ThemedActivity
     }
     // TODO(timgreen): more accurate uri.
     getContentResolver.registerContentObserver(OpalProvider.Uris.cards, true, contentObserver)
-
-  }
-
-  private def updateCurrentAccount(i: Int) {
-    currentCardIndex() = Some(i)
-    Usage.lastSelectedCard() = i
-    reloadOp
   }
 
   private var accountsLoaded = false
@@ -558,7 +560,7 @@ class MainActivity extends ThemedActivity
     if (intent.hasExtra(MainActivity.initCardIndex)) {
       val initCardIndex = intent.getIntExtra(MainActivity.initCardIndex, 0)
       header.setActiveProfile(initCardIndex)
-      updateCurrentAccount(initCardIndex)
+      currentCardIndex() = Some(initCardIndex)
       Util.debug("set init cardIndex: " + initCardIndex)
       intent.removeExtra(MainActivity.initCardIndex)
     } else {
@@ -567,7 +569,7 @@ class MainActivity extends ThemedActivity
         if (header.getProfiles.size > Usage.lastSelectedCard()) {
           header.setActiveProfile(Usage.lastSelectedCard())
         }
-        updateCurrentAccount(Usage.lastSelectedCard())
+        currentCardIndex() = Some(Usage.lastSelectedCard())
         trackEvent("Launch", "normal")
       }
     }
