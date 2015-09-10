@@ -159,6 +159,12 @@ class MainActivity extends ThemedActivity
   drawerProfiles duringResumePause { profiles =>
     if (header != null) {
       header.setProfiles(profiles)
+      currentCardIndex().filter(_ < profiles.size) foreach header.setActiveProfile
+    }
+  }
+  currentCardIndex duringResumePause { cardIndex =>
+    if (header != null) {
+      cardIndex.filter(_ < header.getProfiles.size) foreach header.setActiveProfile
     }
   }
   //// Update drawer header
@@ -330,6 +336,8 @@ class MainActivity extends ThemedActivity
     )
 
     // TODO(timgreen): find a better way to init the value.
+
+    currentCardIndex() = getInitCardIndex(getIntent) orElse Some(Usage.lastSelectedCard())
     cards() = CardsCache.getCards
   }
 
@@ -339,14 +347,20 @@ class MainActivity extends ThemedActivity
     super.onSaveInstanceState(state)
   }
 
+  private def getInitCardIndex(intent: Intent): Option[Int] = {
+    if (intent.hasExtra(MainActivity.initCardIndex)) {
+      Some(intent.getIntExtra(MainActivity.initCardIndex, 0))
+    } else {
+      None
+    }
+  }
+
   override def onNewIntent(intent: Intent) {
     super.onNewIntent(intent)
-    setIntent(intent)
     Util.debug("New intent")
-    if (accountsLoaded) {
-      ensureInitCardIndex(intent)
-    }
-    if (intent.hasExtra(MainActivity.initCardIndex)) {
+    getInitCardIndex(intent) foreach { initCardIndex =>
+      Util.debug("New intent: " + initCardIndex)
+      currentCardIndex() = Some(initCardIndex)
       trackEvent("Launch", "from_widget")
     }
   }
@@ -520,8 +534,6 @@ class MainActivity extends ThemedActivity
       }
 
       override def onLoadFinished(loader: Loader[Cursor], cursor: Cursor) {
-        ensureInitCardIndex(getIntent)
-        accountsLoaded = true
         cards() = CardsCache.getCards
       }
 
@@ -553,26 +565,6 @@ class MainActivity extends ThemedActivity
     }
     // TODO(timgreen): more accurate uri.
     getContentResolver.registerContentObserver(OpalProvider.Uris.cards, true, contentObserver)
-  }
-
-  private var accountsLoaded = false
-  private def ensureInitCardIndex(intent: Intent) {
-    if (intent.hasExtra(MainActivity.initCardIndex)) {
-      val initCardIndex = intent.getIntExtra(MainActivity.initCardIndex, 0)
-      header.setActiveProfile(initCardIndex)
-      currentCardIndex() = Some(initCardIndex)
-      Util.debug("set init cardIndex: " + initCardIndex)
-      intent.removeExtra(MainActivity.initCardIndex)
-    } else {
-      if (!accountsLoaded) {
-        Util.debug("load last card: " + Usage.lastSelectedCard())
-        if (header.getProfiles.size > Usage.lastSelectedCard()) {
-          header.setActiveProfile(Usage.lastSelectedCard())
-        }
-        currentCardIndex() = Some(Usage.lastSelectedCard())
-        trackEvent("Launch", "normal")
-      }
-    }
   }
 
   private def enableSyncOnStart() = {
