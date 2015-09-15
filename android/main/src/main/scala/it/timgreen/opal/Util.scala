@@ -7,6 +7,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
+import java.util.concurrent.TimeUnit
 
 import it.timgreen.opal.api.CardTransaction
 
@@ -14,8 +15,9 @@ object Util {
   @inline
   def currentTimeInMs = new Date().getTime
 
+  // NOTE(timgreen): 0 AM - 3 AM is count as previous day.
   def getJulianWeekNumber(time: Time): Int = Time.getWeeksSinceEpochFromJulianDay(
-    Time.getJulianDay(time.toMillis(false), time.gmtoff),
+    Time.getJulianDay(time.toMillis(false) - TimeUnit.HOURS.toMillis(3) - 1, time.gmtoff),
     Time.MONDAY
   )
 
