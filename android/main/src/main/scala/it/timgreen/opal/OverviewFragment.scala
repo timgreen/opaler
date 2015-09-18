@@ -16,7 +16,6 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 
-import it.timgreen.android.model.SingleValue
 import it.timgreen.opal.AnalyticsSupport._
 import it.timgreen.opal.api.CardTransaction
 import it.timgreen.opal.provider.CardsCache

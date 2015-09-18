@@ -13,7 +13,6 @@ import android.content.pm.PackageManager
 import android.database.ContentObserver
 import android.database.Cursor
 import android.graphics.Bitmap
-import android.graphics.PorterDuff
 import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
@@ -21,11 +20,8 @@ import android.os.Parcelable
 import android.support.v13.app.FragmentPagerAdapter
 import android.support.v4.content.FileProvider
 import android.support.v4.view.ViewPager
-import android.support.v4.widget.DrawerLayout
 import android.support.v7.widget.Toolbar
 import android.view.View
-import android.widget.AdapterView
-import android.widget.ListView
 import com.google.android.gms.plus.PlusOneButton
 
 import com.afollestad.materialdialogs.MaterialDialog
@@ -37,7 +33,6 @@ import com.mikepenz.materialdrawer.AccountHeader
 import com.mikepenz.materialdrawer.AccountHeaderBuilder
 import com.mikepenz.materialdrawer.Drawer
 import com.mikepenz.materialdrawer.DrawerBuilder
-import com.mikepenz.materialdrawer.model.DividerDrawerItem
 import com.mikepenz.materialdrawer.model.PrimaryDrawerItem
 import com.mikepenz.materialdrawer.model.ProfileDrawerItem
 import com.mikepenz.materialdrawer.model.SectionDrawerItem
@@ -46,9 +41,9 @@ import com.mikepenz.materialdrawer.model.interfaces.IProfile
 
 import it.timgreen.android.billing.InAppBilling
 import it.timgreen.android.gms.PlayServiceHelper
+import it.timgreen.android.model.ListenableAwareActivity
 import it.timgreen.android.model.SingleValue
 import it.timgreen.android.model.Value
-import it.timgreen.android.model.ListenableAwareActivity
 import it.timgreen.android.net.NetworkConnectionChecker
 import it.timgreen.android.util.Snapshot
 import it.timgreen.opal.AnalyticsSupport._

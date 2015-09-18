@@ -1,7 +1,7 @@
 package it.timgreen.opal
 
-import it.timgreen.android.model.Trigger
 import it.timgreen.android.model.SingleValue
+import it.timgreen.android.model.Trigger
 
 object Bus {
   val currentCardIndex = SingleValue[Option[Int]](None)

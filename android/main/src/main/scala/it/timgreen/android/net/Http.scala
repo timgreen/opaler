@@ -1,11 +1,7 @@
 package it.timgreen.android.net
 
-import scala.io.Source
-
 import org.json.JSONArray
 import org.json.JSONObject
-
-import android.os.Build
 
 import com.squareup.okhttp.FormEncodingBuilder
 import com.squareup.okhttp.OkHttpClient
