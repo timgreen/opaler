@@ -213,6 +213,7 @@ class TransactionListAdapter(context: Context)
       }
       if (cardTransaction.model != Model.TopUp &&
           cardTransaction.model != Model.AutoTopUp &&
+          cardTransaction.model != Model.Adjustment &&
           cardTransaction.model != Model.BalanceTransfer) {
         cardTransaction.amount foreach { currentWeek.amount += _ }
       }
