@@ -15,9 +15,9 @@ object Util {
   @inline
   def currentTimeInMs = new Date().getTime
 
-  // NOTE(timgreen): 0 AM - 3 AM is count as previous day.
+  // NOTE(timgreen): 0 AM - 4 AM is count as previous day.
   def getJulianWeekNumber(time: Time): Int = Time.getWeeksSinceEpochFromJulianDay(
-    Time.getJulianDay(time.toMillis(false) - TimeUnit.HOURS.toMillis(3) - 1, time.gmtoff),
+    Time.getJulianDay(time.toMillis(false) - TimeUnit.HOURS.toMillis(4) + 1, time.gmtoff),
     Time.MONDAY
   )
 
