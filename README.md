@@ -1,5 +1,7 @@
 # Opaler
 
+[![Join the chat at https://gitter.im/timgreen/opaler](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/timgreen/opaler?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 [![Opaler](https://raw.githubusercontent.com/timgreen/opaler/master/android/main/src/main/res/drawable-hdpi/logo.png)](https://play.google.com/store/apps/details?id=it.timgreen.opal)
 
 Open source android app for [NSW Opal Card](https://www.opal.com.au).
