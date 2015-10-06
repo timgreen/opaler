@@ -33,8 +33,18 @@ object CardsCache {
     val json = getPrefs.getString(cardCacheKey, "[]")
     val cards = CardDetails.parseList(new JSONArray(json))
     if (PrefUtil.enableFakeData) {
-      cards map { c =>
-        c.copy(cardNumber = "1234567812345678")
+      cards.zipWithIndex map { case (c, i) =>
+        val fakeBalance = i match {
+          case 0 => 4453
+          case 1 => 100
+          case 2 => 90909
+          case _ => 9090909
+        }
+        c.copy(
+          cardNumber = "1234567812345678",
+          cardBalance = fakeBalance,
+          svPending = 0
+        )
       }
     } else {
       cards
