@@ -1,5 +1,8 @@
 package it.timgreen.opal
 
+import android.graphics.Paint
+import android.graphics.Rect
+import android.graphics.Typeface
 import android.text.format.Time
 import android.util.Log
 
@@ -33,7 +36,18 @@ object Util {
     val balls = List.fill(fullCircles)("●") ::: List.fill(emptyCircles)("○")
     val (line1, line2) = balls.splitAt(4)
     line1.mkString(" ") + "\n" + line2.mkString(" ")
-}
+  }
+
+  def getTextWidth(text: String, textSize: Float): Int = {
+    val paint = new Paint
+    val bounds = new Rect
+
+    paint.setTypeface(Typeface.DEFAULT)
+    paint.setTextSize(textSize)
+    paint.getTextBounds(text, 0, text.length, bounds)
+
+    bounds.width
+  }
 
   private def debugTag = "OPAL_DEBUG"
   def debug(msg: => String) {

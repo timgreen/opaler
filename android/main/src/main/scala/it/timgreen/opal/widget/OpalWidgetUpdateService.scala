@@ -10,6 +10,8 @@ import android.os.Bundle
 import android.os.IBinder
 import android.widget.RemoteViews
 
+import scala.annotation.tailrec
+
 import it.timgreen.opal.MainActivity
 import it.timgreen.opal.Overview
 import it.timgreen.opal.R
@@ -24,6 +26,7 @@ import it.timgreen.opal.sync.SyncAdapter
 
 object OpalWidgetUpdateService {
   val updateWidgetOnlyKey = "updateWidgetOnly"
+  val maxLabelTextWidthInDp = 65
 }
 
 class OpalWidgetUpdateService extends Service {
@@ -58,7 +61,12 @@ class OpalWidgetUpdateService extends Service {
 
       val remoteViews = new RemoteViews(getPackageName,  R.layout.widget)
       remoteViews.setTextViewText(R.id.cardName, cards.lift(cardIndex).map(_.cardNickName) getOrElse "")
-      remoteViews.setTextViewText(R.id.label, getBalance(cardIndex, cards))
+
+      val balance = getBalance(cardIndex, cards)
+      val textSize = calcBalanceTextSize(balance)
+      remoteViews.setTextViewText(R.id.label, balance)
+      remoteViews.setTextViewTextSize(R.id.label, android.util.TypedValue.COMPLEX_UNIT_SP, textSize)
+
       val maxJourneyNumber = Overview.getOverviewData(this, cardIndex).maxJourneyNumber
       val balls = Util.getBalls(maxJourneyNumber).replaceAll("\\s", "")
       List(
@@ -107,6 +115,31 @@ class OpalWidgetUpdateService extends Service {
       } getOrElse ("0" -> ".00")
 
     s"$$$balance$balanceSmall"
+  }
+
+  private def calcBalanceTextSize(balance: String): Float = {
+    val width = OpalWidgetUpdateService.maxLabelTextWidthInDp
+    val maxTextSize = 20f
+    if (Util.getTextWidth(balance, maxTextSize) <= width) {
+      maxTextSize
+    } else {
+      @tailrec
+      def findBestTextSize(min: Float, max: Float): Float = {
+        if (max - min < 0.01) {
+          min
+        } else {
+          val mid = (min + max) / 2
+          val (newMin, newMax) = if (Util.getTextWidth(balance, mid) <= width) {
+            (mid, max)
+          } else {
+            (min, mid)
+          }
+          findBestTextSize(newMin, newMax)
+        }
+      }
+
+      findBestTextSize(0, maxTextSize)
+    }
   }
 
   private def sync() {
