@@ -6,6 +6,8 @@ import com.google.android.gms.analytics.GoogleAnalytics
 import com.google.android.gms.analytics.HitBuilders
 import com.google.android.gms.analytics.Tracker
 
+import java.io.PrintWriter
+import java.io.StringWriter
 import java.util.Date
 import scala.collection.mutable
 
@@ -90,7 +92,9 @@ trait AnalyticsSupportBase {
   }
 
   def reportError(t: Throwable)(implicit context: Context) {
-    val description = t.toString
+    val sw = new StringWriter
+    t.printStackTrace(new PrintWriter(sw))
+    val description = sw.toString
     val b = new HitBuilders.ExceptionBuilder()
       .setDescription("* " + description)
     setCustoms(b)
