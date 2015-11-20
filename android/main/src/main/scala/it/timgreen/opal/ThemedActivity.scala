@@ -28,9 +28,9 @@ abstract class ThemedActivity extends AppCompatActivity {
     }
 
     (translucentStatus, theme) match {
-      case (true, "dark") => R.style.AppTheme_Dark_TranslucentStatus
-      case (false, "dark") => R.style.AppTheme_Dark
-      case (true, "light") => R.style.AppTheme_Light_TranslucentStatus
+      case (true, "dark")       => R.style.AppTheme_Dark_TranslucentStatus
+      case (false, "dark")      => R.style.AppTheme_Dark
+      case (true, "light")      => R.style.AppTheme_Light_TranslucentStatus
       case (false, "light") | _ => R.style.AppTheme_Light
     }
   }

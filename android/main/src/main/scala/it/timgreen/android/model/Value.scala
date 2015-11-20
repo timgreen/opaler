@@ -51,7 +51,7 @@ object SingleValue {
   def apply[T](defaultValue: T) = new SingleValue[T](defaultValue)
 }
 
-private [model] class MappedValue[T, U](orignal: Value[T], op: T => U) extends Value[U](op(orignal())) {
+private[model] class MappedValue[T, U](orignal: Value[T], op: T => U) extends Value[U](op(orignal())) {
   override protected def preAddFirstListener() {
     orignal.on(invokeOnRegister = true, tag = this)(onOrignalChange)
   }

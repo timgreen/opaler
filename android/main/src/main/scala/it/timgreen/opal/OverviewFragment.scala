@@ -31,7 +31,7 @@ class OverviewFragment extends Fragment with SwipeRefreshSupport
   var swipeRefreshLayout: List[SwipeRefreshLayout] = Nil
 
   override def onCreateView(inflater: LayoutInflater, container: ViewGroup,
-    savedInstanceState: Bundle): View = {
+                            savedInstanceState: Bundle): View = {
     val rootView = inflater.inflate(R.layout.fragment_overview, container, false)
     this.rootView = Some(rootView)
 
@@ -62,7 +62,7 @@ class OverviewFragment extends Fragment with SwipeRefreshSupport
                 cursor.getInt(cursor.getColumnIndex(CardsCache.Columns.svPending))
               Some(
                 (balance / 100).toString ->
-                f".${(balance % 100)}%02d"
+                  f".${(balance % 100)}%02d"
               )
             } else {
               None

@@ -28,8 +28,7 @@ object Http {
 
   case class Response[R](
     code: Int = -1,
-    result: Either[R, Throwable]
-  ) {
+    result: Either[R, Throwable]) {
     def map[RR](op: R => RR): Response[RR] =
       Response(
         code,
@@ -80,16 +79,16 @@ object Http {
       val str = safeGetResponse(response)
       Response(response.code, Left(str))
     } catch {
-      case e: Throwable =>  Response(code, Right(e))
+      case e: Throwable => Response(code, Right(e))
     }
   }
 
-  def post(url: String, params: (String, String)*)
-          (implicit setting: ConnSetting): Response[String] = {
+  def post(url: String, params: (String, String)*)(implicit setting: ConnSetting): Response[String] = {
     var code = -1
     val formBodyBuilder = new FormEncodingBuilder
-    params foreach { case (k, v) =>
-      formBodyBuilder.add(k, v)
+    params foreach {
+      case (k, v) =>
+        formBodyBuilder.add(k, v)
     }
     val request = getRequestBuilder(url)
       .post(formBodyBuilder.build)
@@ -100,7 +99,7 @@ object Http {
       val str = safeGetResponse(response)
       Response(response.code, Left(str))
     } catch {
-      case e: Throwable =>  Response(code, Right(e))
+      case e: Throwable => Response(code, Right(e))
     }
   }
 }

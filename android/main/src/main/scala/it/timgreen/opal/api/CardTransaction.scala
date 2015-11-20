@@ -19,8 +19,7 @@ case class CardTransaction(
   fare: Option[Double],
   discount: Option[Double],
   amount: Option[Double],
-  updatedTime: Long
-) {
+  updatedTime: Long) {
   def weekNumber = datetime.getWeekNumber
   def weekDay = datetime.weekDay
   def julianWeekNumber = Util.getJulianWeekNumber(datetime)
@@ -77,7 +76,7 @@ object CardTransaction {
 
   private def optNum[T](text: String, op: String => T): Option[T] = (text match {
     case "" => None
-    case _ => Some(text.replace("$", "").trim)
+    case _  => Some(text.replace("$", "").trim)
   }).map(op)
 
   // NOTE(timgreen): ignore timezone, trust as UTC.
@@ -102,7 +101,7 @@ object CardTransaction {
 
   val formatter = new DecimalFormat("$0.00")
   def formatMoney(m: Option[Double], default: String = ""): String = m match {
-    case None => default
+    case None    => default
     case Some(m) => formatter.format(m)
   }
 
@@ -233,10 +232,10 @@ sealed class FareApplied(fareApplied: String) {
 }
 object FareApplied {
   def apply(fareApplied: String, amount: Option[Double]): FareApplied = fareApplied match {
-    case "" => Normal
-    case "Off-peak" => OffPeak
+    case ""             => Normal
+    case "Off-peak"     => OffPeak
     case "Default fare" => DefaultFare
-    case "Day Cap" => DayCap
+    case "Day Cap"      => DayCap
     case "Travel Reward" =>
       // Remove label 'Travel Reward' for the trip is not covered the reward, e.g. internation
       // airport line.

@@ -3,7 +3,6 @@ package it.timgreen.opal.api
 import org.json.JSONArray
 import org.json.JSONObject
 
-
 case class CardDetails(
   index: Int,
   active: Boolean,
@@ -16,8 +15,7 @@ case class CardDetails(
   displayName: String,
   svPending: Int,
   svPendingInDollars: String,
-  toBeActivated: Boolean
-) {
+  toBeActivated: Boolean) {
   def formatedCardNumber = cardNumber.grouped(4).mkString(" ")
 }
 

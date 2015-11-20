@@ -18,7 +18,7 @@ object WidgetSettings {
     context.getApplicationContext.getSharedPreferences("widget", Context.MODE_PRIVATE | Context.MODE_MULTI_PROCESS)
   }
 
-  private [provider] def getSettings(appWidgetId: Int)(implicit context: Context): WidgetSettings = {
+  private[provider] def getSettings(appWidgetId: Int)(implicit context: Context): WidgetSettings = {
     val json = try {
       new JSONObject(getPrefs.getString(appWidgetId.toString, "{}"))
     } catch {
@@ -28,13 +28,13 @@ object WidgetSettings {
     fromJsonObject(json)
   }
 
-  private [provider] def setSetting(appWidgetId: Int, settings: WidgetSettings)(implicit context: Context) {
+  private[provider] def setSetting(appWidgetId: Int, settings: WidgetSettings)(implicit context: Context) {
     getPrefs.edit
       .putString(appWidgetId.toString, toJsonObject(settings).toString)
       .commit
   }
 
-  private [provider] def removeUnusedSettings(activieAppWidgetIds: Array[Int])(implicit context: Context): Int = {
+  private[provider] def removeUnusedSettings(activieAppWidgetIds: Array[Int])(implicit context: Context): Int = {
     val set = activieAppWidgetIds.map(_.toString).toSet
     val prefs = getPrefs
     val unused = prefs.getAll.keySet.filterNot(x => set.contains(x))

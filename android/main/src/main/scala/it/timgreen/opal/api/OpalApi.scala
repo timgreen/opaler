@@ -88,7 +88,7 @@ object OpalApi {
 
     if (retriesLeft >= 0) {
       result match {
-        case Left(_) => result
+        case Left(_)  => result
         case Right(_) => withRetry(retriesLeft - 1)(op)
       }
     } else {

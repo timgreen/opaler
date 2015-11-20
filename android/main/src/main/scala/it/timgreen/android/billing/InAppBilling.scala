@@ -81,7 +81,7 @@ object InAppBilling {
 
   val BILLING_RESPONSE_RESULT_OK = 0
   val BILLING_RESPONSE_RESULT_USER_CANCELED = 1
-  val BILLING_RESPONSE_RESULT_SERVICE_UNAVAILABLE  = 2
+  val BILLING_RESPONSE_RESULT_SERVICE_UNAVAILABLE = 2
   val BILLING_RESPONSE_RESULT_BILLING_UNAVAILABLE = 3
   val BILLING_RESPONSE_RESULT_ITEM_UNAVAILABLE = 4
   val BILLING_RESPONSE_RESULT_DEVELOPER_ERROR = 5
@@ -106,7 +106,7 @@ object InAppBilling {
         Some(skuDetails)
       } catch {
         case _: Throwable =>
-        None
+          None
       }
     } else {
       None

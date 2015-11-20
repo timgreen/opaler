@@ -100,7 +100,7 @@ object CardsCache {
     Columns.tempName
   )
 
-  private [provider] def toRow(card: CardDetails) = Array[AnyRef](
+  private[provider] def toRow(card: CardDetails) = Array[AnyRef](
     new Integer(card.index),
     new Integer(if (card.active) 1 else 0),
     new Integer(card.cardBalance),

@@ -37,7 +37,7 @@ class SyncAdapter(context: Context, autoInitialize: Boolean, allowParallelSyncs:
   extends AbstractThreadedSyncAdapter(context, autoInitialize, allowParallelSyncs) {
 
   override def onPerformSync(account: Account, extras: Bundle, authority: String,
-    provider: ContentProviderClient, syncResult: SyncResult) {
+                             provider: ContentProviderClient, syncResult: SyncResult) {
     val isManualSync = extras.getBoolean(SyncAdapter.isManualSyncKey)
     if (shouldSkipSync(isManualSync)) {
       Util.debug("SyncAdapter sikpped")
@@ -148,11 +148,11 @@ class SyncAdapter(context: Context, autoInitialize: Boolean, allowParallelSyncs:
       r match {
         case Left((false, l)) => list ::: l
         case Left((true, l)) =>
-        if (l.last.transactionNumber <= syncStopPoint - overrideRecordNum) {
-          list ::: l
-        } else {
-          fetchUpdates(pageIndex + 1, list ::: l)
-        }
+          if (l.last.transactionNumber <= syncStopPoint - overrideRecordNum) {
+            list ::: l
+          } else {
+            fetchUpdates(pageIndex + 1, list ::: l)
+          }
         case Right(t) =>
           Util.debug(s"Sync error - fetch transaction card ${cardDetails.index} page $pageIndex", t)
           throw t

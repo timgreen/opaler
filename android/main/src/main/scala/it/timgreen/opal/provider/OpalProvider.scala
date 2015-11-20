@@ -46,7 +46,7 @@ class OpalProvider extends ContentProvider {
   }
 
   override def query(uri: Uri, projection: Array[String], selection: String,
-    selectionArgs: Array[String], sortOrder: String): Cursor = {
+                     selectionArgs: Array[String], sortOrder: String): Cursor = {
     val result = sUriMatcher.`match`(uri) match {
       case Route.CARDS =>
         val matrixCursor = new MatrixCursor(CardsCache.columns)
@@ -134,7 +134,7 @@ class OpalProvider extends ContentProvider {
   }
 
   override def update(uri: Uri, values: ContentValues, selection: String,
-    selectionArgs: Array[String]): Int = {
+                      selectionArgs: Array[String]): Int = {
     val result = sUriMatcher.`match`(uri) match {
       case Route.CARDS =>
         CardsCache.updateCards(values.getAsString(CardsCache.cardCacheKey))

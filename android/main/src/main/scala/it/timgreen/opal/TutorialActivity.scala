@@ -21,7 +21,6 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 
-
 class TutorialActivity extends Activity {
 
   override def onCreate(savedInstanceState: Bundle) {
@@ -34,7 +33,6 @@ class TutorialActivity extends Activity {
 
     goFullscreen
   }
-
 
   private def goFullscreen() {
     // The UI options currently enabled are represented by a bitfield.
@@ -111,7 +109,7 @@ class TutorialPagerAdapter(context: Context, fm: FragmentManager) extends Fragme
 class TutorialFragment(i: Int, total: Int, title: String, description: String, image: Drawable) extends Fragment {
 
   override def onCreateView(inflater: LayoutInflater, container: ViewGroup,
-    savedInstanceState: Bundle): View = {
+                            savedInstanceState: Bundle): View = {
     val rootView = inflater.inflate(R.layout.fragment_tutorial, container, false)
 
     rootView.findViewById(R.id.title).asInstanceOf[TextView].setText(title)

@@ -59,7 +59,7 @@ class OpalWidgetUpdateService extends Service {
       cursor.moveToFirst
       val cardIndex = cursor.getInt(cursor.getColumnIndex(WidgetSettings.cardIndexKey))
 
-      val remoteViews = new RemoteViews(getPackageName,  R.layout.widget)
+      val remoteViews = new RemoteViews(getPackageName, R.layout.widget)
       remoteViews.setTextViewText(R.id.cardName, cards.lift(cardIndex).map(_.cardNickName) getOrElse "")
 
       val balance = getBalance(cardIndex, cards)

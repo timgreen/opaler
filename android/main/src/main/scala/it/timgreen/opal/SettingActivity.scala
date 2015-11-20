@@ -73,7 +73,7 @@ class SettingsFragment extends PreferenceFragment {
     accountInfo.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
       override def onPreferenceClick(preference: Preference): Boolean = {
         val intent = new Intent(Settings.ACTION_SYNC_SETTINGS)
-        intent.putExtra(Settings.EXTRA_AUTHORITIES, Array(OpalProvider.AUTHORITY ))
+        intent.putExtra(Settings.EXTRA_AUTHORITIES, Array(OpalProvider.AUTHORITY))
         getActivity.startActivity(intent)
         true
       }

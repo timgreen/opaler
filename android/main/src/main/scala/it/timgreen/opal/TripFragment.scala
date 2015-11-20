@@ -42,7 +42,7 @@ class TripFragment extends Fragment with SwipeRefreshSupport with SnapshotAware 
   var swipeRefreshLayout: List[SwipeRefreshLayout] = Nil
 
   override def onCreateView(inflater: LayoutInflater, container: ViewGroup,
-    savedInstanceState: Bundle): View = {
+                            savedInstanceState: Bundle): View = {
 
     val rootView = inflater.inflate(R.layout.fragment_trip, container, false)
     this.rootView = Some(rootView)

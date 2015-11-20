@@ -77,7 +77,7 @@ object Ads {
       } else {
         adView match {
           case Some(v) => v.resume
-          case None => setupAd
+          case None    => setupAd
         }
       }
     }

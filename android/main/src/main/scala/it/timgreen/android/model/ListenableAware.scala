@@ -19,7 +19,7 @@ trait ListenableAwareActivity { self: Activity =>
 
   private var pairs = mutable.MutableList[Pair[_]]()
 
-  private [model] def addPair[T](listenable: Listenable[T], listener: T) {
+  private[model] def addPair[T](listenable: Listenable[T], listener: T) {
     pairs += Pair(listenable, listener)
   }
 
@@ -38,15 +38,14 @@ trait ListenableAwareActivity { self: Activity =>
   implicit def toRichListenable[T](listenable: Listenable[T]) = new RichListenable(listenable, this)
 }
 
-private [model] case class Pair[Listener](
+private[model] case class Pair[Listener](
   listenable: Listenable[Listener],
-  listener: Listener
-) {
+  listener: Listener) {
   def register() { listenable.on(tag = this)(listener) }
   def unregister() { listenable.removeByTag(this) }
 }
 
-private [model] class RichListenable[T](
+private[model] class RichListenable[T](
   listenable: Listenable[T], listenableAware: ListenableAwareActivity) {
   def duringResumePause(listener: T) {
     listenableAware.addPair(listenable, listener)
