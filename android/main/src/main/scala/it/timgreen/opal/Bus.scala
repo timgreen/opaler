@@ -4,7 +4,6 @@ import rx.lang.scala.subjects.BehaviorSubject
 import rx.lang.scala.subjects.PublishSubject
 
 import it.timgreen.android.model.SingleValue
-import it.timgreen.android.model.Trigger
 
 object Bus {
   // val selectedCardIndex = BehaviorSubject(0)
