@@ -14,5 +14,5 @@ object Bus {
   val isSyncingDistinct = isSyncing.distinctUntilChanged
   val syncTrigger = PublishSubject[Int]()
 
-  val fragmentRefreshTrigger = Trigger()
+  val fragmentRefreshTrigger = PublishSubject[Int]()
 }

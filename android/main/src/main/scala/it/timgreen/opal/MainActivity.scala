@@ -183,7 +183,7 @@ class MainActivity extends ThemedActivity
 
   def reloadOp() {
     Util.debug(s"reloadOp ${currentCardIndex()}")
-    fragmentRefreshTrigger.fire
+    fragmentRefreshTrigger.onNext(0)
   }
   def endRefreshOp() {
     // NOTE(timgreen): this is a hack for startRefreshOp haven't cancel toasts.
@@ -408,7 +408,7 @@ class MainActivity extends ThemedActivity
   def refreshTripIfNecessary() {
     val use24hourFormat = PrefUtil.use24hourFormat
     if (currentValueOfUse24hourFormat != None && currentValueOfUse24hourFormat != Some(use24hourFormat)) {
-      fragmentRefreshTrigger.fire
+      fragmentRefreshTrigger.onNext(0)
     }
     currentValueOfUse24hourFormat = Some(use24hourFormat)
   }
@@ -549,14 +549,14 @@ class MainActivity extends ThemedActivity
         currentCardIndex() foreach { cardIndex =>
           if (uri == OpalProvider.Uris.activities(cardIndex)) {
             Util.debug("ContentObserver     ==================== do load")
-            fragmentRefreshTrigger.fire
+            fragmentRefreshTrigger.onNext(0)
           }
         }
       }
 
       override def onChange(selfChange: Boolean) {
         Util.debug("ContentObserver     ====================")
-        fragmentRefreshTrigger.fire
+        fragmentRefreshTrigger.onNext(0)
       }
     }
     // TODO(timgreen): more accurate uri.

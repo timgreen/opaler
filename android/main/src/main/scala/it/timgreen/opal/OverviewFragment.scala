@@ -162,12 +162,11 @@ class OverviewFragment extends Fragment with SwipeRefreshSupport
   override def onStart() {
     super.onStart
     currentCardIndex.on(tag = this) { _ => refresh }
-    fragmentRefreshTrigger.on(tag = this) { () => refresh }
+    fragmentRefreshTrigger.bindToLifecycle subscribe { _ => refresh }
   }
 
   override def onStop() {
     currentCardIndex.removeByTag(this)
-    fragmentRefreshTrigger.removeByTag(this)
     super.onStop
   }
 }
