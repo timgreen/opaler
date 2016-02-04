@@ -9,6 +9,7 @@ import it.timgreen.opal.AnalyticsSupport._
 
 trait SwipeRefreshSupport extends Fragment {
   import it.timgreen.opal.Bus.isSyncingDistinct
+  import it.timgreen.opal.Bus.isSyncing
   import it.timgreen.opal.Bus.syncTrigger
 
   var swipeRefreshLayout: List[SwipeRefreshLayout]
@@ -21,7 +22,8 @@ trait SwipeRefreshSupport extends Fragment {
         def onRefresh {
           Util.debug(s"swipe refresh")
           trackEvent("UI", "pullToRefresh", Some(this.getClass.getSimpleName))(getActivity)
-          syncTrigger.fire
+          isSyncing.onNext(true)
+          syncTrigger.onNext(0)
         }
       })
     }

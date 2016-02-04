@@ -203,7 +203,7 @@ class MainActivity extends ThemedActivity
           t.setOnClickWrapper(
             new com.github.johnpersano.supertoasts.util.OnClickWrapper("retry", new SuperToast.OnClickListener() {
               override def onClick(view: View, token: Parcelable) {
-                syncTrigger.fire
+                syncTrigger.onNext(0)
               }
             })
           )
@@ -217,7 +217,7 @@ class MainActivity extends ThemedActivity
           t.setOnClickWrapper(
             new com.github.johnpersano.supertoasts.util.OnClickWrapper("retry", new SuperToast.OnClickListener() {
               override def onClick(view: View, token: Parcelable) {
-                syncTrigger.fire
+                syncTrigger.onNext(0)
               }
             })
           )
@@ -231,7 +231,7 @@ class MainActivity extends ThemedActivity
           t.setOnClickWrapper(
             new com.github.johnpersano.supertoasts.util.OnClickWrapper("retry", new SuperToast.OnClickListener() {
               override def onClick(view: View, token: Parcelable) {
-                syncTrigger.fire
+                syncTrigger.onNext(0)
               }
             })
           )
@@ -262,7 +262,7 @@ class MainActivity extends ThemedActivity
           t.setOnClickWrapper(
             new com.github.johnpersano.supertoasts.util.OnClickWrapper("retry", new SuperToast.OnClickListener() {
               override def onClick(view: View, token: Parcelable) {
-                syncTrigger.fire
+                syncTrigger.onNext(0)
               }
             })
           )
@@ -370,7 +370,7 @@ class MainActivity extends ThemedActivity
     if (hasLogin &&
         hasSuitableConnection &&
         (!SyncStatus.hasSyncedBefore || (enableSyncOnStart && SyncStatus.needSync))) {
-      syncTrigger.fire
+      syncTrigger.onNext(0)
     }
 
     val PLUS_URL = "https://play.google.com/store/apps/details?id=it.timgreen.opal"
@@ -743,7 +743,7 @@ class MainActivity extends ThemedActivity
       }
     }
   }
-  syncTrigger.on { () => startSync }
+  syncTrigger.subscribe { _ => startSync }
 
   object Identifier {
     val Overview = 1  // same as position + 1 in viewPager
