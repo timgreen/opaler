@@ -79,6 +79,7 @@ class MainActivity extends ThemedActivity
   // Reactive models
   import Bus.currentCardIndex
   import Bus.isSyncing
+  import Bus.isSyncingDistinct
   import Bus.syncTrigger
   import Bus.fragmentRefreshTrigger
   val currentFragmentId = SingleValue(Identifier.Overview)
@@ -280,18 +281,11 @@ class MainActivity extends ThemedActivity
   val syncSyncStatusOp = { () =>
     runOnUiThread(new Runnable {
       override def run() {
-        val isSyncingBefore = isSyncing()
-        isSyncing() = AccountUtil.getAccount map { account =>
+        val syncInProgress = AccountUtil.getAccount map { account =>
           Observer.isSyncActive(account, OpalProvider.AUTHORITY)
         } getOrElse false
-        Util.debug(s"sync status op: $isSyncingBefore -> ${isSyncing()}")
-
-        if (isSyncingBefore != isSyncing()) {
-          if (!isSyncing()) {
-            // TODO(timgreen): optimise it
-            reloadOp
-          }
-        }
+        isSyncing.onNext(syncInProgress)
+        Util.debug(s"sync status op: $syncInProgress")
       }
     })
   }
@@ -316,6 +310,13 @@ class MainActivity extends ThemedActivity
     })
 
     setupObserver
+
+    isSyncingDistinct.subscribe(syncing =>
+      if (!syncing) {
+        // TODO(timgreen): optimise it
+        reloadOp
+      }
+    )
 
     setCustomDimensions(
       dimensionAd                   -> (if (PrefUtil.isAdDisabled) "disabled" else "enabled"),
