@@ -3,17 +3,15 @@ package it.timgreen.opal
 import android.app.Fragment
 import android.support.v4.widget.SwipeRefreshLayout
 
-import rx.lang.scala.Subscription
-
+import it.timgreen.android.rx.RxFragment
 import it.timgreen.opal.AnalyticsSupport._
 
-trait SwipeRefreshSupport extends Fragment {
+trait SwipeRefreshSupport extends Fragment with RxFragment {
   import it.timgreen.opal.Bus.isSyncingDistinct
   import it.timgreen.opal.Bus.isSyncing
   import it.timgreen.opal.Bus.syncTrigger
 
   var swipeRefreshLayout: List[SwipeRefreshLayout]
-  var isSyncingSubscription: Subscription = _
 
   def initSwipeOptions() {
     setAppearance
@@ -31,18 +29,13 @@ trait SwipeRefreshSupport extends Fragment {
 
   override def onResume() {
     super.onResume
-    isSyncingSubscription = isSyncingDistinct subscribe { syncing =>
+    isSyncingDistinct.bindToLifecycle subscribe { syncing =>
       if (syncing) {
         onRefreshStart
       } else {
         onRefreshEnd
       }
     }
-  }
-
-  override def onPause() {
-    isSyncingSubscription.unsubscribe
-    super.onPause
   }
 
   private def setAppearance() {
