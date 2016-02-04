@@ -39,12 +39,16 @@ import com.mikepenz.materialdrawer.model.SectionDrawerItem
 import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem
 import com.mikepenz.materialdrawer.model.interfaces.IProfile
 
+import rx.lang.scala.Observable
+import rx.lang.scala.subjects.BehaviorSubject
+
 import it.timgreen.android.billing.InAppBilling
 import it.timgreen.android.gms.PlayServiceHelper
 import it.timgreen.android.model.ListenableAwareActivity
 import it.timgreen.android.model.SingleValue
 import it.timgreen.android.model.Value
 import it.timgreen.android.net.NetworkConnectionChecker
+import it.timgreen.android.rx.RxActivity
 import it.timgreen.android.util.Snapshot
 import it.timgreen.opal.AnalyticsSupport._
 import it.timgreen.opal.account.AccountUtil
@@ -71,7 +75,8 @@ class MainActivity extends ThemedActivity
   with Ads.BottomBanner
   with InAppBilling.BillingSupport
   with RateSupport
-  with ListenableAwareActivity {
+  with ListenableAwareActivity
+  with RxActivity {
 
   override val translucentStatus = true
   implicit def provideActivity = this
@@ -82,11 +87,12 @@ class MainActivity extends ThemedActivity
   import Bus.isSyncingDistinct
   import Bus.syncTrigger
   import Bus.fragmentRefreshTrigger
-  val currentFragmentId = SingleValue(Identifier.Overview)
+  val currentFragmentId = BehaviorSubject(Identifier.Overview)
   // TODO(timgreen): handle card list reload
-  val cards = SingleValue(List[CardDetails]())
+  // TODO(timgreen): move cards out of MainActivity
+  val cards = BehaviorSubject(List[CardDetails]())
 
-  val actionBarSubtitle: Value[Option[String]] = (currentCardIndex & cards) map { case (cardIndex, cards) =>
+  val actionBarSubtitle: Observable[Option[String]] = currentCardIndex.combineLatestWith(cards) { (cardIndex, cards) =>
     for {
       i <- cardIndex
       cardDetails <- cards.lift(i)
@@ -94,7 +100,7 @@ class MainActivity extends ThemedActivity
       s"${cardDetails.cardNickName} ${cardDetails.formatedCardNumber}"
     }
   }
-  val drawerProfiles: Value[ArrayList[IProfile[_]]] = cards map { cards =>
+  val drawerProfiles: Observable[ArrayList[IProfile[_]]] = cards map { cards =>
     val profiles = cards map { card =>
       val name = card.cardNickName
       val text = {
@@ -121,68 +127,10 @@ class MainActivity extends ThemedActivity
     new ArrayList(profiles)
   }
 
-  // Bind reactive models to view
-  //// Update ActionBar
-  actionBarSubtitle duringResumePause { subtitle =>
-    getSupportActionBar.setSubtitle(subtitle getOrElse null)
-  }
-  currentFragmentId duringResumePause { i =>
-    val title = getResources.getString(
-      if (i != Identifier.Activity) {
-        R.string.drawer_overview
-      } else {
-        R.string.drawer_activity
-      })
-    getSupportActionBar.setTitle(title)
-  }
-
-  //// Sync fragment selection
-  currentFragmentId duringResumePause { fragmentId =>
-    drawer.setSelection(fragmentId, false)
-    viewPager foreach { _.setCurrentItem(fragmentId - 1) }
-  }
-
-  ////
-  currentCardIndex duringResumePause { cardIndex =>
-    // TODO(timgreen): remove reloadOp
-    reloadOp
-    cardIndex foreach { i =>
-      Usage.lastSelectedCard() = i
-    }
-  }
-
-  //// Update drawer profiles
-  drawerProfiles duringResumePause { profiles =>
-    if (header != null) {
-      header.setProfiles(profiles)
-      currentCardIndex().filter(_ < profiles.size) foreach header.setActiveProfile
-    }
-  }
-  currentCardIndex duringResumePause { cardIndex =>
-    if (header != null) {
-      cardIndex.filter(_ < header.getProfiles.size) foreach header.setActiveProfile
-    }
-  }
-  //// Update drawer header
-  currentCardIndex duringResumePause { cardIndex =>
-    for {
-      i <- cardIndex
-      h <- Option(header)
-    } {
-      h.setBackgroundRes(i % 4 match {
-        case 0 => R.drawable.header_leaf
-        case 1 => R.drawable.header_sun
-        case 2 => R.drawable.header_aurora
-        case 3 => R.drawable.header_ice
-      })
-    }
-  }
-
   var viewPager: Option[ViewPager] = None
   var plusOneButton: Option[PlusOneButton] = None
 
   def reloadOp() {
-    Util.debug(s"reloadOp ${currentCardIndex()}")
     fragmentRefreshTrigger.onNext(0)
   }
   def endRefreshOp() {
@@ -305,7 +253,7 @@ class MainActivity extends ThemedActivity
     viewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
       override def onPageSelected(position: Int) {
         trackEvent("UI", "switchFragment", Some("swipe"), Some(position))
-        currentFragmentId() = (position + 1)
+        currentFragmentId.onNext(position + 1)
       }
     })
 
@@ -333,8 +281,8 @@ class MainActivity extends ThemedActivity
 
     // TODO(timgreen): find a better way to init the value.
 
-    currentCardIndex() = getInitCardIndex(getIntent) orElse Some(Usage.lastSelectedCard())
-    cards() = CardsCache.getCards
+    currentCardIndex.onNext(getInitCardIndex(getIntent) orElse Some(Usage.lastSelectedCard()))
+    cards.onNext(CardsCache.getCards)
   }
 
 
@@ -356,7 +304,7 @@ class MainActivity extends ThemedActivity
     Util.debug("New intent")
     getInitCardIndex(intent) foreach { initCardIndex =>
       Util.debug("New intent: " + initCardIndex)
-      currentCardIndex() = Some(initCardIndex)
+      currentCardIndex.onNext(Some(initCardIndex))
       trackEvent("Launch", "from_widget")
     }
   }
@@ -377,6 +325,65 @@ class MainActivity extends ThemedActivity
     plusOneButton foreach { _.initialize(PLUS_URL, 0) }
 
     refreshTripIfNecessary
+
+    //// Update ActionBar
+    actionBarSubtitle.bindToLifecycle subscribe { subtitle =>
+      getSupportActionBar.setSubtitle(subtitle getOrElse null)
+    }
+
+    // Bind reactive models to view
+    currentFragmentId.bindToLifecycle subscribe { i =>
+      val title = getResources.getString(
+        if (i != Identifier.Activity) {
+          R.string.drawer_overview
+        } else {
+          R.string.drawer_activity
+        })
+      getSupportActionBar.setTitle(title)
+    }
+
+    //// Sync fragment selection
+    currentFragmentId.bindToLifecycle subscribe { fragmentId =>
+      drawer.setSelection(fragmentId, false)
+      viewPager foreach { _.setCurrentItem(fragmentId - 1) }
+    }
+
+    ////
+    currentCardIndex.bindToLifecycle subscribe { cardIndex =>
+      // TODO(timgreen): remove reloadOp
+      reloadOp
+      cardIndex foreach { i =>
+        Usage.lastSelectedCard() = i
+      }
+    }
+
+    //// Update drawer profiles
+    drawerProfiles.combineLatest(currentCardIndex).bindToLifecycle subscribe { pair =>
+      val Tuple2(profiles, cardIndex) = pair
+      if (header != null) {
+        header.setProfiles(profiles)
+        cardIndex.filter(_ < profiles.size) foreach header.setActiveProfile
+      }
+    }
+    currentCardIndex.bindToLifecycle subscribe { cardIndex =>
+      if (header != null) {
+        cardIndex.filter(_ < header.getProfiles.size) foreach header.setActiveProfile
+      }
+    }
+    //// Update drawer header
+    currentCardIndex.bindToLifecycle subscribe { cardIndex =>
+      for {
+        i <- cardIndex
+        h <- Option(header)
+      } {
+        h.setBackgroundRes(i % 4 match {
+          case 0 => R.drawable.header_leaf
+          case 1 => R.drawable.header_sun
+          case 2 => R.drawable.header_aurora
+          case 3 => R.drawable.header_ice
+        })
+      }
+    }
   }
 
   override def onPause() {
@@ -396,11 +403,13 @@ class MainActivity extends ThemedActivity
   override def onBackPressed {
     if (drawer.isDrawerOpen) {
       drawer.closeDrawer
-    } else if (currentFragmentId() != Identifier.Overview) {
-      trackEvent("UI", "switchFragment", Some("back"), Some(0))
-      currentFragmentId() = Identifier.Overview
     } else {
-      finish
+      if (viewPager.map(_.getCurrentItem() + 1) == Some(Identifier.Overview)) {
+        trackEvent("UI", "switchFragment", Some("back"), Some(0))
+        currentFragmentId.onNext(Identifier.Overview)
+      } else {
+        finish
+      }
     }
   }
 
@@ -438,7 +447,7 @@ class MainActivity extends ThemedActivity
       .withOnAccountHeaderListener(new AccountHeader.OnAccountHeaderListener() {
         override def onProfileChanged(view: View, profile: IProfile[_], current: Boolean): Boolean = {
           val i = profile.asInstanceOf[ProfileDrawerItem].getIdentifier
-          currentCardIndex() = Some(i)
+          currentCardIndex.onNext(Some(i))
           true
         }
       })
@@ -502,7 +511,7 @@ class MainActivity extends ThemedActivity
           if (drawerItem != null) {
             drawerItem.getIdentifier match {
               case id@(Identifier.Overview | Identifier.Activity) =>
-                currentFragmentId() = id
+                currentFragmentId.onNext(id)
                 trackEvent("UI", "switchFragment", Some("drawerItemClick"), Some(id - 1))
               case Identifier.Donate   => donate
               case Identifier.Share    => share
@@ -530,11 +539,11 @@ class MainActivity extends ThemedActivity
       }
 
       override def onLoadFinished(loader: Loader[Cursor], cursor: Cursor) {
-        cards() = CardsCache.getCards
+        cards.onNext(CardsCache.getCards)
       }
 
       override def onLoaderReset(loader: Loader[Cursor]) {
-        cards() = List()
+        cards.onNext(List())
       }
     })
 
@@ -542,25 +551,26 @@ class MainActivity extends ThemedActivity
   }
 
   private def setupObserver() {
-    val handler = new Handler
-    val contentObserver = new ContentObserver(handler) {
-      override def onChange(selfChange: Boolean, uri: Uri) {
-        Util.debug("ContentObserver     ==================== " + uri)
-        currentCardIndex() foreach { cardIndex =>
-          if (uri == OpalProvider.Uris.activities(cardIndex)) {
-            Util.debug("ContentObserver     ==================== do load")
-            fragmentRefreshTrigger.onNext(0)
-          }
-        }
-      }
+    // TODO(timgreen): turn this into observable
+    // val handler = new Handler
+    // val contentObserver = new ContentObserver(handler) {
+    //   override def onChange(selfChange: Boolean, uri: Uri) {
+    //     Util.debug("ContentObserver     ==================== " + uri)
+    //     currentCardIndex() foreach { cardIndex =>
+    //       if (uri == OpalProvider.Uris.activities(cardIndex)) {
+    //         Util.debug("ContentObserver     ==================== do load")
+    //         fragmentRefreshTrigger.onNext(0)
+    //       }
+    //     }
+    //   }
 
-      override def onChange(selfChange: Boolean) {
-        Util.debug("ContentObserver     ====================")
-        fragmentRefreshTrigger.onNext(0)
-      }
-    }
-    // TODO(timgreen): more accurate uri.
-    getContentResolver.registerContentObserver(OpalProvider.Uris.cards, true, contentObserver)
+    //   override def onChange(selfChange: Boolean) {
+    //     Util.debug("ContentObserver     ====================")
+    //     fragmentRefreshTrigger.onNext(0)
+    //   }
+    // }
+    // // TODO(timgreen): more accurate uri.
+    // getContentResolver.registerContentObserver(OpalProvider.Uris.cards, true, contentObserver)
   }
 
   private def enableSyncOnStart() = {
@@ -722,7 +732,7 @@ class MainActivity extends ThemedActivity
 
   def spending(view: View) {
     trackEvent("UI", "switchFragment", Some("clickSpending"), Some(1))
-    currentFragmentId() = Identifier.Activity
+    currentFragmentId.onNext(Identifier.Activity)
   }
 
   private def startSync() {
