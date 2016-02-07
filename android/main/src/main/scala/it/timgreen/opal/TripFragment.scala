@@ -51,77 +51,7 @@ class TripFragment extends Fragment with SwipeRefreshSupport with SnapshotAware 
     listView.setAdapter(adapter)
     updateEmptyView
 
-    setupLoader
-
     rootView
-  }
-
-  private var loaderCallbacks: LoaderManager.LoaderCallbacks[Cursor] = _
-  private def setupLoader() {
-    loaderCallbacks = new LoaderManager.LoaderCallbacks[Cursor]() {
-      override def onCreateLoader(id: Int, args: Bundle): Loader[Cursor] = {
-        Util.debug("trip, create loader " + id)
-        new CursorLoader(getActivity, OpalProvider.Uris.activities(id), null, null, null, null) {
-          override def loadInBackground: Cursor = {
-            trackBlockTiming("UI", Some("Loading"), Some("TripView")) {
-              super.loadInBackground
-            } (getActivity)
-          }
-        }
-      }
-      override def onLoadFinished(loader: Loader[Cursor], cursor: Cursor) {
-        Util.debug("trip, load finished " + loader.getId)
-        if (currentCardIndex() == Some(loader.getId)) {
-          adapter.setNotifyOnChange(false)
-          adapter.clear
-          adapter.addAll(processCursor(cursor): _*)
-          adapter.setNotifyOnChange(true)
-          adapter.notifyDataSetChanged
-
-          updateEmptyView
-        } else {
-          Util.debug(s"trip($currentCardIndex), ignore loader result(${loader.getId})")
-        }
-      }
-      override def onLoaderReset(loader: Loader[Cursor]) {
-        Util.debug("trip, load reset " + loader.getId)
-        if (currentCardIndex() == Some(loader.getId)) {
-          adapter.clear
-
-          updateEmptyView
-        }
-      }
-    }
-    getLoaderManager.initLoader(0, null, loaderCallbacks)
-  }
-
-  private def updateEmptyView() {
-    val emptyView = rootView.map(_.findViewById(android.R.id.empty))
-    if (adapter.isEmpty) {
-      emptyView.foreach(_.setVisibility(View.VISIBLE))
-    } else {
-      emptyView.foreach(_.setVisibility(View.GONE))
-    }
-  }
-
-  private def processCursor(cursor: Cursor): List[TransactionViewData] = {
-    var lastColor = false
-    var lastJourneyNumber: Option[Int] = None
-
-    TransactionTable.convert(cursor).toList.reverse map { cardTransaction =>
-      val alternateColor = if (lastJourneyNumber == cardTransaction.journeyNumber || cardTransaction.journeyNumber == None) {
-        lastColor
-      } else {
-        !lastColor
-      }
-
-      if (cardTransaction.journeyNumber != None) {
-        lastJourneyNumber = cardTransaction.journeyNumber
-      }
-      lastColor = alternateColor
-
-      TransactionViewData(cardTransaction, alternateColor)
-    } reverse
   }
 
   override def onViewCreated(view: View, savedInstanceState: Bundle) {
@@ -130,13 +60,6 @@ class TripFragment extends Fragment with SwipeRefreshSupport with SnapshotAware 
       rootView.map(_.findViewById(R.id.swipe_container).asInstanceOf[SwipeRefreshLayout]).toList :::
       rootView.map(_.findViewById(android.R.id.empty).asInstanceOf[SwipeRefreshLayout]).toList
     initSwipeOptions
-  }
-
-  private def refresh() {
-    currentCardIndex() foreach { cardIndex =>
-      // TODO(timgreen): change to initLoader
-      getLoaderManager.restartLoader(cardIndex, null, loaderCallbacks)
-    }
   }
 
   override def preSnapshot() {
@@ -158,13 +81,50 @@ class TripFragment extends Fragment with SwipeRefreshSupport with SnapshotAware 
 
   override def onStart() {
     super.onStart
-    currentCardIndex.on(tag = this) { _ => refresh }
-    fragmentRefreshTrigger.bindToLifecycle subscribe { _ => refresh }
+    rxdata.RxTransactions.transactions.map(processTransaction).bindToLifecycle subscribe { d =>
+      renderList(d)
+    }
+    // TODO(timgreen): handle data refresh
+    // fragmentRefreshTrigger.bindToLifecycle subscribe { _ => refresh }
   }
 
-  override def onStop() {
-    currentCardIndex.removeByTag(this)
-    super.onStop
+  private def updateEmptyView() {
+    val emptyView = rootView.map(_.findViewById(android.R.id.empty))
+    if (adapter.isEmpty) {
+      emptyView.foreach(_.setVisibility(View.VISIBLE))
+    } else {
+      emptyView.foreach(_.setVisibility(View.GONE))
+    }
+  }
+
+  private def renderList(data: List[TransactionViewData]) {
+    adapter.setNotifyOnChange(false)
+    adapter.clear
+    adapter.addAll(data: _*)
+    adapter.setNotifyOnChange(true)
+    adapter.notifyDataSetChanged
+
+    updateEmptyView
+  }
+
+  private def processTransaction(transactions: List[CardTransaction]): List[TransactionViewData] = {
+    var lastColor = false
+    var lastJourneyNumber: Option[Int] = None
+
+    transactions.reverse map { cardTransaction =>
+      val alternateColor = if (lastJourneyNumber == cardTransaction.journeyNumber || cardTransaction.journeyNumber == None) {
+        lastColor
+      } else {
+        !lastColor
+      }
+
+      if (cardTransaction.journeyNumber != None) {
+        lastJourneyNumber = cardTransaction.journeyNumber
+      }
+      lastColor = alternateColor
+
+      TransactionViewData(cardTransaction, alternateColor)
+    } reverse
   }
 }
 
