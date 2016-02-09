@@ -8,7 +8,7 @@ import it.timgreen.android.model.SingleValue
 import it.timgreen.opal.api.CardDetails
 
 object Bus {
-  val currentCardIndex = BehaviorSubject[Option[Int]](None)
+  val currentCardIndex = BehaviorSubject[Int](0)
   val isSyncing = BehaviorSubject(false)
   val isSyncingDistinct = isSyncing.distinctUntilChanged
   val syncTrigger = PublishSubject[Int]()
@@ -16,7 +16,8 @@ object Bus {
   val fragmentRefreshTrigger = PublishSubject[Int]()
 
   //
-  val currentCardDetails: Observable[Option[CardDetails]] = currentCardIndex.combineLatestWith(rxdata.RxCards.cards) { (cardIndex, cards) =>
-    cardIndex flatMap { i => cards.lift(i) }
-  }
+  val currentCardDetails: Observable[Option[CardDetails]] =
+    currentCardIndex.combineLatestWith(rxdata.RxCards.cards) { (cardIndex, cards) =>
+      cards.lift(cardIndex)
+    }
 }

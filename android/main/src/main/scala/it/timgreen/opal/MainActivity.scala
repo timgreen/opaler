@@ -94,8 +94,7 @@ class MainActivity extends ThemedActivity
 
   val actionBarSubtitle: Observable[Option[String]] = currentCardIndex.combineLatestWith(cards) { (cardIndex, cards) =>
     for {
-      i <- cardIndex
-      cardDetails <- cards.lift(i)
+      cardDetails <- cards.lift(cardIndex)
     } yield {
       s"${cardDetails.cardNickName} ${cardDetails.formatedCardNumber}"
     }
@@ -281,7 +280,7 @@ class MainActivity extends ThemedActivity
 
     // TODO(timgreen): find a better way to init the value.
 
-    currentCardIndex.onNext(getInitCardIndex(getIntent) orElse Some(Usage.lastSelectedCard()))
+    currentCardIndex.onNext(getInitCardIndex(getIntent) getOrElse Usage.lastSelectedCard())
     cards.onNext(CardsCache.getCards)
   }
 
@@ -304,7 +303,7 @@ class MainActivity extends ThemedActivity
     Util.debug("New intent")
     getInitCardIndex(intent) foreach { initCardIndex =>
       Util.debug("New intent: " + initCardIndex)
-      currentCardIndex.onNext(Some(initCardIndex))
+      currentCardIndex.onNext(initCardIndex)
       trackEvent("Launch", "from_widget")
     }
   }
@@ -352,9 +351,7 @@ class MainActivity extends ThemedActivity
     currentCardIndex.bindToLifecycle subscribe { cardIndex =>
       // TODO(timgreen): remove reloadOp
       reloadOp
-      cardIndex foreach { i =>
-        Usage.lastSelectedCard() = i
-      }
+      Usage.lastSelectedCard() = cardIndex
     }
 
     //// Update drawer profiles
@@ -362,21 +359,10 @@ class MainActivity extends ThemedActivity
       val Tuple2(profiles, cardIndex) = pair
       if (header != null) {
         header.setProfiles(profiles)
-        cardIndex.filter(_ < profiles.size) foreach header.setActiveProfile
-      }
-    }
-    currentCardIndex.bindToLifecycle subscribe { cardIndex =>
-      if (header != null) {
-        cardIndex.filter(_ < header.getProfiles.size) foreach header.setActiveProfile
-      }
-    }
-    //// Update drawer header
-    currentCardIndex.bindToLifecycle subscribe { cardIndex =>
-      for {
-        i <- cardIndex
-        h <- Option(header)
-      } {
-        h.setBackgroundRes(i % 4 match {
+        if (cardIndex < profiles.size) {
+          header.setActiveProfile(cardIndex)
+        }
+        header.setBackgroundRes(cardIndex % 4 match {
           case 0 => R.drawable.header_leaf
           case 1 => R.drawable.header_sun
           case 2 => R.drawable.header_aurora
@@ -447,7 +433,7 @@ class MainActivity extends ThemedActivity
       .withOnAccountHeaderListener(new AccountHeader.OnAccountHeaderListener() {
         override def onProfileChanged(view: View, profile: IProfile[_], current: Boolean): Boolean = {
           val i = profile.asInstanceOf[ProfileDrawerItem].getIdentifier
-          currentCardIndex.onNext(Some(i))
+          currentCardIndex.onNext(i)
           true
         }
       })
