@@ -28,19 +28,30 @@ class OverviewFragment extends Fragment with SwipeRefreshSupport with SnapshotAw
 
   import Bus.currentCardDetails
 
-  var rootView: Option[View] = None
+  var rootView: View = _
   var swipeRefreshLayout: List[SwipeRefreshLayout] = Nil
+
+  object ui {
+    lazy val balance: TextView = get(R.id.balance)
+    lazy val balanceSmall: TextView = get(R.id.balance_small)
+    lazy val lastSuccessfulSync: TextView = get(R.id.last_successful_sync)
+    lazy val balanceIcon: TextView = get(R.id.balance_icon)
+    lazy val todaySpending: TextView = get(R.id.today_spending)
+    lazy val thisWeekSpending: TextView = get(R.id.this_week_spending)
+    lazy val lastWeekSpending: TextView = get(R.id.last_week_spending)
+    def get[T](id: Int): T = {
+      rootView.findViewById(id).asInstanceOf[T]
+    }
+  }
 
   override def onCreateView(inflater: LayoutInflater, container: ViewGroup,
                             savedInstanceState: Bundle): View = {
-    val rootView = inflater.inflate(R.layout.fragment_overview, container, false)
-    this.rootView = Some(rootView)
-
-    rootView
+    this.rootView = inflater.inflate(R.layout.fragment_overview, container, false)
+    this.rootView
   }
 
   override def onViewCreated(view: View, savedInstanceState: Bundle) {
-    swipeRefreshLayout = rootView.map(_.findViewById(R.id.swipe_container).asInstanceOf[SwipeRefreshLayout]).toList
+    swipeRefreshLayout = ui.get[SwipeRefreshLayout](R.id.swipe_container) :: Nil
     initSwipeOptions
 
     val rxBalance: Observable[DataStatus[(String, String)]] = currentCardDetails map { cardData =>
@@ -59,68 +70,61 @@ class OverviewFragment extends Fragment with SwipeRefreshSupport with SnapshotAw
   private def renderBalance(balanceData: DataStatus[(String, String)]) {
     val (balance, balanceSmall) = balanceData getOrElse ("-" -> ".--")
 
-    rootView foreach { rv =>
-      rv.findViewById(R.id.balance).asInstanceOf[TextView].setText(balance)
-      rv.findViewById(R.id.balance_small).asInstanceOf[TextView].setText(balanceSmall)
-      rv.findViewById(R.id.last_successful_sync).asInstanceOf[TextView].setText("Last Sync " + SyncStatus.getLastSuccessfulSyncTime(getActivity))
+    ui.balance.setText(balance)
+    ui.balanceSmall.setText(balanceSmall)
+    ui.lastSuccessfulSync.setText("Last Sync " + SyncStatus.getLastSuccessfulSyncTime(getActivity))
 
-      val size = if (balance.length <= 2) {
-        (60, 150)
-      } else {
-        (50, 140)
-      }
-      rv.findViewById(R.id.balance).asInstanceOf[TextView].setTextSize(TypedValue.COMPLEX_UNIT_DIP, size._2)
-      rv.findViewById(R.id.balance_icon).asInstanceOf[TextView].setTextSize(TypedValue.COMPLEX_UNIT_DIP, size._1)
-      rv.findViewById(R.id.balance_small).asInstanceOf[TextView].setTextSize(TypedValue.COMPLEX_UNIT_DIP, size._1)
+    val size = if (balance.length <= 2) {
+      (60, 150)
+    } else {
+      (50, 140)
     }
+    ui.balance.setTextSize(TypedValue.COMPLEX_UNIT_DIP, size._2)
+    ui.balanceIcon.setTextSize(TypedValue.COMPLEX_UNIT_DIP, size._1)
+    ui.balanceSmall.setTextSize(TypedValue.COMPLEX_UNIT_DIP, size._1)
   }
 
   private def renderSpending(data: OverviewData) {
-    rootView foreach { rv =>
-      rv.findViewById(R.id.today_spending).asInstanceOf[TextView].setText(
-        CardTransaction.formatMoney(data.today, "--")
-      )
-      rv.findViewById(R.id.this_week_spending).asInstanceOf[TextView].setText(
-        CardTransaction.formatMoney(data.thisWeek, "--")
-      )
-      rv.findViewById(R.id.last_week_spending).asInstanceOf[TextView].setText(
-        CardTransaction.formatMoney(data.lastWeek, "--")
-      )
+    ui.todaySpending.setText(
+      CardTransaction.formatMoney(data.today, "--")
+    )
+    ui.thisWeekSpending.setText(
+      CardTransaction.formatMoney(data.thisWeek, "--")
+    )
+    ui.lastWeekSpending.setText(
+      CardTransaction.formatMoney(data.lastWeek, "--")
+    )
 
-      val balls = Util.getBalls(data.maxJourneyNumber).replaceAll("\\s", "")
-      List(
-        R.id.ball0,
-        R.id.ball1,
-        R.id.ball2,
-        R.id.ball3,
-        R.id.ball4,
-        R.id.ball5,
-        R.id.ball6,
-        R.id.ball7
-      ).zipWithIndex foreach { case (r, i) =>
-        val image = (balls(i), PrefUtil.prefs(getActivity).getString("theme", "dark")) match {
-          case ('●', "dark") => R.drawable.dot_solid
-          case ('○', "dark") => R.drawable.dot
-          case ('●', "light") => R.drawable.dot_solid_light
-          case ('○', "light") | _ => R.drawable.dot_light
-        }
-        rv.findViewById(r).asInstanceOf[ImageView].setImageResource(image)
+    val balls = Util.getBalls(data.maxJourneyNumber).replaceAll("\\s", "")
+    List(
+      R.id.ball0,
+      R.id.ball1,
+      R.id.ball2,
+      R.id.ball3,
+      R.id.ball4,
+      R.id.ball5,
+      R.id.ball6,
+      R.id.ball7
+    ).zipWithIndex foreach { case (r, i) =>
+      val image = (balls(i), PrefUtil.prefs(getActivity).getString("theme", "dark")) match {
+        case ('●', "dark") => R.drawable.dot_solid
+        case ('○', "dark") => R.drawable.dot
+        case ('●', "light") => R.drawable.dot_solid_light
+        case ('○', "light") | _ => R.drawable.dot_light
       }
+      ui.get[ImageView](r).setImageResource(image)
     }
   }
 
   override def preSnapshot() {
-    rootView foreach { rv =>
-      List(
-        R.id.balance,
-        R.id.balance_small,
-        R.id.today_spending,
-        R.id.this_week_spending,
-        R.id.last_week_spending
-      ) foreach { id =>
-        val textView = rv.findViewById(id).asInstanceOf[TextView]
-        textView.setText(textView.getText.toString.replaceAll("[0-9]", "0"))
-      }
+    List(
+      ui.balance,
+      ui.balanceSmall,
+      ui.todaySpending,
+      ui.thisWeekSpending,
+      ui.lastWeekSpending
+    ) foreach { textView =>
+      textView.setText(textView.getText.toString.replaceAll("[0-9]", "0"))
     }
   }
 
