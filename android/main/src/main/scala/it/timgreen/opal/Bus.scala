@@ -16,8 +16,13 @@ object Bus {
   val fragmentRefreshTrigger = PublishSubject[Int]()
 
   //
-  val currentCardDetails: Observable[Option[CardDetails]] =
-    currentCardIndex.combineLatestWith(rxdata.RxCards.cards) { (cardIndex, cards) =>
-      cards.lift(cardIndex)
+  val currentCardDetails: Observable[DataStatus[CardDetails]] =
+    currentCardIndex.combineLatestWith(rxdata.RxCards.cards) { (cardIndex, cardsData) =>
+      cardsData.flatMap { cards =>
+        cards.lift(cardIndex) match {
+          case Some(card) => DataStatus(card)
+          case None => NoData
+        }
+      }
     }
 }

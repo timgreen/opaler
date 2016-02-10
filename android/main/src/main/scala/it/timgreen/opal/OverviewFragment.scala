@@ -16,6 +16,8 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 
+import rx.lang.scala.Observable
+
 import it.timgreen.opal.AnalyticsSupport._
 import it.timgreen.opal.api.CardTransaction
 import it.timgreen.opal.provider.CardsCache
@@ -41,21 +43,22 @@ class OverviewFragment extends Fragment with SwipeRefreshSupport with SnapshotAw
     swipeRefreshLayout = rootView.map(_.findViewById(R.id.swipe_container).asInstanceOf[SwipeRefreshLayout]).toList
     initSwipeOptions
 
-    val rxBalance = currentCardDetails map { cardOption =>
-      cardOption map { card =>
+    val rxBalance: Observable[DataStatus[(String, String)]] = currentCardDetails map { cardData =>
+      cardData map { card =>
         (card.cardBalance / 100).toString ->
         f".${(card.cardBalance % 100)}%02d"
-      } getOrElse ("-" -> ".--")
+      }
     }
-    (("-" -> ".--") +: rxBalance).bindToLifecycle subscribe {b => renderBalance(b)}
+    rxBalance.bindToLifecycle subscribe {b => renderBalance(b)}
 
     // TODO(timgreen):
     val rxOverview = rx.lang.scala.subjects.BehaviorSubject[OverviewData]()
     rxOverview.bindToLifecycle subscribe { s => renderSpending(s) }
   }
 
-  private def renderBalance(balancePair: (String, String)) {
-    val (balance, balanceSmall) = balancePair
+  private def renderBalance(balanceData: DataStatus[(String, String)]) {
+    val (balance, balanceSmall) = balanceData getOrElse ("-" -> ".--")
+
     rootView foreach { rv =>
       rv.findViewById(R.id.balance).asInstanceOf[TextView].setText(balance)
       rv.findViewById(R.id.balance_small).asInstanceOf[TextView].setText(balanceSmall)
