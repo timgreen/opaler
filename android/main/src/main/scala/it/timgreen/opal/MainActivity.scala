@@ -88,6 +88,7 @@ class MainActivity extends ThemedActivity
   import Bus.isSyncingDistinct
   import Bus.syncTrigger
   import Bus.fragmentRefreshTrigger
+  import rxdata.RxCards
   val currentFragmentId = BehaviorSubject(Identifier.Overview)
   // TODO(timgreen): handle card list reload
   // TODO(timgreen): move cards out of MainActivity
@@ -98,31 +99,33 @@ class MainActivity extends ThemedActivity
       s"${card.cardNickName} ${card.formatedCardNumber}"
     }
   }
-  val drawerProfiles: Observable[ArrayList[IProfile[_]]] = cards map { cards =>
-    val profiles = cards map { card =>
-      val name = card.cardNickName
-      val text = {
-        val parts = name.split(' ').filter(_.nonEmpty)
-        if (parts.length >= 2) {
-          parts(0).substring(0, 1) + parts(1).substring(0, 1)
-        } else {
-          (name + "  ").substring(0, 2)
+  val drawerProfiles: Observable[DataStatus[ArrayList[IProfile[_]]]] = RxCards.cards map { cardsData =>
+    cardsData map { cards =>
+      val profiles = cards map { card =>
+        val name = card.cardNickName
+        val text = {
+          val parts = name.split(' ').filter(_.nonEmpty)
+          if (parts.length >= 2) {
+            parts(0).substring(0, 1) + parts(1).substring(0, 1)
+          } else {
+            (name + "  ").substring(0, 2)
+          }
         }
+        val icon = TextDrawable.builder
+          .beginConfig
+            .width(512)
+            .height(512)
+          .endConfig
+          .buildRect(text, ColorGenerator.MATERIAL.getColor(name))
+        new ProfileDrawerItem()
+          .withName(name)
+          .withEmail(card.cardNumber.grouped(4).mkString(" "))
+          .withIcon(icon)
+          .withIdentifier(card.index)
       }
-      val icon = TextDrawable.builder
-        .beginConfig
-          .width(512)
-          .height(512)
-        .endConfig
-        .buildRect(text, ColorGenerator.MATERIAL.getColor(name))
-      new ProfileDrawerItem()
-        .withName(name)
-        .withEmail(card.cardNumber.grouped(4).mkString(" "))
-        .withIcon(icon)
-        .withIdentifier(card.index)
-    }
 
-    new ArrayList(profiles)
+      new ArrayList(profiles)
+    }
   }
 
   var viewPager: Option[ViewPager] = None
@@ -355,12 +358,19 @@ class MainActivity extends ThemedActivity
 
     //// Update drawer profiles
     drawerProfiles.combineLatest(currentCardIndex).bindToLifecycle subscribe { pair =>
-      val Tuple2(profiles, cardIndex) = pair
+      val Tuple2(profilesData, cardIndex) = pair
+      // TODO(timgreen): show loading / no data
+      val profiles = profilesData getOrElse new ArrayList[IProfile[_]]()
       if (header != null) {
         header.setProfiles(profiles)
         if (cardIndex < profiles.size) {
           header.setActiveProfile(cardIndex)
         }
+      }
+    }
+    //// Update drawer background
+    currentCardIndex.bindToLifecycle subscribe { cardIndex =>
+      if (header != null) {
         header.setBackgroundRes(cardIndex % 4 match {
           case 0 => R.drawable.header_leaf
           case 1 => R.drawable.header_sun
