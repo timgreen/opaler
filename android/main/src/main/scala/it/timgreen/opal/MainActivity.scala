@@ -83,6 +83,7 @@ class MainActivity extends ThemedActivity
 
   // Reactive models
   import Bus.currentCardIndex
+  import Bus.currentCardDetails
   import Bus.isSyncing
   import Bus.isSyncingDistinct
   import Bus.syncTrigger
@@ -92,11 +93,9 @@ class MainActivity extends ThemedActivity
   // TODO(timgreen): move cards out of MainActivity
   val cards = BehaviorSubject(List[CardDetails]())
 
-  val actionBarSubtitle: Observable[Option[String]] = currentCardIndex.combineLatestWith(cards) { (cardIndex, cards) =>
-    for {
-      cardDetails <- cards.lift(cardIndex)
-    } yield {
-      s"${cardDetails.cardNickName} ${cardDetails.formatedCardNumber}"
+  val actionBarSubtitle: Observable[DataStatus[String]] = currentCardDetails map { cardData =>
+    cardData map { card =>
+      s"${card.cardNickName} ${card.formatedCardNumber}"
     }
   }
   val drawerProfiles: Observable[ArrayList[IProfile[_]]] = cards map { cards =>
