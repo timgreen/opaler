@@ -6,7 +6,7 @@ import android.support.v4.widget.SwipeRefreshLayout
 import it.timgreen.android.rx.RxFragment
 import it.timgreen.opal.AnalyticsSupport._
 
-trait SwipeRefreshSupport extends Fragment with RxFragment {
+trait SwipeRefreshSupport extends RxFragment {
   import it.timgreen.opal.Bus.isSyncingDistinct
   import it.timgreen.opal.Bus.isSyncing
   import it.timgreen.opal.Bus.syncTrigger

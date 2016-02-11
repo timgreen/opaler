@@ -14,44 +14,44 @@ import rx.lang.scala.subjects.BehaviorSubject
 
 import scala.language.implicitConversions
 
-trait RxActivity { self: Activity =>
+trait RxActivity extends Activity {
 
   implicit val lifecycleSubject = BehaviorSubject[ActivityEvent]()
 
   @CallSuper
   override protected def onCreate(savedInstanceState: Bundle) {
-    self.onCreate(savedInstanceState)
+    super.onCreate(savedInstanceState)
     lifecycleSubject.onNext(ActivityEvent.CREATE)
   }
 
   @CallSuper
   override protected def onStart() {
-    self.onStart
+    super.onStart
     lifecycleSubject.onNext(ActivityEvent.START)
   }
 
   @CallSuper
   override protected def onResume() {
-    self.onResume
+    super.onResume
     lifecycleSubject.onNext(ActivityEvent.RESUME)
   }
 
   @CallSuper
   override protected def onPause() {
     lifecycleSubject.onNext(ActivityEvent.PAUSE)
-    self.onPause
+    super.onPause
   }
 
   @CallSuper
   override protected def onStop() {
     lifecycleSubject.onNext(ActivityEvent.STOP)
-    self.onStop
+    super.onStop
   }
 
   @CallSuper
   override protected def onDestroy() {
     lifecycleSubject.onNext(ActivityEvent.DESTROY)
-    self.onDestroy
+    super.onDestroy
   }
 
   implicit protected def toRichObservable[T](observable: Observable[T]) =

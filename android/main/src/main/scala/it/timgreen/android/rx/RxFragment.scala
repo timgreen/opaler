@@ -16,68 +16,68 @@ import rx.lang.scala.subjects.BehaviorSubject
 
 import scala.language.implicitConversions
 
-trait RxFragment { self: Fragment =>
+trait RxFragment extends Fragment {
 
   val lifecycleSubject = BehaviorSubject[FragmentEvent]()
 
   @CallSuper
   override def onAttach(activity: Activity) {
-    self.onAttach(activity)
+    super.onAttach(activity)
     lifecycleSubject.onNext(FragmentEvent.ATTACH)
   }
 
   @CallSuper
   override def onCreate(savedInstanceState: Bundle) {
-    self.onCreate(savedInstanceState)
+    super.onCreate(savedInstanceState)
     lifecycleSubject.onNext(FragmentEvent.CREATE)
   }
 
   @CallSuper
   override def onViewCreated(view: View, savedInstanceState: Bundle) {
-    self.onViewCreated(view, savedInstanceState)
+    super.onViewCreated(view, savedInstanceState)
     lifecycleSubject.onNext(FragmentEvent.CREATE_VIEW)
   }
 
   @CallSuper
   override def onStart() {
-    self.onStart
+    super.onStart
     lifecycleSubject.onNext(FragmentEvent.START)
   }
 
   @CallSuper
   override def onResume() {
-    self.onResume
+    super.onResume
     lifecycleSubject.onNext(FragmentEvent.RESUME)
   }
 
   @CallSuper
   override def onPause() {
     lifecycleSubject.onNext(FragmentEvent.PAUSE)
-    self.onPause
+    super.onPause
   }
 
   @CallSuper
   override def onStop() {
     lifecycleSubject.onNext(FragmentEvent.STOP)
-    self.onStop
+    super.onStop
   }
 
   @CallSuper
   override def onDestroyView() {
     lifecycleSubject.onNext(FragmentEvent.DESTROY_VIEW)
-    self.onDestroyView
+    super.onDestroyView
   }
 
   @CallSuper
   override def onDestroy() {
     lifecycleSubject.onNext(FragmentEvent.DESTROY)
-    self.onDestroy
+    super.onDestroy
   }
 
   @CallSuper
   override def onDetach() {
     lifecycleSubject.onNext(FragmentEvent.DETACH)
-    self.onDetach
+    super.onDetach
   }
 
   implicit protected def toRichObservable[T](observable: Observable[T]) =

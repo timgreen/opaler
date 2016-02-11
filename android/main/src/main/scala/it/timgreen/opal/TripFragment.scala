@@ -24,6 +24,7 @@ import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter
 import se.emilsjolander.stickylistheaders.StickyListHeadersListView
 
 import it.timgreen.android.conversion.View._
+import it.timgreen.android.rx.RxFragment
 import it.timgreen.opal.AnalyticsSupport._
 import it.timgreen.opal.api.CardTransaction
 import it.timgreen.opal.api.Model
@@ -33,7 +34,7 @@ import it.timgreen.opal.provider.TransactionTable
 
 import scala.collection.mutable
 
-class TripFragment extends Fragment with SwipeRefreshSupport with SnapshotAware {
+class TripFragment extends RxFragment with SwipeRefreshSupport with SnapshotAware {
 
   import Bus._
 

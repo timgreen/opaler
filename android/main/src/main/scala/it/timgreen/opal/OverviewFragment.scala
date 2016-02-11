@@ -18,13 +18,14 @@ import android.widget.TextView
 
 import rx.lang.scala.Observable
 
+import it.timgreen.android.rx.RxFragment
 import it.timgreen.opal.AnalyticsSupport._
 import it.timgreen.opal.api.CardTransaction
 import it.timgreen.opal.provider.CardsCache
 import it.timgreen.opal.provider.OpalProvider
 import it.timgreen.opal.sync.SyncStatus
 
-class OverviewFragment extends Fragment with SwipeRefreshSupport with SnapshotAware {
+class OverviewFragment extends RxFragment with SwipeRefreshSupport with SnapshotAware {
 
   import Bus.currentCardDetails
 
