@@ -7,9 +7,8 @@ import it.timgreen.android.rx.RxFragment
 import it.timgreen.opal.AnalyticsSupport._
 
 trait SwipeRefreshSupport extends RxFragment {
-  import it.timgreen.opal.Bus.isSyncingDistinct
-  import it.timgreen.opal.Bus.isSyncing
-  import it.timgreen.opal.Bus.syncTrigger
+  import rxdata.RxSync.isSyncing
+  import rxdata.RxSync.syncTrigger
 
   var swipeRefreshLayout: List[SwipeRefreshLayout]
 
@@ -20,7 +19,7 @@ trait SwipeRefreshSupport extends RxFragment {
         def onRefresh {
           Util.debug(s"swipe refresh")
           trackEvent("UI", "pullToRefresh", Some(this.getClass.getSimpleName))(getActivity)
-          isSyncing.onNext(true)
+          rxdata.RxSync.markIsSyncing(true)
           syncTrigger.onNext(0)
         }
       })
@@ -29,7 +28,7 @@ trait SwipeRefreshSupport extends RxFragment {
 
   override def onResume() {
     super.onResume
-    isSyncingDistinct.bindToLifecycle subscribe { syncing =>
+    isSyncing.bindToLifecycle subscribe { syncing =>
       if (syncing) {
         onRefreshStart
       } else {

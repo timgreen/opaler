@@ -9,9 +9,6 @@ import it.timgreen.opal.api.CardDetails
 
 object Bus {
   val currentCardIndex = BehaviorSubject[Int](0)
-  val isSyncing = BehaviorSubject(false)
-  val isSyncingDistinct = isSyncing.distinctUntilChanged
-  val syncTrigger = PublishSubject[Int]()
 
   val fragmentRefreshTrigger = PublishSubject[Int]()
 

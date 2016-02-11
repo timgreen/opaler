@@ -55,7 +55,7 @@ import it.timgreen.opal.account.AccountUtil
 import it.timgreen.opal.api.CardDetails
 import it.timgreen.opal.provider.OpalProvider
 import it.timgreen.opal.provider.TransactionTable
-import it.timgreen.opal.sync.Observer
+import it.timgreen.opal.sync.{ Observer => SyncObserver }
 import it.timgreen.opal.sync.SyncAdapter
 import it.timgreen.opal.sync.SyncStatus
 
@@ -83,9 +83,8 @@ class MainActivity extends ThemedActivity
   // Reactive models
   import Bus.currentCardIndex
   import Bus.currentCardDetails
-  import Bus.isSyncing
-  import Bus.isSyncingDistinct
-  import Bus.syncTrigger
+  import rxdata.RxSync.isSyncing
+  import rxdata.RxSync.syncTrigger
   import Bus.fragmentRefreshTrigger
   import rxdata.RxCards
   val currentFragmentId = BehaviorSubject(Identifier.Overview)
@@ -124,6 +123,7 @@ class MainActivity extends ThemedActivity
     }
   }
 
+  private var syncObserver: SyncObserver = _
   var viewPager: Option[ViewPager] = None
   var plusOneButton: Option[PlusOneButton] = None
 
@@ -133,6 +133,7 @@ class MainActivity extends ThemedActivity
   def endRefreshOp() {
     // NOTE(timgreen): this is a hack for startRefreshOp haven't cancel toasts.
     SuperCardToast.cancelAllSuperCardToasts
+    rxdata.RxSync.markIsSyncing(false)
 
     SyncStatus.getSyncResult foreach { syncStatus =>
       Util.debug("Show SuperCardToast")
@@ -223,20 +224,6 @@ class MainActivity extends ThemedActivity
     }
   }
 
-  val syncSyncStatusOp = { () =>
-    runOnUiThread(new Runnable {
-      override def run() {
-        val syncInProgress = AccountUtil.getAccount map { account =>
-          Observer.isSyncActive(account, OpalProvider.AUTHORITY)
-        } getOrElse false
-        isSyncing.onNext(syncInProgress)
-        Util.debug(s"sync status op: $syncInProgress")
-      }
-    })
-  }
-
-  val syncObserver = new Observer(syncSyncStatusOp)
-
   override def onCreate(savedInstanceState: Bundle) {
     super.onCreate(savedInstanceState)
 
@@ -254,9 +241,10 @@ class MainActivity extends ThemedActivity
       }
     })
 
+    this.syncObserver = rxdata.RxSync.createSyncObserver
     setupObserver
 
-    isSyncingDistinct.subscribe(syncing =>
+    isSyncing.subscribe(syncing =>
       if (!syncing) {
         // TODO(timgreen): optimise it
         reloadOp
@@ -310,7 +298,6 @@ class MainActivity extends ThemedActivity
     super.onResume
 
     syncObserver.addListener
-    syncSyncStatusOp()
 
     if (hasLogin &&
         hasSuitableConnection &&
