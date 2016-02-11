@@ -53,7 +53,6 @@ import it.timgreen.android.util.Snapshot
 import it.timgreen.opal.AnalyticsSupport._
 import it.timgreen.opal.account.AccountUtil
 import it.timgreen.opal.api.CardDetails
-import it.timgreen.opal.provider.CardsCache
 import it.timgreen.opal.provider.OpalProvider
 import it.timgreen.opal.provider.TransactionTable
 import it.timgreen.opal.sync.Observer
@@ -280,7 +279,7 @@ class MainActivity extends ThemedActivity
     // TODO(timgreen): find a better way to init the value.
 
     currentCardIndex.onNext(getInitCardIndex(getIntent) getOrElse Usage.lastSelectedCard())
-    RxCards.cards.onNext(DataStatus(CardsCache.getCards))
+    RxCards.reload
   }
 
 

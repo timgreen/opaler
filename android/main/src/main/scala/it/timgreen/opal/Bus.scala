@@ -15,7 +15,7 @@ object Bus {
 
   val fragmentRefreshTrigger = PublishSubject[Int]()
 
-  //
+  // TODO(timgreen): move into RxCards
   val currentCardDetails: Observable[DataStatus[CardDetails]] =
     currentCardIndex.combineLatestWith(rxdata.RxCards.cards) { (cardIndex, cardsData) =>
       cardsData.flatMap { cards =>
