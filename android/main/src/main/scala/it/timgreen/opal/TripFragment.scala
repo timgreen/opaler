@@ -36,46 +36,48 @@ import scala.collection.mutable
 
 class TripFragment extends RxFragment with SwipeRefreshSupport with SnapshotAware {
 
-  import Bus._
-
   var adapter: TransactionListAdapter = _
-  var rootView: Option[View] = None
+  var rootView: View = _
   var swipeRefreshLayout: List[SwipeRefreshLayout] = Nil
+
+  object ui {
+    lazy val listView: StickyListHeadersListView = get(android.R.id.list)
+    def get[T](id: Int): T = {
+      rootView.findViewById(id).asInstanceOf[T]
+    }
+  }
 
   override def onCreateView(inflater: LayoutInflater, container: ViewGroup,
                             savedInstanceState: Bundle): View = {
 
-    val rootView = inflater.inflate(R.layout.fragment_trip, container, false)
-    this.rootView = Some(rootView)
-    val listView = rootView.findViewById(android.R.id.list).asInstanceOf[StickyListHeadersListView]
+    this.rootView = inflater.inflate(R.layout.fragment_trip, container, false)
     adapter = new TransactionListAdapter(getActivity)
-    listView.setAdapter(adapter)
+    ui.listView.setAdapter(adapter)
     updateEmptyView
 
-    rootView
+    this.rootView
   }
 
   override def onViewCreated(view: View, savedInstanceState: Bundle) {
     super.onViewCreated(view, savedInstanceState)
     swipeRefreshLayout =
-      rootView.map(_.findViewById(R.id.swipe_container).asInstanceOf[SwipeRefreshLayout]).toList :::
-      rootView.map(_.findViewById(android.R.id.empty).asInstanceOf[SwipeRefreshLayout]).toList
+      ui.get[SwipeRefreshLayout](R.id.swipe_container) ::
+      ui.get[SwipeRefreshLayout](android.R.id.empty) ::
+      Nil
     initSwipeOptions
   }
 
   override def preSnapshot() {
-    rootView foreach { rv =>
-      val listView = rv.findViewById(android.R.id.list).asInstanceOf[StickyListHeadersListView].getWrappedList
-      0 to listView.getChildCount foreach { i =>
-        val v = listView.getChildAt(i)
-        Option(v).map(_.findViewById(R.id.amount)) foreach { vv =>
-          val tv = vv.asInstanceOf[TextView]
-          tv.setText(tv.getText.toString.replaceAll("[0-9]", "0"))
-        }
-        Option(v).map(_.findViewById(R.id.details)) foreach { vv =>
-          val tv = vv.asInstanceOf[TextView]
-          tv.setTextColor(0x00000000)
-        }
+    val listView = ui.listView.getWrappedList
+    0 to listView.getChildCount foreach { i =>
+      val v = listView.getChildAt(i)
+      Option(v).map(_.findViewById(R.id.amount)) foreach { vv =>
+        val tv = vv.asInstanceOf[TextView]
+        tv.setText(tv.getText.toString.replaceAll("[0-9]", "0"))
+      }
+      Option(v).map(_.findViewById(R.id.details)) foreach { vv =>
+        val tv = vv.asInstanceOf[TextView]
+        tv.setTextColor(0x00000000)
       }
     }
   }
@@ -90,11 +92,11 @@ class TripFragment extends RxFragment with SwipeRefreshSupport with SnapshotAwar
   }
 
   private def updateEmptyView() {
-    val emptyView = rootView.map(_.findViewById(android.R.id.empty))
+    val emptyView: View = ui.get(android.R.id.empty)
     if (adapter.isEmpty) {
-      emptyView.foreach(_.setVisibility(View.VISIBLE))
+      emptyView.setVisibility(View.VISIBLE)
     } else {
-      emptyView.foreach(_.setVisibility(View.GONE))
+      emptyView.setVisibility(View.GONE)
     }
   }
 
