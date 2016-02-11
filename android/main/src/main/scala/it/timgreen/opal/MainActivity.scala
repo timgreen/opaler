@@ -90,9 +90,6 @@ class MainActivity extends ThemedActivity
   import Bus.fragmentRefreshTrigger
   import rxdata.RxCards
   val currentFragmentId = BehaviorSubject(Identifier.Overview)
-  // TODO(timgreen): handle card list reload
-  // TODO(timgreen): move cards out of MainActivity
-  val cards = BehaviorSubject(List[CardDetails]())
 
   val actionBarSubtitle: Observable[DataStatus[String]] = currentCardDetails map { cardData =>
     cardData map { card =>
@@ -283,7 +280,7 @@ class MainActivity extends ThemedActivity
     // TODO(timgreen): find a better way to init the value.
 
     currentCardIndex.onNext(getInitCardIndex(getIntent) getOrElse Usage.lastSelectedCard())
-    cards.onNext(CardsCache.getCards)
+    RxCards.cards.onNext(DataStatus(CardsCache.getCards))
   }
 
 
@@ -523,24 +520,6 @@ class MainActivity extends ThemedActivity
       .build
 
     typedArray.recycle
-
-    getLoaderManager.initLoader(0, null, new LoaderManager.LoaderCallbacks[Cursor]() {
-      override def onCreateLoader(id: Int, args: Bundle): Loader[Cursor] = {
-        if (id == 0) {
-          new CursorLoader(MainActivity.this, OpalProvider.Uris.cards, null, null, null, null)
-        } else {
-          null
-        }
-      }
-
-      override def onLoadFinished(loader: Loader[Cursor], cursor: Cursor) {
-        cards.onNext(CardsCache.getCards)
-      }
-
-      override def onLoaderReset(loader: Loader[Cursor]) {
-        cards.onNext(List())
-      }
-    })
 
     // plusOneButton = Option(drawerLayout.findViewById(R.id.plus_one_button).asInstanceOf[PlusOneButton])
   }
