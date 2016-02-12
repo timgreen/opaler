@@ -121,7 +121,7 @@ class MainActivity extends ThemedActivity
   }
 
   private var syncObserver: SyncObserver = _
-  var viewPager: Option[ViewPager] = None
+  var viewPager: ViewPager = _
   var plusOneButton: Option[PlusOneButton] = None
 
   def reloadOp() {
@@ -215,10 +215,8 @@ class MainActivity extends ThemedActivity
   }
 
   private def getFragment(index: Int): Option[Fragment with SnapshotAware] = {
-    viewPager flatMap { vp =>
-      val tag = s"android:switcher:${vp.getId}:$index"
-      Option(getFragmentManager.findFragmentByTag(tag).asInstanceOf[Fragment with SnapshotAware])
-    }
+    val tag = s"android:switcher:${viewPager.getId}:$index"
+    Option(getFragmentManager.findFragmentByTag(tag).asInstanceOf[Fragment with SnapshotAware])
   }
 
   override def onCreate(savedInstanceState: Bundle) {
@@ -228,8 +226,7 @@ class MainActivity extends ThemedActivity
     setupDrawerAndToolbar(savedInstanceState)
 
     val appSectionsPagerAdapter = new AppSectionsPagerAdapter(this, getFragmentManager)
-    val viewPager = findViewById(R.id.pager).asInstanceOf[ViewPager]
-    this.viewPager = Some(viewPager)
+    this.viewPager = findViewById(R.id.pager).asInstanceOf[ViewPager]
     viewPager.setAdapter(appSectionsPagerAdapter)
     viewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
       override def onPageSelected(position: Int) {
@@ -327,7 +324,7 @@ class MainActivity extends ThemedActivity
     //// Sync fragment selection
     currentFragmentId.bindToLifecycle subscribe { fragmentId =>
       drawer.setSelection(fragmentId, false)
-      viewPager foreach { _.setCurrentItem(fragmentId - 1) }
+      viewPager.setCurrentItem(fragmentId - 1)
     }
 
     ////
@@ -367,12 +364,6 @@ class MainActivity extends ThemedActivity
     syncObserver.removeListener
   }
 
-  override def onDestroy() {
-    viewPager = None
-
-    super.onDestroy
-  }
-
   // If left drawer is open -> close drawer
   // If on trip page        -> go to overview
   // If on overview         -> exit
@@ -380,7 +371,7 @@ class MainActivity extends ThemedActivity
     if (drawer.isDrawerOpen) {
       drawer.closeDrawer
     } else {
-      if (viewPager.map(_.getCurrentItem() + 1) != Some(Identifier.Overview)) {
+      if (viewPager.getCurrentItem() + 1 != Identifier.Overview) {
         trackEvent("UI", "switchFragment", Some("back"), Some(0))
         currentFragmentId.onNext(Identifier.Overview)
       } else {

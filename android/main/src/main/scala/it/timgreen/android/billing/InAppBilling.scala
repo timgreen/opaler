@@ -62,12 +62,12 @@ object InAppBilling {
   def isInAppBillingAvailable = mService.isDefined
 
   trait BillingSupport { activity: Activity =>
-    override def onCreate(savedInstanceState: Bundle) {
+    override protected def onCreate(savedInstanceState: Bundle) {
       activity.onCreate(savedInstanceState)
       InAppBilling.bind(activity)
     }
 
-    override def onDestroy() {
+    override protected def onDestroy() {
       InAppBilling.unbind(this)
       activity.onDestroy
     }

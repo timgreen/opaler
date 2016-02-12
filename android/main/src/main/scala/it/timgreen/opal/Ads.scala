@@ -68,7 +68,7 @@ object Ads {
       }
     }
 
-    override def onResume() {
+    override protected def onResume() {
       activity.onResume
       if (PrefUtil.isAdDisabled(this)) {
         adView foreach { _ =>
@@ -82,12 +82,12 @@ object Ads {
       }
     }
 
-    override def onPause() {
+    override protected def onPause() {
       activity.onPause
       adView foreach { _.pause }
     }
 
-    override def onDestroy() {
+    override protected def onDestroy() {
       adView foreach { _.destroy }
       activity.onDestroy
     }
