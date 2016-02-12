@@ -84,7 +84,7 @@ class TripFragment extends RxFragment with SwipeRefreshSupport with SnapshotAwar
 
   override def onStart() {
     super.onStart
-    rxdata.RxTransactions.transactions.map(processTransaction).bindToLifecycle subscribe { d =>
+    rxdata.RxTransactions.transactions.map(_.map(processTransaction)).bindToLifecycle subscribe { d =>
       renderList(d)
     }
     // TODO(timgreen): handle data refresh
@@ -100,10 +100,10 @@ class TripFragment extends RxFragment with SwipeRefreshSupport with SnapshotAwar
     }
   }
 
-  private def renderList(data: List[TransactionViewData]) {
+  private def renderList(data: DataStatus[List[TransactionViewData]]) {
     adapter.setNotifyOnChange(false)
     adapter.clear
-    adapter.addAll(data: _*)
+    adapter.addAll(data.getOrElse(List()): _*)
     adapter.setNotifyOnChange(true)
     adapter.notifyDataSetChanged
 
