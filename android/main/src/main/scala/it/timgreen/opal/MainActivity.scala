@@ -87,6 +87,7 @@ class MainActivity extends ThemedActivity
   import rxdata.RxSync.syncTrigger
   import Bus.fragmentRefreshTrigger
   import rxdata.RxCards
+  import rxdata.RxTransactions
   val currentFragmentId = BehaviorSubject(Identifier.Overview)
 
   val actionBarSubtitle: Observable[DataStatus[String]] = currentCardDetails map { cardData =>
@@ -268,6 +269,7 @@ class MainActivity extends ThemedActivity
 
     currentCardIndex.onNext(getInitCardIndex(getIntent) getOrElse Usage.lastSelectedCard())
     RxCards.reload
+    RxTransactions.reload
   }
 
 
