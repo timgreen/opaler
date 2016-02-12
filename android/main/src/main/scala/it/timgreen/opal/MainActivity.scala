@@ -124,9 +124,6 @@ class MainActivity extends ThemedActivity
   var viewPager: ViewPager = _
   var plusOneButton: Option[PlusOneButton] = None
 
-  def reloadOp() {
-    dataReloadTrigger.onNext(0)
-  }
   def endRefreshOp() {
     // NOTE(timgreen): this is a hack for startRefreshOp haven't cancel toasts.
     SuperCardToast.cancelAllSuperCardToasts
@@ -241,7 +238,7 @@ class MainActivity extends ThemedActivity
     isSyncing.subscribe(syncing =>
       if (!syncing) {
         // TODO(timgreen): optimise it
-        reloadOp
+        dataReloadTrigger.onNext(this)
       }
     )
 
@@ -329,8 +326,6 @@ class MainActivity extends ThemedActivity
 
     ////
     currentCardIndex.bindToLifecycle subscribe { cardIndex =>
-      // TODO(timgreen): remove reloadOp
-      reloadOp
       Usage.lastSelectedCard() = cardIndex
     }
 
@@ -384,7 +379,7 @@ class MainActivity extends ThemedActivity
   def refreshTripIfNecessary() {
     val use24hourFormat = PrefUtil.use24hourFormat
     if (currentValueOfUse24hourFormat != None && currentValueOfUse24hourFormat != Some(use24hourFormat)) {
-      dataReloadTrigger.onNext(0)
+      dataReloadTrigger.onNext(this)
     }
     currentValueOfUse24hourFormat = Some(use24hourFormat)
   }
@@ -508,14 +503,14 @@ class MainActivity extends ThemedActivity
     //     currentCardIndex() foreach { cardIndex =>
     //       if (uri == OpalProvider.Uris.activities(cardIndex)) {
     //         Util.debug("ContentObserver     ==================== do load")
-    //         dataReloadTrigger.onNext(0)
+    //         dataReloadTrigger.onNext(this)
     //       }
     //     }
     //   }
 
     //   override def onChange(selfChange: Boolean) {
     //     Util.debug("ContentObserver     ====================")
-    //     dataReloadTrigger.onNext(0)
+    //     dataReloadTrigger.onNext(this)
     //   }
     // }
     // // TODO(timgreen): more accurate uri.

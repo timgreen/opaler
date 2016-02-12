@@ -1,6 +1,7 @@
 package it.timgreen.opal.rxdata
 
 import android.app.Activity
+import android.content.Context
 
 import rx.lang.scala.Observable
 import rx.lang.scala.subjects.BehaviorSubject
@@ -15,7 +16,7 @@ object RxSync {
   private val isSyncingSubject = BehaviorSubject(false)
   val isSyncing = isSyncingSubject.distinctUntilChanged
   val syncTrigger = PublishSubject[Int]()
-  val dataReloadTrigger = PublishSubject[Int]()
+  val dataReloadTrigger = PublishSubject[Context]()
 
   def createSyncObserver(implicit activity: Activity) = {
     val syncSyncStatusOp = { () =>

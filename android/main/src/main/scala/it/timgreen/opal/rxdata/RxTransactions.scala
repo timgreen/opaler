@@ -76,7 +76,9 @@ private[rxdata] class TransactionWatcher(cardIndex: Int, context: Observable[Con
 
   // TODO(timgreen): use scheduler
   context subscribe { loadData _ }
-  // TODO(timgreen): reload
+  RxSync.dataReloadTrigger.combineLatest(RxCards.currentCardIndex).filter(_._2 == cardIndex) subscribe { d =>
+    loadData(d._1)
+  }
 }
 
 case class TransactionViewData(
