@@ -44,9 +44,6 @@ import rx.lang.scala.subjects.BehaviorSubject
 
 import it.timgreen.android.billing.InAppBilling
 import it.timgreen.android.gms.PlayServiceHelper
-import it.timgreen.android.model.ListenableAwareActivity
-import it.timgreen.android.model.SingleValue
-import it.timgreen.android.model.Value
 import it.timgreen.android.net.NetworkConnectionChecker
 import it.timgreen.android.rx.RxActivity
 import it.timgreen.android.util.Snapshot
@@ -74,7 +71,6 @@ class MainActivity extends ThemedActivity
   with Ads.BottomBanner
   with InAppBilling.BillingSupport
   with RateSupport
-  with ListenableAwareActivity
   with RxActivity {
 
   override val translucentStatus = true
