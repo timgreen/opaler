@@ -17,19 +17,18 @@ import it.timgreen.opal.provider.TransactionTable
 object RxTransactions {
 
   val transactions = BehaviorSubject[DataStatus[List[CardTransaction]]](DataStatus.dataLoading)
+  // TODO(timgreen): better not to hold a reference at all.
+  private val contextSubject = BehaviorSubject[Context]();
 
   import it.timgreen.opal.Bus.currentCardIndex
 
-  currentCardIndex subscribe { onCardChange _ }
-
   // TODO(timgreen): better method name
-  var context: Context = _
   def reload(implicit context: Context) {
-    this.context = context;
+    contextSubject.onNext(context);
     // TODO(timgreen): reload
   }
 
-  private var subscription: Option[Subscription] = _
+  private var subscription: Option[Subscription] = None
   private def onCardChange(cardIndex: Int) {
     subscription foreach { _.unsubscribe }
     transactions.onNext(DataStatus.dataLoading)
@@ -38,19 +37,22 @@ object RxTransactions {
 
   private val watchers = mutable.Map[Int, TransactionWatcher]()
   private def getTransactionsFor(cardIndex: Int) =
-    watchers.getOrElseUpdate(cardIndex, new TransactionWatcher(cardIndex, context))
+    watchers.getOrElseUpdate(cardIndex, new TransactionWatcher(cardIndex, contextSubject))
+
+  // init
+  currentCardIndex subscribe { onCardChange _ }
 }
 
-class TransactionWatcher(cardIndex: Int, context: Context) {
+class TransactionWatcher(cardIndex: Int, context: Observable[Context]) {
 
   val list = BehaviorSubject[DataStatus[List[CardTransaction]]](DataStatus.dataLoading)
 
-  private def loadData() {
+  def loadData(context: Context) {
     val cursor = context.getContentResolver.query(OpalProvider.Uris.activities(cardIndex), null, null, null, null)
     list.onNext(DataStatus(TransactionTable.convert(cursor)))
   }
 
   // TODO(timgreen): use scheduler
-  loadData
+  context subscribe { loadData _ }
   // TODO(timgreen): reload
 }
