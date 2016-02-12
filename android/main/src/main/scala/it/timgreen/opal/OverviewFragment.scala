@@ -27,7 +27,7 @@ import it.timgreen.opal.sync.SyncStatus
 
 class OverviewFragment extends RxFragment with SwipeRefreshSupport with SnapshotAware {
 
-  import Bus.currentCardDetails
+  import rxdata.RxCards.currentCardDetails
 
   var rootView: View = _
   var swipeRefreshLayout: List[SwipeRefreshLayout] = Nil

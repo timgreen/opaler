@@ -81,12 +81,12 @@ class MainActivity extends ThemedActivity
   implicit def provideActivity = this
 
   // Reactive models
-  import Bus.currentCardIndex
-  import Bus.currentCardDetails
+  import rxdata.RxCards
+  import rxdata.RxCards.currentCardIndex
+  import rxdata.RxCards.currentCardDetails
   import rxdata.RxSync.isSyncing
   import rxdata.RxSync.syncTrigger
   import Bus.fragmentRefreshTrigger
-  import rxdata.RxCards
   import rxdata.RxTransactions
   val currentFragmentId = BehaviorSubject(Identifier.Overview)
 

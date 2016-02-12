@@ -20,7 +20,7 @@ object RxTransactions {
   // TODO(timgreen): better not to hold a reference at all.
   private val contextSubject = BehaviorSubject[Context]();
 
-  import it.timgreen.opal.Bus.currentCardIndex
+  import RxCards.currentCardIndex
 
   // TODO(timgreen): better method name
   def reload(implicit context: Context) {
