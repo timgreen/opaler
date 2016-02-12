@@ -29,8 +29,7 @@ import it.timgreen.opal.AnalyticsSupport._
 import it.timgreen.opal.api.CardTransaction
 import it.timgreen.opal.api.Model
 import it.timgreen.opal.api.TransactionDetails
-import it.timgreen.opal.provider.OpalProvider
-import it.timgreen.opal.provider.TransactionTable
+import it.timgreen.opal.rxdata.TransactionViewData
 
 import scala.collection.mutable
 
@@ -84,7 +83,7 @@ class TripFragment extends RxFragment with SwipeRefreshSupport with SnapshotAwar
 
   override def onStart() {
     super.onStart
-    rxdata.RxTransactions.transactions.map(_.map(processTransaction)).bindToLifecycle subscribe { d =>
+    rxdata.RxTransactions.transactionViewDatas.bindToLifecycle subscribe { d =>
       renderList(d)
     }
   }
@@ -108,25 +107,6 @@ class TripFragment extends RxFragment with SwipeRefreshSupport with SnapshotAwar
     updateEmptyView
   }
 
-  private def processTransaction(transactions: List[CardTransaction]): List[TransactionViewData] = {
-    var lastColor = false
-    var lastJourneyNumber: Option[Int] = None
-
-    transactions.reverse map { cardTransaction =>
-      val alternateColor = if (lastJourneyNumber == cardTransaction.journeyNumber || cardTransaction.journeyNumber == None) {
-        lastColor
-      } else {
-        !lastColor
-      }
-
-      if (cardTransaction.journeyNumber != None) {
-        lastJourneyNumber = cardTransaction.journeyNumber
-      }
-      lastColor = alternateColor
-
-      TransactionViewData(cardTransaction, alternateColor)
-    } reverse
-  }
 }
 
 class TransactionListAdapter(context: Context)
@@ -361,8 +341,3 @@ case class WeekGroup(
   var numOfTrip: Int = 0,
   var amount: Double = 0) {
 }
-
-case class TransactionViewData(
-  trip: CardTransaction,
-  alternateColor: Boolean
-)

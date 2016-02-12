@@ -16,11 +16,13 @@ import it.timgreen.opal.provider.TransactionTable
 // TODO(timgreen): set scheduler, use same thread for everything here.
 object RxTransactions {
 
-  val transactions = BehaviorSubject[DataStatus[List[CardTransaction]]](DataStatus.dataLoading)
+  private val transactions = BehaviorSubject[DataStatus[List[CardTransaction]]](DataStatus.dataLoading)
+  val transactionViewDatas: Observable[DataStatus[List[TransactionViewData]]] = transactions map {
+    _ map processTransaction
+  }
+
   // TODO(timgreen): better not to hold a reference at all.
   private val contextSubject = BehaviorSubject[Context]();
-
-  import RxCards.currentCardIndex
 
   // TODO(timgreen): better method name
   def reload(implicit context: Context) {
@@ -39,11 +41,31 @@ object RxTransactions {
   private def getTransactionsFor(cardIndex: Int) =
     watchers.getOrElseUpdate(cardIndex, new TransactionWatcher(cardIndex, contextSubject))
 
+  private def processTransaction(transactions: List[CardTransaction]): List[TransactionViewData] = {
+    var lastColor = false
+    var lastJourneyNumber: Option[Int] = None
+
+    transactions.reverse map { cardTransaction =>
+      val alternateColor = if (lastJourneyNumber == cardTransaction.journeyNumber || cardTransaction.journeyNumber == None) {
+        lastColor
+      } else {
+        !lastColor
+      }
+
+      if (cardTransaction.journeyNumber != None) {
+        lastJourneyNumber = cardTransaction.journeyNumber
+      }
+      lastColor = alternateColor
+
+      TransactionViewData(cardTransaction, alternateColor)
+    } reverse
+  }
+
   // init
-  currentCardIndex subscribe { onCardChange _ }
+  RxCards.currentCardIndex subscribe { onCardChange _ }
 }
 
-class TransactionWatcher(cardIndex: Int, context: Observable[Context]) {
+private[rxdata] class TransactionWatcher(cardIndex: Int, context: Observable[Context]) {
 
   val list = BehaviorSubject[DataStatus[List[CardTransaction]]](DataStatus.dataLoading)
 
@@ -56,3 +78,8 @@ class TransactionWatcher(cardIndex: Int, context: Observable[Context]) {
   context subscribe { loadData _ }
   // TODO(timgreen): reload
 }
+
+case class TransactionViewData(
+  trip: CardTransaction,
+  alternateColor: Boolean
+)
