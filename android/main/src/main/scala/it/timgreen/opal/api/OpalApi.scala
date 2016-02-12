@@ -47,8 +47,8 @@ object OpalApi {
     LoginResult(response)
   }
 
-  def getCardDetailsList(implicit opalAccount: OpalAccount): Either[List[CardDetails], Throwable] = withRetry(5) {
-    CardDetails.parseList {
+  def getCardList(implicit opalAccount: OpalAccount): Either[List[Card], Throwable] = withRetry(5) {
+    Card.parseList {
       withAutoLogin {
         Http.get(cardDetailsUrl).asJsonArray
       }

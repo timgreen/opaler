@@ -19,7 +19,7 @@ import it.timgreen.opal.Usage
 import it.timgreen.opal.Util
 import it.timgreen.opal.account.AccountUtil
 import it.timgreen.opal.api.ApiChangedException
-import it.timgreen.opal.api.CardDetails
+import it.timgreen.opal.api.Card
 import it.timgreen.opal.api.CardTransaction
 import it.timgreen.opal.api.FareApplied
 import it.timgreen.opal.api.LoginFailedException
@@ -68,7 +68,7 @@ class SyncAdapter(context: Context, autoInitialize: Boolean, allowParallelSyncs:
 
   private def sync(implicit account: Account, opalAccount: OpalAccount, syncResult: SyncResult) {
     try {
-      OpalApi.getCardDetailsList.left map handleCardDetails match {
+      OpalApi.getCardList.left map handleCard match {
         case Left(_) =>
           SyncStatus.markSyncResult(SyncStatus.ResultType.success)(context)
         case Right(t) =>
@@ -109,18 +109,18 @@ class SyncAdapter(context: Context, autoInitialize: Boolean, allowParallelSyncs:
     }
   }
 
-  private def handleCardDetails(cardDetailsList: List[CardDetails])
+  private def handleCard(cards: List[Card])
                                (implicit opalAccount: OpalAccount, syncResult: SyncResult) {
     val cv = new ContentValues
-    cv.put(CardsCache.cardCacheKey, CardDetails.toJsonArray(cardDetailsList).toString)
+    cv.put(CardsCache.cardCacheKey, Card.toJsonArray(cards).toString)
     context.getContentResolver.update(OpalProvider.Uris.cards, cv, null, null)
-    (Usage.numOfCards() = cardDetailsList.size)(context)
+    (Usage.numOfCards() = cards.size)(context)
 
-    Util.debug("SyncAdapter, cards: " + cardDetailsList)
+    Util.debug("SyncAdapter, cards: " + cards)
     updateWidget
 
-    cardDetailsList.par foreach { cardDetails =>
-      syncCardTransaction(cardDetails)
+    cards.par foreach { card =>
+      syncCardTransaction(card)
     }
     updateWidget
   }
@@ -132,9 +132,9 @@ class SyncAdapter(context: Context, autoInitialize: Boolean, allowParallelSyncs:
     context.startService(intent)
   }
 
-  private def syncCardTransaction(cardDetails: CardDetails)
+  private def syncCardTransaction(card: Card)
                                  (implicit opalAccount: OpalAccount, syncResult: SyncResult) {
-    val c = context.getContentResolver.query(OpalProvider.Uris.activitiesMaxId(cardDetails.index), null, null, null, null)
+    val c = context.getContentResolver.query(OpalProvider.Uris.activitiesMaxId(card.index), null, null, null, null)
     c.moveToFirst
     val maxTransactionNumber = c.getInt(0)
     val syncStopPoint = maxTransactionNumber
@@ -142,9 +142,9 @@ class SyncAdapter(context: Context, autoInitialize: Boolean, allowParallelSyncs:
     val overrideRecordNum = Gtm.getOverrideRecordNum(context)
     @tailrec
     def fetchUpdates(pageIndex: Int = 1, list: List[CardTransaction] = Nil): List[CardTransaction] = {
-      Util.debug(s"Sync transaction card ${cardDetails.index} page $pageIndex")
+      Util.debug(s"Sync transaction card ${card.index} page $pageIndex")
       val updatedTime = Util.currentTimeInMs
-      val r = OpalApi.getCardTransactions(cardDetails.index, pageIndex, updatedTime)
+      val r = OpalApi.getCardTransactions(card.index, pageIndex, updatedTime)
       r match {
         case Left((false, l)) => list ::: l
         case Left((true, l)) =>
@@ -154,14 +154,14 @@ class SyncAdapter(context: Context, autoInitialize: Boolean, allowParallelSyncs:
             fetchUpdates(pageIndex + 1, list ::: l)
           }
         case Right(t) =>
-          Util.debug(s"Sync error - fetch transaction card ${cardDetails.index} page $pageIndex", t)
+          Util.debug(s"Sync error - fetch transaction card ${card.index} page $pageIndex", t)
           throw t
       }
     }
     val updates = fetchUpdates()
     if (updates.nonEmpty) {
       context.getContentResolver.bulkInsert(
-        OpalProvider.Uris.activities(cardDetails.index),
+        OpalProvider.Uris.activities(card.index),
         updates.map(TransactionTable.toValues).toArray
       )
       syncResult.stats.numInserts += updates.size

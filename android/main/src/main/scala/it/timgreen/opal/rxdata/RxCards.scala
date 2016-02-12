@@ -6,16 +6,16 @@ import rx.lang.scala.Observable
 import rx.lang.scala.subjects.BehaviorSubject
 
 import it.timgreen.opal.DataStatus
-import it.timgreen.opal.api.CardDetails
+import it.timgreen.opal.api.Card
 import it.timgreen.opal.provider.CardsCache
 
 object RxCards {
   val currentCardIndex = BehaviorSubject[Int](0)
 
-  private val cardsSubject = BehaviorSubject[DataStatus[List[CardDetails]]](DataStatus.dataLoading)
+  private val cardsSubject = BehaviorSubject[DataStatus[List[Card]]](DataStatus.dataLoading)
   val cards = cardsSubject.distinctUntilChanged
 
-  val currentCardDetails: Observable[DataStatus[CardDetails]] =
+  val currentCard: Observable[DataStatus[Card]] =
     currentCardIndex.combineLatestWith(cards) { (cardIndex, cardsData) =>
       cardsData.flatMap { cards =>
         cards.lift(cardIndex) match {

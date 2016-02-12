@@ -4,7 +4,7 @@ import android.content.Context
 import android.database.Cursor
 
 import it.timgreen.opal.PrefUtil
-import it.timgreen.opal.api.CardDetails
+import it.timgreen.opal.api.Card
 
 import org.json.JSONArray
 import scala.collection.mutable
@@ -29,9 +29,9 @@ object CardsCache {
 
   val cardCacheKey = "card_details_list"
 
-  def getCards(implicit context: Context): List[CardDetails] = {
+  def getCards(implicit context: Context): List[Card] = {
     val json = getPrefs.getString(cardCacheKey, "[]")
-    val cards = CardDetails.parseList(new JSONArray(json))
+    val cards = Card.parseList(new JSONArray(json))
     if (PrefUtil.enableFakeData) {
       cards.zipWithIndex map { case (c, i) =>
         val fakeBalance = i match {
@@ -57,8 +57,8 @@ object CardsCache {
     editor.commit
   }
 
-  def convert(c: Cursor): List[CardDetails] = {
-    val list = mutable.ListBuffer[CardDetails]()
+  def convert(c: Cursor): List[Card] = {
+    val list = mutable.ListBuffer[Card]()
     c.moveToFirst
     while (!c.isAfterLast) {
       list += fromValues(c)
@@ -68,7 +68,7 @@ object CardsCache {
     list.toList
   }
 
-  private [provider] def fromValues(c: Cursor) = CardDetails(
+  private [provider] def fromValues(c: Cursor) = Card(
     index                       = c.getInt(c.getColumnIndex(Columns.id)),
     active                      = c.getInt(c.getColumnIndex(Columns.active)) == 1,
     cardBalance                 = c.getInt(c.getColumnIndex(Columns.cardBalance)),
@@ -100,7 +100,7 @@ object CardsCache {
     Columns.tempName
   )
 
-  private[provider] def toRow(card: CardDetails) = Array[AnyRef](
+  private[provider] def toRow(card: Card) = Array[AnyRef](
     new Integer(card.index),
     new Integer(if (card.active) 1 else 0),
     new Integer(card.cardBalance),

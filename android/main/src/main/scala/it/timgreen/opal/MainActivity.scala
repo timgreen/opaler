@@ -49,7 +49,7 @@ import it.timgreen.android.rx.RxActivity
 import it.timgreen.android.util.Snapshot
 import it.timgreen.opal.AnalyticsSupport._
 import it.timgreen.opal.account.AccountUtil
-import it.timgreen.opal.api.CardDetails
+import it.timgreen.opal.api.Card
 import it.timgreen.opal.provider.OpalProvider
 import it.timgreen.opal.provider.TransactionTable
 import it.timgreen.opal.sync.{ Observer => SyncObserver }
@@ -79,14 +79,14 @@ class MainActivity extends ThemedActivity
   // Reactive models
   import rxdata.RxCards
   import rxdata.RxCards.currentCardIndex
-  import rxdata.RxCards.currentCardDetails
+  import rxdata.RxCards.currentCard
   import rxdata.RxSync.isSyncing
   import rxdata.RxSync.syncTrigger
   import rxdata.RxSync.dataReloadTrigger
   import rxdata.RxTransactions
   val currentFragmentId = BehaviorSubject(Identifier.Overview)
 
-  val actionBarSubtitle: Observable[DataStatus[String]] = currentCardDetails map { cardData =>
+  val actionBarSubtitle: Observable[DataStatus[String]] = currentCard map { cardData =>
     cardData map { card =>
       s"${card.cardNickName} ${card.formatedCardNumber}"
     }

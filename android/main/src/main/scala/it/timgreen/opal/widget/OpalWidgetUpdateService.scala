@@ -18,7 +18,7 @@ import it.timgreen.opal.R
 import it.timgreen.opal.Usage
 import it.timgreen.opal.Util
 import it.timgreen.opal.account.AccountUtil
-import it.timgreen.opal.api.CardDetails
+import it.timgreen.opal.api.Card
 import it.timgreen.opal.provider.CardsCache
 import it.timgreen.opal.provider.OpalProvider
 import it.timgreen.opal.provider.WidgetSettings
@@ -104,10 +104,10 @@ class OpalWidgetUpdateService extends Service {
     (Usage.numOfWidgets() = appWidgetIds.size)(this)
   }
 
-  private def getBalance(cardIndex: Int, cards: List[CardDetails]) = {
+  private def getBalance(cardIndex: Int, cards: List[Card]) = {
     val (balance, balanceSmall) =
-      cards.lift(cardIndex) map { cardDetails =>
-        val balance = cardDetails.cardBalance + cardDetails.svPending
+      cards.lift(cardIndex) map { card =>
+        val balance = card.cardBalance + card.svPending
         (
           (balance / 100).toString,
           f".${(balance % 100)}%02d"

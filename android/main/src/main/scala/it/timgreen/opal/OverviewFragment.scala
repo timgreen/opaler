@@ -27,7 +27,7 @@ import it.timgreen.opal.sync.SyncStatus
 
 class OverviewFragment extends RxFragment with SwipeRefreshSupport with SnapshotAware {
 
-  import rxdata.RxCards.currentCardDetails
+  import rxdata.RxCards.currentCard
 
   var rootView: View = _
   var swipeRefreshLayout: List[SwipeRefreshLayout] = Nil
@@ -55,7 +55,7 @@ class OverviewFragment extends RxFragment with SwipeRefreshSupport with Snapshot
     swipeRefreshLayout = ui.get[SwipeRefreshLayout](R.id.swipe_container) :: Nil
     initSwipeOptions
 
-    val rxBalance: Observable[DataStatus[(String, String)]] = currentCardDetails map { cardData =>
+    val rxBalance: Observable[DataStatus[(String, String)]] = currentCard map { cardData =>
       cardData map { card =>
         (card.cardBalance / 100).toString ->
         f".${(card.cardBalance % 100)}%02d"
