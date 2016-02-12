@@ -86,7 +86,7 @@ class MainActivity extends ThemedActivity
   import rxdata.RxCards.currentCardDetails
   import rxdata.RxSync.isSyncing
   import rxdata.RxSync.syncTrigger
-  import Bus.fragmentRefreshTrigger
+  import rxdata.RxSync.dataReloadTrigger
   import rxdata.RxTransactions
   val currentFragmentId = BehaviorSubject(Identifier.Overview)
 
@@ -129,7 +129,7 @@ class MainActivity extends ThemedActivity
   var plusOneButton: Option[PlusOneButton] = None
 
   def reloadOp() {
-    fragmentRefreshTrigger.onNext(0)
+    dataReloadTrigger.onNext(0)
   }
   def endRefreshOp() {
     // NOTE(timgreen): this is a hack for startRefreshOp haven't cancel toasts.
@@ -397,7 +397,7 @@ class MainActivity extends ThemedActivity
   def refreshTripIfNecessary() {
     val use24hourFormat = PrefUtil.use24hourFormat
     if (currentValueOfUse24hourFormat != None && currentValueOfUse24hourFormat != Some(use24hourFormat)) {
-      fragmentRefreshTrigger.onNext(0)
+      dataReloadTrigger.onNext(0)
     }
     currentValueOfUse24hourFormat = Some(use24hourFormat)
   }
@@ -521,14 +521,14 @@ class MainActivity extends ThemedActivity
     //     currentCardIndex() foreach { cardIndex =>
     //       if (uri == OpalProvider.Uris.activities(cardIndex)) {
     //         Util.debug("ContentObserver     ==================== do load")
-    //         fragmentRefreshTrigger.onNext(0)
+    //         dataReloadTrigger.onNext(0)
     //       }
     //     }
     //   }
 
     //   override def onChange(selfChange: Boolean) {
     //     Util.debug("ContentObserver     ====================")
-    //     fragmentRefreshTrigger.onNext(0)
+    //     dataReloadTrigger.onNext(0)
     //   }
     // }
     // // TODO(timgreen): more accurate uri.

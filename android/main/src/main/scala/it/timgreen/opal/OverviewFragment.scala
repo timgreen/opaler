@@ -128,10 +128,4 @@ class OverviewFragment extends RxFragment with SwipeRefreshSupport with Snapshot
       textView.setText(textView.getText.toString.replaceAll("[0-9]", "0"))
     }
   }
-
-  override def onStart() {
-    super.onStart
-    // TODO(timgreen):
-    // fragmentRefreshTrigger.bindToLifecycle subscribe { _ => refresh }
-  }
 }

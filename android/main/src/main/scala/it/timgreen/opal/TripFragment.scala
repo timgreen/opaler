@@ -87,8 +87,6 @@ class TripFragment extends RxFragment with SwipeRefreshSupport with SnapshotAwar
     rxdata.RxTransactions.transactions.map(_.map(processTransaction)).bindToLifecycle subscribe { d =>
       renderList(d)
     }
-    // TODO(timgreen): handle data refresh
-    // fragmentRefreshTrigger.bindToLifecycle subscribe { _ => refresh }
   }
 
   private def updateEmptyView() {
