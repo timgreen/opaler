@@ -382,7 +382,7 @@ class MainActivity extends ThemedActivity
     if (drawer.isDrawerOpen) {
       drawer.closeDrawer
     } else {
-      if (viewPager.map(_.getCurrentItem() + 1) == Some(Identifier.Overview)) {
+      if (viewPager.map(_.getCurrentItem() + 1) != Some(Identifier.Overview)) {
         trackEvent("UI", "switchFragment", Some("back"), Some(0))
         currentFragmentId.onNext(Identifier.Overview)
       } else {
