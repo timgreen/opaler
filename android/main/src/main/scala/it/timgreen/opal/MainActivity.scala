@@ -258,7 +258,7 @@ class MainActivity extends ThemedActivity
     // TODO(timgreen): find a better way to init the value.
 
     currentCardIndex.onNext(getInitCardIndex(getIntent) getOrElse Usage.lastSelectedCard())
-    RxCards.reload
+    RxCards.loadData
     RxTransactions.reload
   }
 

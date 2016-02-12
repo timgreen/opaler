@@ -25,12 +25,12 @@ object RxCards {
       }
     }
 
-  // TODO(timgreen): listen to sync finished / refresh -> reload
-
   // TODO(timgreen): better method name
-  def reload(implicit context: Context) {
+  def loadData(implicit context: Context) {
     // TODO(timgreen): read from provider instead
     // TODO(timgreen): set scheduler
     cardsSubject.onNext(DataStatus(CardsCache.getCards))
   }
+
+  RxSync.dataReloadTrigger subscribe { c => loadData(c) }
 }
