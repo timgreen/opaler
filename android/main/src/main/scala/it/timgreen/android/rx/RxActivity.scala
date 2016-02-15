@@ -3,6 +3,7 @@ package it.timgreen.android.rx
 import android.app.Activity
 import android.os.Bundle
 import android.support.annotation.CallSuper
+import android.content.pm.PackageManager
 
 import com.trello.rxlifecycle.ActivityEvent
 import com.trello.rxlifecycle.RxLifecycle
@@ -54,7 +55,7 @@ trait RxActivity extends Activity {
     super.onDestroy
   }
 
-  implicit protected def toRichObservable[T](observable: Observable[T]) =
+  implicit def toRichObservable[T](observable: Observable[T]) =
     new RxActivity.RichObservable(observable, lifecycleSubject)
 }
 

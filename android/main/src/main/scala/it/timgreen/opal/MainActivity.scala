@@ -5,39 +5,21 @@ import android.app.Fragment
 import android.app.FragmentManager
 import android.app.LoaderManager
 import android.content.ContentResolver
-import android.content.Context
 import android.content.CursorLoader
 import android.content.Intent
 import android.content.Loader
-import android.content.pm.PackageManager
 import android.database.ContentObserver
 import android.database.Cursor
-import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Bundle
-import android.os.Handler
 import android.os.Parcelable
 import android.support.v13.app.FragmentPagerAdapter
-import android.support.v4.content.FileProvider
 import android.support.v4.view.ViewPager
-import android.support.v7.widget.Toolbar
 import android.view.View
 import com.google.android.gms.plus.PlusOneButton
 
-import com.afollestad.materialdialogs.MaterialDialog
-import com.amulyakhare.textdrawable.TextDrawable
-import com.amulyakhare.textdrawable.util.ColorGenerator
 import com.github.johnpersano.supertoasts.SuperCardToast
 import com.github.johnpersano.supertoasts.SuperToast
-import com.mikepenz.materialdrawer.AccountHeader
-import com.mikepenz.materialdrawer.AccountHeaderBuilder
-import com.mikepenz.materialdrawer.Drawer
-import com.mikepenz.materialdrawer.DrawerBuilder
-import com.mikepenz.materialdrawer.model.PrimaryDrawerItem
-import com.mikepenz.materialdrawer.model.ProfileDrawerItem
-import com.mikepenz.materialdrawer.model.SectionDrawerItem
-import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem
-import com.mikepenz.materialdrawer.model.interfaces.IProfile
 
 import rx.lang.scala.Observable
 import rx.lang.scala.subjects.BehaviorSubject
@@ -46,7 +28,6 @@ import it.timgreen.android.billing.InAppBilling
 import it.timgreen.android.gms.PlayServiceHelper
 import it.timgreen.android.net.NetworkConnectionChecker
 import it.timgreen.android.rx.RxActivity
-import it.timgreen.android.util.Snapshot
 import it.timgreen.opal.AnalyticsSupport._
 import it.timgreen.opal.account.AccountUtil
 import it.timgreen.opal.api.Card
@@ -56,7 +37,6 @@ import it.timgreen.opal.sync.{ Observer => SyncObserver }
 import it.timgreen.opal.sync.SyncAdapter
 import it.timgreen.opal.sync.SyncStatus
 
-import java.io.File
 import java.util.{ List => JList, Date, ArrayList }
 
 import scala.collection.JavaConversions._
@@ -89,34 +69,6 @@ class MainActivity extends ThemedActivity
   val actionBarSubtitle: Observable[DataStatus[String]] = currentCard map { cardData =>
     cardData map { card =>
       s"${card.cardNickName} ${card.formatedCardNumber}"
-    }
-  }
-  val drawerProfiles: Observable[DataStatus[ArrayList[IProfile[_]]]] = RxCards.cards map { cardsData =>
-    cardsData map { cards =>
-      val profiles = cards map { card =>
-        val name = card.cardNickName
-        val text = {
-          val parts = name.split(' ').filter(_.nonEmpty)
-          if (parts.length >= 2) {
-            parts(0).substring(0, 1) + parts(1).substring(0, 1)
-          } else {
-            (name + "  ").substring(0, 2)
-          }
-        }
-        val icon = TextDrawable.builder
-          .beginConfig
-            .width(512)
-            .height(512)
-          .endConfig
-          .buildRect(text, ColorGenerator.MATERIAL.getColor(name))
-        new ProfileDrawerItem()
-          .withName(name)
-          .withEmail(card.cardNumber.grouped(4).mkString(" "))
-          .withIcon(icon)
-          .withIdentifier(card.index)
-      }
-
-      new ArrayList(profiles)
     }
   }
 
@@ -211,7 +163,7 @@ class MainActivity extends ThemedActivity
     }
   }
 
-  private def getFragment(index: Int): Option[Fragment with SnapshotAware] = {
+  def getFragment(index: Int): Option[Fragment with SnapshotAware] = {
     val tag = s"android:switcher:${viewPager.getId}:$index"
     Option(getFragmentManager.findFragmentByTag(tag).asInstanceOf[Fragment with SnapshotAware])
   }
@@ -220,7 +172,7 @@ class MainActivity extends ThemedActivity
     super.onCreate(savedInstanceState)
 
     setContentView(R.layout.activity_main)
-    setupDrawerAndToolbar(savedInstanceState)
+    navDrawer = new NavDrawer(this, savedInstanceState)
 
     val appSectionsPagerAdapter = new AppSectionsPagerAdapter(this, getFragmentManager)
     this.viewPager = findViewById(R.id.pager).asInstanceOf[ViewPager]
@@ -264,7 +216,7 @@ class MainActivity extends ThemedActivity
 
 
   override def onSaveInstanceState(outState: Bundle) {
-    val state = drawer.saveInstanceState(outState)
+    val state = navDrawer.drawer.saveInstanceState(outState)
     super.onSaveInstanceState(state)
   }
 
@@ -320,7 +272,7 @@ class MainActivity extends ThemedActivity
 
     //// Sync fragment selection
     currentFragmentId.bindToLifecycle subscribe { fragmentId =>
-      drawer.setSelection(fragmentId, false)
+      navDrawer.drawer.setSelection(fragmentId, false)
       viewPager.setCurrentItem(fragmentId - 1)
     }
 
@@ -329,29 +281,7 @@ class MainActivity extends ThemedActivity
       Usage.lastSelectedCard() = cardIndex
     }
 
-    //// Update drawer profiles
-    drawerProfiles.combineLatest(currentCardIndex).bindToLifecycle subscribe { pair =>
-      val Tuple2(profilesData, cardIndex) = pair
-      // TODO(timgreen): show loading / no data
-      val profiles = profilesData getOrElse new ArrayList[IProfile[_]]()
-      if (header != null) {
-        header.setProfiles(profiles)
-        if (cardIndex < profiles.size) {
-          header.setActiveProfile(cardIndex)
-        }
-      }
-    }
-    //// Update drawer background
-    currentCardIndex.bindToLifecycle subscribe { cardIndex =>
-      if (header != null) {
-        header.setBackgroundRes(cardIndex % 4 match {
-          case 0 => R.drawable.header_leaf
-          case 1 => R.drawable.header_sun
-          case 2 => R.drawable.header_aurora
-          case 3 => R.drawable.header_ice
-        })
-      }
-    }
+    navDrawer.bindToLifecycleAndSubscribe
   }
 
   override def onPause() {
@@ -363,8 +293,8 @@ class MainActivity extends ThemedActivity
   // If on trip page        -> go to overview
   // If on overview         -> exit
   override def onBackPressed {
-    if (drawer.isDrawerOpen) {
-      drawer.closeDrawer
+    if (navDrawer.drawer.isDrawerOpen) {
+      navDrawer.drawer.closeDrawer
     } else {
       if (viewPager.getCurrentItem() + 1 != Identifier.Overview) {
         trackEvent("UI", "switchFragment", Some("back"), Some(0))
@@ -388,111 +318,7 @@ class MainActivity extends ThemedActivity
     NetworkConnectionChecker.hasConnection(this)
   }
 
-  var drawer: Drawer = null
-  var header: AccountHeader = null
-
-  private def setupDrawerAndToolbar(savedInstanceState: Bundle) {
-    val toolbar = findViewById(R.id.toolbar).asInstanceOf[Toolbar]
-    setSupportActionBar(toolbar)
-    getSupportActionBar.setDisplayHomeAsUpEnabled(true)
-    getSupportActionBar.setHomeButtonEnabled(true)
-
-    header = new AccountHeaderBuilder()
-      .withActivity(this)
-      .addProfiles(
-        new ProfileDrawerItem()
-          .withName("No Card")
-          .withEmail(" ")
-          .withIcon(getResources.getDrawable(R.drawable.logo))
-          .withIdentifier(0)
-      )
-      .withOnAccountHeaderListener(new AccountHeader.OnAccountHeaderListener() {
-        override def onProfileChanged(view: View, profile: IProfile[_], current: Boolean): Boolean = {
-          val i = profile.asInstanceOf[ProfileDrawerItem].getIdentifier
-          currentCardIndex.onNext(i)
-          true
-        }
-      })
-      .withHeaderBackground(R.drawable.header_leaf)
-      .build
-
-    val attrs = Array[Int](
-      R.attr.overview,
-      R.attr.activity,
-      R.attr.donate,
-      R.attr.share,
-      R.attr.feedback,
-      R.attr.settings
-    )
-    val typedArray = obtainStyledAttributes(attrs)
-
-    drawer = new DrawerBuilder()
-      .withActivity(this)
-      .withToolbar(toolbar)
-      .withAccountHeader(header)
-      .withActionBarDrawerToggle(true)
-      .addDrawerItems(
-        new PrimaryDrawerItem()
-          .withName(R.string.drawer_overview)
-          .withIcon(typedArray.getDrawable(0))
-          .withIdentifier(Identifier.Overview)
-          .withSelectable(true),
-        new PrimaryDrawerItem()
-          .withName(R.string.drawer_activity)
-          .withIcon(typedArray.getDrawable(1))
-          .withIdentifier(Identifier.Activity)
-          .withSelectable(true),
-        new PrimaryDrawerItem()
-          .withName(R.string.drawer_donate)
-          .withIcon(typedArray.getDrawable(2))
-          .withIdentifier(Identifier.Donate)
-          .withSelectable(false),
-        new PrimaryDrawerItem()
-          .withName(R.string.drawer_share)
-          .withIcon(typedArray.getDrawable(3))
-          .withIdentifier(Identifier.Share)
-          .withSelectable(false)
-      )
-      .addStickyDrawerItems(
-        new SectionDrawerItem()
-          .withName(BuildConfig.VERSION_NAME)
-          .setDivider(false),
-        new PrimaryDrawerItem()
-          .withName(R.string.drawer_feedback_and_help)
-          .withIcon(typedArray.getDrawable(4))
-          .withIdentifier(Identifier.Feedback)
-          .withSelectable(false),
-        new PrimaryDrawerItem()
-          .withName(R.string.drawer_settings)
-          .withIcon(typedArray.getDrawable(5))
-          .withIdentifier(Identifier.Settings)
-          .withSelectable(false)
-      )
-      .withOnDrawerItemClickListener(new Drawer.OnDrawerItemClickListener() {
-        override def onItemClick(view: View, position: Int, drawerItem: IDrawerItem[_]): Boolean = {
-          if (drawerItem != null) {
-            drawerItem.getIdentifier match {
-              case id@(Identifier.Overview | Identifier.Activity) =>
-                currentFragmentId.onNext(id)
-                trackEvent("UI", "switchFragment", Some("drawerItemClick"), Some(id - 1))
-              case Identifier.Donate   => donate
-              case Identifier.Share    => share
-              case Identifier.Feedback => feedback
-              case Identifier.Settings => openSettings
-            }
-            true
-          }
-          false
-        }
-      })
-      .withTranslucentStatusBar(true)
-      .withSavedInstance(savedInstanceState)
-      .build
-
-    typedArray.recycle
-
-    // plusOneButton = Option(drawerLayout.findViewById(R.id.plus_one_button).asInstanceOf[PlusOneButton])
-  }
+  var navDrawer: NavDrawer = null
 
   private def setupObserver() {
     // TODO(timgreen): turn this into observable
@@ -522,25 +348,6 @@ class MainActivity extends ThemedActivity
       (!PrefUtil.autoSyncOnWifiOnly || NetworkConnectionChecker.hasWifiConnection(this))
   }
 
-  def openSettings() {
-    val intent = new Intent(this, classOf[SettingActivity])
-    startActivity(intent)
-    drawer.closeDrawer
-  }
-
-  def donate() {
-    InAppBilling.getBuyIntent("buy_timgreen_a_cake", new Date().toString, "it.timgreen.opal") match {
-      case Left(pendingIntent) =>
-        startIntentSenderForResult(pendingIntent.getIntentSender, 1001, new Intent, 0, 0, 0)
-      case Right(r) =>
-        if (r == InAppBilling.BILLING_RESPONSE_RESULT_ITEM_ALREADY_OWNED) {
-          SuperToast.create(this, "You have already donated, Thanks!", SuperToast.Duration.SHORT).show
-        } else {
-          SuperToast.create(this, "Can not make donate, please try again later.", SuperToast.Duration.SHORT).show
-        }
-    }
-  }
-
   override protected def onActivityResult(requestCode: Int, resultCode: Int, data: Intent) {
     if (requestCode == 1001) {
       val responseCode = data.getIntExtra("RESPONSE_CODE", 0)
@@ -551,127 +358,6 @@ class MainActivity extends ThemedActivity
         SuperToast.create(this, "Thanks for the cake :-)", SuperToast.Duration.SHORT).show
       }
     }
-  }
-
-  def share() {
-    val intent = new Intent(Intent.ACTION_SEND)
-    intent.setType("text/plain")
-    intent.putExtra(Intent.EXTRA_SUBJECT, "Check out \"Opaler\"")
-    intent.putExtra(Intent.EXTRA_TEXT, "https://play.google.com/store/apps/details?id=it.timgreen.opal")
-    startActivity(Intent.createChooser(intent, "Share Opaler"))
-  }
-
-  def feedback() {
-    new MaterialDialog.Builder(this)
-      .title(getResources.getString(R.string.drawer_feedback_and_help))
-      .items(Array("Call Opal Customer Care", "Email Opal Customer Care", "Write to Developer"))
-      .itemsCallback(new MaterialDialog.ListCallback() {
-        override def onSelection(dialog: MaterialDialog, which: Int, text: String) {
-          which match {
-            case 0 => dialOpal
-            case 1 => opalFeedback
-            case 2 => appFeedback
-          }
-        }
-      })
-      .build
-      .show
-  }
-
-  def dialOpal() {
-    val intent = new Intent(Intent.ACTION_DIAL)
-    intent.setData(Uri.parse("tel:136725"))
-    startActivity(Intent.createChooser(intent, "Call Opal Customer Care"))
-  }
-
-  def opalFeedback() {
-    val intent = new Intent(Intent.ACTION_SENDTO, Uri.fromParts("mailto", "opalcustomercare@opal.com.au", null))
-    intent.putExtra(Intent.EXTRA_SUBJECT, "Opal Customer Care")
-    startActivity(Intent.createChooser(intent, "Send Feedback to Opal Customer Care"))
-  }
-
-  def appFeedback() {
-    SuperToast.create(this, "Preparing snapshots ...", SuperToast.Duration.SHORT).show
-
-    new Handler().postDelayed(new Runnable() {
-      override def run() {
-        val intent = new Intent(Intent.ACTION_SEND_MULTIPLE)
-        intent.setType("text/plain")
-        intent.putExtra(Intent.EXTRA_EMAIL, Array("iamtimgreen+playdev.opaler@gmail.com"))
-        intent.putExtra(Intent.EXTRA_SUBJECT, "Opaler Feedback")
-        intent.putExtra(Intent.EXTRA_TEXT, s"\n\n\n--------\nOpaler version: ${BuildConfig.VERSION_NAME}")
-
-        runOnUiThread(new Runnable() {
-          override def run() {
-            val snapshotOverview = fragmentSnapshot(0, "overview.png")
-            val snapshotActivities = fragmentSnapshot(1, "activities.png")
-            val snapshotDrawer = drawerSnapshot("drawer.png")
-            val snapshots = snapshotOverview.toList ::: snapshotActivities.toList ::: snapshotDrawer.toList
-            intent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, new ArrayList(snapshots))
-
-            val mailApps = getPackageManager.queryIntentActivities(
-              new Intent(Intent.ACTION_SENDTO, Uri.fromParts("mailto", "", null)),
-              PackageManager.MATCH_DEFAULT_ONLY
-            ).map(_.activityInfo.packageName).toSet
-            Util.debug("mail apps: " + mailApps.mkString(", "))
-
-            val supportedMailApps = getPackageManager.queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY) map {
-              _.activityInfo.packageName
-            } filter { pn =>
-              mailApps.contains(pn)
-            }
-
-            supportedMailApps foreach { packageName =>
-              snapshots foreach { uri =>
-                grantUriPermission(packageName, uri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
-              }
-            }
-
-            if (supportedMailApps.nonEmpty) {
-              val targetIntents = supportedMailApps map { pn =>
-                new Intent(intent).setPackage(pn)
-              }
-              val chooserIntent = Intent.createChooser(targetIntents.head, "Send Feedback to Opaler Developer")
-                chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, targetIntents.tail.toArray)
-              startActivity(chooserIntent)
-            } else {
-              SuperToast.create(MainActivity.this, "No available mail app.", SuperToast.Duration.SHORT).show
-            }
-            // recreate to 'fix' the snapshot masks
-            recreate
-          }
-        })
-      }
-    }, 100)
-  }
-
-  private def fragmentSnapshot(index: Int, filename: String): Option[Uri] = getFragment(index) map { fragment =>
-    fragment.preSnapshot
-    snapshot(fragment.getView, filename)
-  }
-
-  private def drawerSnapshot(filename: String): Option[Uri] = {
-    val drawerLayout = drawer.getSlider
-    // remove card name from snapshot
-    header.getProfiles foreach { p =>
-      p.withName(s"Card: ${p.getIdentifier} / ${header.getProfiles.size}")
-      p.withEmail("0000 0000 0000 0000")
-    }
-    // NOTE(timgreen): trigger protected header.updateHeaderAndList
-    header.setProfiles(header.getProfiles)
-    Some(snapshot(drawerLayout, filename))
-  }
-
-  private def snapshot(view: View, filename: String): Uri = {
-    val bitmap = Snapshot.getSnapshot(view)
-    val file = openFileOutput(filename, Context.MODE_PRIVATE)
-    bitmap.compress(Bitmap.CompressFormat.PNG, 100, file)
-    file.close
-    Util.debug(getFilesDir() + "/" + filename)
-    val fileUri = FileProvider.getUriForFile(this, BuildConfig.APPLICATION_ID + ".fileprovider", new File(getFilesDir(), filename))
-    Util.debug(fileUri.toString)
-
-    fileUri
   }
 
   def spending(view: View) {
@@ -698,15 +384,6 @@ class MainActivity extends ThemedActivity
     }
   }
   syncTrigger.subscribe { _ => startSync }
-
-  object Identifier {
-    val Overview = 1  // same as position + 1 in viewPager
-    val Activity = 2  // same as position + 1 in ViewPager
-    val Donate   = 3
-    val Share    = 4
-    val Feedback = 5
-    val Settings = 6
-  }
 }
 
 class AppSectionsPagerAdapter(activity: MainActivity, fm: FragmentManager) extends FragmentPagerAdapter(fm) {

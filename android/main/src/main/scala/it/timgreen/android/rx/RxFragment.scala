@@ -80,7 +80,7 @@ trait RxFragment extends Fragment {
     super.onDetach
   }
 
-  implicit protected def toRichObservable[T](observable: Observable[T]) =
+  implicit def toRichObservable[T](observable: Observable[T]) =
     new RxFragment.RichObservable(observable, lifecycleSubject)
 }
 
