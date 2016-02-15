@@ -10,7 +10,7 @@ import it.timgreen.opal.api.Card
 import it.timgreen.opal.provider.CardsCache
 
 object RxCards {
-  val currentCardIndex = BehaviorSubject[Int](0)
+  val currentCardIndex = BehaviorSubject[Int]()
 
   private val cardsSubject = BehaviorSubject[DataStatus[List[Card]]](DataStatus.dataLoading)
   val cards = cardsSubject.distinctUntilChanged
