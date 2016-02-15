@@ -5,22 +5,25 @@ import android.app.Service
 import android.appwidget.AppWidgetManager
 import android.content.ComponentName
 import android.content.ContentResolver
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.os.IBinder
+import android.text.format.Time
 import android.widget.RemoteViews
 
 import scala.annotation.tailrec
 
 import it.timgreen.opal.MainActivity
-import it.timgreen.opal.Overview
 import it.timgreen.opal.R
 import it.timgreen.opal.Usage
 import it.timgreen.opal.Util
 import it.timgreen.opal.account.AccountUtil
 import it.timgreen.opal.api.Card
+import it.timgreen.opal.api.CardTransaction
 import it.timgreen.opal.provider.CardsCache
 import it.timgreen.opal.provider.OpalProvider
+import it.timgreen.opal.provider.TransactionTable
 import it.timgreen.opal.provider.WidgetSettings
 import it.timgreen.opal.sync.SyncAdapter
 
@@ -67,7 +70,7 @@ class OpalWidgetUpdateService extends Service {
       remoteViews.setTextViewText(R.id.label, balance)
       remoteViews.setTextViewTextSize(R.id.label, android.util.TypedValue.COMPLEX_UNIT_SP, textSize)
 
-      val maxJourneyNumber = Overview.getOverviewData(this, cardIndex).maxJourneyNumber
+      val maxJourneyNumber = getMaxJourneyNumber(this, cardIndex)
       val balls = Util.getBalls(maxJourneyNumber).replaceAll("\\s", "")
       List(
         R.id.ball0,
@@ -140,6 +143,32 @@ class OpalWidgetUpdateService extends Service {
 
       findBestTextSize(0, maxTextSize)
     }
+  }
+
+  private def getMaxJourneyNumber(context: Context, cardIndex: Int): Int = {
+    val time = new Time(CardTransaction.timezone)
+    time.setToNow
+    val thisWeek = Util.getJulianWeekNumber(time)
+
+    val list = try {
+      val cursor = context.getContentResolver.query(
+        OpalProvider.Uris.activities(cardIndex),
+        null,
+        s"${TransactionTable.Entry.JULIAN_WEEK_NUMBER} == ${thisWeek}",
+        null,
+        null
+      )
+      val data = TransactionTable.convert(cursor)
+      cursor.close
+      data
+    } catch {
+      case t: Throwable =>
+        // TODO(timgreen): handle this error.
+        Util.debug(s"Error when loading last week transactions for card $cardIndex from db", t)
+        Nil
+    }
+
+    (0 :: list.filter(_.julianWeekNumber == thisWeek).map(_.journeyNumber.getOrElse(0))).max
   }
 
   private def sync() {

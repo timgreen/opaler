@@ -23,6 +23,7 @@ import it.timgreen.opal.AnalyticsSupport._
 import it.timgreen.opal.api.CardTransaction
 import it.timgreen.opal.provider.CardsCache
 import it.timgreen.opal.provider.OpalProvider
+import it.timgreen.opal.rxdata.OverviewData
 import it.timgreen.opal.sync.SyncStatus
 
 class OverviewFragment extends RxFragment with SwipeRefreshSupport with SnapshotAware {
@@ -62,10 +63,7 @@ class OverviewFragment extends RxFragment with SwipeRefreshSupport with Snapshot
       }
     }
     rxBalance.bindToLifecycle subscribe {b => renderBalance(b)}
-
-    // TODO(timgreen):
-    val rxOverview = rx.lang.scala.subjects.BehaviorSubject[OverviewData]()
-    rxOverview.bindToLifecycle subscribe { s => renderSpending(s) }
+    rxdata.RxTransactions.overview.bindToLifecycle subscribe { s => renderSpending(s) }
   }
 
   private def renderBalance(balanceData: DataStatus[(String, String)]) {
@@ -85,18 +83,19 @@ class OverviewFragment extends RxFragment with SwipeRefreshSupport with Snapshot
     ui.balanceSmall.setTextSize(TypedValue.COMPLEX_UNIT_DIP, size._1)
   }
 
-  private def renderSpending(data: OverviewData) {
+  private def renderSpending(data: DataStatus[OverviewData]) {
+    // TODO(timgreen): handle loading/nodata
     ui.todaySpending.setText(
-      CardTransaction.formatMoney(data.today, "--")
+      CardTransaction.formatMoney(data.map(_.today) getOrElse None, "--")
     )
     ui.thisWeekSpending.setText(
-      CardTransaction.formatMoney(data.thisWeek, "--")
+      CardTransaction.formatMoney(data.map(_.thisWeek) getOrElse None, "--")
     )
     ui.lastWeekSpending.setText(
-      CardTransaction.formatMoney(data.lastWeek, "--")
+      CardTransaction.formatMoney(data.map(_.lastWeek) getOrElse None, "--")
     )
 
-    val balls = Util.getBalls(data.maxJourneyNumber).replaceAll("\\s", "")
+    val balls = Util.getBalls(data.map(_.maxJourneyNumber) getOrElse 0).replaceAll("\\s", "")
     List(
       R.id.ball0,
       R.id.ball1,

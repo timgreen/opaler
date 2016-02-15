@@ -1,6 +1,7 @@
 package it.timgreen.opal.rxdata
 
 import android.content.Context
+import android.text.format.Time
 
 import scala.collection.mutable
 
@@ -9,6 +10,7 @@ import rx.lang.scala.Observable
 import rx.lang.scala.subjects.BehaviorSubject
 
 import it.timgreen.opal.DataStatus
+import it.timgreen.opal.Util
 import it.timgreen.opal.api.CardTransaction
 import it.timgreen.opal.provider.OpalProvider
 import it.timgreen.opal.provider.TransactionTable
@@ -19,6 +21,9 @@ object RxTransactions {
   private val transactions = BehaviorSubject[DataStatus[List[CardTransaction]]](DataStatus.dataLoading)
   val transactionViewDatas: Observable[DataStatus[List[TransactionViewData]]] = transactions map {
     _ map processTransaction
+  }
+  val overview: Observable[DataStatus[OverviewData]] = transactions map {
+    _ map processOverview
   }
 
   // TODO(timgreen): better not to hold a reference at all.
@@ -61,6 +66,29 @@ object RxTransactions {
     } reverse
   }
 
+  private def processOverview(transactions: List[CardTransaction]): OverviewData = {
+    val time = new Time(CardTransaction.timezone)
+    time.setToNow
+    val thisWeek = Util.getJulianWeekNumber(time)
+
+    def calcSpend(filter: CardTransaction => Boolean): Option[Double] = {
+      val l = transactions.filter(filter).filter(i => i.model.isTrip && i.amount.isDefined).map(_.amount.get)
+      if (l.isEmpty) {
+        None
+      } else {
+        Some(l.sum)
+      }
+    }
+
+    OverviewData(
+      today = calcSpend(t => t.julianWeekNumber == thisWeek && t.weekDay == time.weekDay),
+      thisWeek = calcSpend(_.julianWeekNumber == thisWeek),
+      lastWeek = calcSpend(_.julianWeekNumber == thisWeek - 1),
+      lastTrip = transactions find { t => t.model.isTrip && t.julianWeekNumber == thisWeek },
+      maxJourneyNumber = (0 :: transactions.filter(_.julianWeekNumber == thisWeek).map(_.journeyNumber.getOrElse(0))).max
+    )
+  }
+
   // init
   RxCards.currentCardIndex subscribe { onCardChange _ }
 }
@@ -84,4 +112,12 @@ private[rxdata] class TransactionWatcher(cardIndex: Int, context: Observable[Con
 case class TransactionViewData(
   trip: CardTransaction,
   alternateColor: Boolean
+)
+
+case class OverviewData(
+  today: Option[Double],
+  thisWeek: Option[Double],
+  lastWeek: Option[Double],
+  lastTrip: Option[CardTransaction],
+  maxJourneyNumber: Int
 )
