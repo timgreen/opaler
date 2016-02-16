@@ -15,7 +15,6 @@ import it.timgreen.opal.api.CardTransaction
 import it.timgreen.opal.provider.OpalProvider
 import it.timgreen.opal.provider.TransactionTable
 
-// TODO(timgreen): set scheduler, use same thread for everything here.
 object RxTransactions {
 
   private val transactions = BehaviorSubject[DataStatus[List[CardTransaction]]](DataStatus.dataLoading)
@@ -111,7 +110,6 @@ private[rxdata] class TransactionWatcher(cardIndex: Int, context: Observable[Con
     list.onNext(DataStatus(TransactionTable.convert(cursor)))
   }
 
-  // TODO(timgreen): use scheduler
   context
     .subscribeOn(BackgroundThread.scheduler)
     .observeOn(BackgroundThread.scheduler)

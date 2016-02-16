@@ -33,7 +33,6 @@ object RxCards {
   // TODO(timgreen): better method name
   def loadData(implicit context: Context) {
     // TODO(timgreen): read from provider instead
-    // TODO(timgreen): set scheduler
     cardsSubject.onNext(DataStatus(CardsCache.getCards))
   }
 

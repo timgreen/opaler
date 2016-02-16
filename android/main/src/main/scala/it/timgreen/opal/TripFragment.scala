@@ -18,12 +18,16 @@ import android.widget.TextView
 import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter
 import se.emilsjolander.stickylistheaders.StickyListHeadersListView
 
+import rx.android.schedulers.AndroidSchedulers
+import rx.lang.scala.JavaConversions._
+
 import it.timgreen.android.conversion.View._
 import it.timgreen.android.rx.RxFragment
 import it.timgreen.opal.AnalyticsSupport._
 import it.timgreen.opal.api.CardTransaction
 import it.timgreen.opal.api.Model
 import it.timgreen.opal.api.TransactionDetails
+import it.timgreen.opal.rxdata.BackgroundThread
 import it.timgreen.opal.rxdata.TransactionViewData
 
 import scala.collection.mutable
@@ -78,9 +82,12 @@ class TripFragment extends RxFragment with SwipeRefreshSupport with SnapshotAwar
 
   override def onStart() {
     super.onStart
-    rxdata.RxTransactions.transactionViewDatas.bindToLifecycle subscribe { d =>
-      renderList(d)
-    }
+    rxdata.RxTransactions.transactionViewDatas.bindToLifecycle
+      .subscribeOn(BackgroundThread.scheduler)
+      .observeOn(AndroidSchedulers.mainThread)
+      .subscribe { d =>
+        renderList(d)
+      }
   }
 
   private def updateEmptyView() {

@@ -17,6 +17,8 @@ import com.google.android.gms.plus.PlusOneButton
 import com.github.johnpersano.supertoasts.SuperCardToast
 import com.github.johnpersano.supertoasts.SuperToast
 
+import rx.android.schedulers.AndroidSchedulers
+import rx.lang.scala.JavaConversions._
 import rx.lang.scala.Observable
 import rx.lang.scala.subjects.BehaviorSubject
 
@@ -28,6 +30,7 @@ import it.timgreen.opal.AnalyticsSupport._
 import it.timgreen.opal.account.AccountUtil
 import it.timgreen.opal.provider.OpalProvider
 import it.timgreen.opal.provider.TransactionTable
+import it.timgreen.opal.rxdata.BackgroundThread
 import it.timgreen.opal.sync.SyncAdapter
 import it.timgreen.opal.sync.SyncStatus
 import it.timgreen.opal.sync.{ Observer => SyncObserver }
@@ -61,11 +64,14 @@ class MainActivity extends ThemedActivity
   import rxdata.RxTransactions
   val currentFragmentId = BehaviorSubject(Identifier.Overview)
 
-  val actionBarSubtitle: Observable[DataStatus[String]] = currentCard map { cardData =>
-    cardData map { card =>
-      s"${card.cardNickName} ${card.formatedCardNumber}"
+  val actionBarSubtitle: Observable[DataStatus[String]] = currentCard
+    .subscribeOn(BackgroundThread.scheduler)
+    .observeOn(BackgroundThread.scheduler)
+    .map { cardData =>
+      cardData map { card =>
+        s"${card.cardNickName} ${card.formatedCardNumber}"
+      }
     }
-  }
 
   private var syncObserver: SyncObserver = _
   var viewPager: ViewPager = _
@@ -182,12 +188,15 @@ class MainActivity extends ThemedActivity
     this.syncObserver = rxdata.RxSync.createSyncObserver
     setupObserver
 
-    isSyncing.subscribe(syncing =>
-      if (!syncing) {
-        // TODO(timgreen): optimise it
-        dataReloadTrigger.onNext(this)
-      }
-    )
+    isSyncing
+      .subscribeOn(BackgroundThread.scheduler)
+      .observeOn(BackgroundThread.scheduler)
+      .subscribe(syncing =>
+        if (!syncing) {
+          // TODO(timgreen): optimise it
+          dataReloadTrigger.onNext(this)
+        }
+      )
 
     setCustomDimensions(
       dimensionAd                   -> (if (PrefUtil.isAdDisabled) "disabled" else "enabled"),
@@ -250,31 +259,43 @@ class MainActivity extends ThemedActivity
     refreshTripIfNecessary
 
     //// Update ActionBar
-    actionBarSubtitle.bindToLifecycle subscribe { subtitle =>
-      getSupportActionBar.setSubtitle(subtitle getOrElse null)
-    }
+    actionBarSubtitle.bindToLifecycle
+      .subscribeOn(BackgroundThread.scheduler)
+      .observeOn(AndroidSchedulers.mainThread)
+      .subscribe { subtitle =>
+        getSupportActionBar.setSubtitle(subtitle getOrElse null)
+      }
 
     // Bind reactive models to view
-    currentFragmentId.bindToLifecycle subscribe { i =>
-      val title = getResources.getString(
-        if (i != Identifier.Activity) {
-          R.string.drawer_overview
-        } else {
-          R.string.drawer_activity
-        })
-      getSupportActionBar.setTitle(title)
-    }
+    currentFragmentId.bindToLifecycle
+      .subscribeOn(BackgroundThread.scheduler)
+      .observeOn(AndroidSchedulers.mainThread)
+      .subscribe { i =>
+        val title = getResources.getString(
+          if (i != Identifier.Activity) {
+            R.string.drawer_overview
+          } else {
+            R.string.drawer_activity
+          })
+        getSupportActionBar.setTitle(title)
+      }
 
     //// Sync fragment selection
-    currentFragmentId.bindToLifecycle subscribe { fragmentId =>
-      navDrawer.drawer.setSelection(fragmentId, false)
-      viewPager.setCurrentItem(fragmentId - 1)
-    }
+    currentFragmentId.bindToLifecycle
+      .subscribeOn(BackgroundThread.scheduler)
+      .observeOn(AndroidSchedulers.mainThread)
+      .subscribe { fragmentId =>
+        navDrawer.drawer.setSelection(fragmentId, false)
+        viewPager.setCurrentItem(fragmentId - 1)
+      }
 
     ////
-    currentCardIndex.bindToLifecycle subscribe { cardIndex =>
-      Usage.lastSelectedCard() = cardIndex
-    }
+    currentCardIndex.bindToLifecycle
+      .subscribeOn(BackgroundThread.scheduler)
+      .observeOn(BackgroundThread.scheduler)
+      .subscribe { cardIndex =>
+        Usage.lastSelectedCard() = cardIndex
+      }
 
     navDrawer.bindToLifecycleAndSubscribe
   }
@@ -378,11 +399,13 @@ class MainActivity extends ThemedActivity
       }
     }
   }
-  syncTrigger.subscribe { _ => startSync }
+  syncTrigger
+    .subscribeOn(BackgroundThread.scheduler)
+    .observeOn(AndroidSchedulers.mainThread)
+    .subscribe { _ => startSync }
 }
 
 class AppSectionsPagerAdapter(activity: MainActivity, fm: FragmentManager) extends FragmentPagerAdapter(fm) {
-
   override def getCount = 2
 
   override def getItem(i: Int): Fragment = {

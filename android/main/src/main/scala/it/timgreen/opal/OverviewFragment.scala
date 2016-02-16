@@ -9,11 +9,14 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 
+import rx.android.schedulers.AndroidSchedulers
+import rx.lang.scala.JavaConversions._
 import rx.lang.scala.Observable
 
 import it.timgreen.android.rx.RxFragment
 import it.timgreen.opal.AnalyticsSupport._
 import it.timgreen.opal.api.CardTransaction
+import it.timgreen.opal.rxdata.BackgroundThread
 import it.timgreen.opal.rxdata.OverviewData
 import it.timgreen.opal.sync.SyncStatus
 
@@ -47,14 +50,23 @@ class OverviewFragment extends RxFragment with SwipeRefreshSupport with Snapshot
     swipeRefreshLayout = ui.get[SwipeRefreshLayout](R.id.swipe_container) :: Nil
     initSwipeOptions
 
-    val rxBalance: Observable[DataStatus[(String, String)]] = currentCard map { cardData =>
-      cardData map { card =>
-        (card.cardBalance / 100).toString ->
-        f".${(card.cardBalance % 100)}%02d"
+    val rxBalance: Observable[DataStatus[(String, String)]] = currentCard
+      .subscribeOn(BackgroundThread.scheduler)
+      .observeOn(BackgroundThread.scheduler)
+      .map { cardData =>
+        cardData map { card =>
+          (card.cardBalance / 100).toString ->
+          f".${(card.cardBalance % 100)}%02d"
+        }
       }
-    }
-    rxBalance.bindToLifecycle subscribe {b => renderBalance(b)}
-    rxdata.RxTransactions.overview.bindToLifecycle subscribe { s => renderSpending(s) }
+    rxBalance.bindToLifecycle
+      .subscribeOn(BackgroundThread.scheduler)
+      .observeOn(AndroidSchedulers.mainThread)
+      .subscribe {b => renderBalance(b)}
+    rxdata.RxTransactions.overview.bindToLifecycle
+      .subscribeOn(BackgroundThread.scheduler)
+      .observeOn(AndroidSchedulers.mainThread)
+      .subscribe { s => renderSpending(s) }
   }
 
   private def renderBalance(balanceData: DataStatus[(String, String)]) {
