@@ -3,7 +3,6 @@ package it.timgreen.android.rx
 import android.app.Activity
 import android.os.Bundle
 import android.support.annotation.CallSuper
-import android.content.pm.PackageManager
 
 import com.trello.rxlifecycle.ActivityEvent
 import com.trello.rxlifecycle.RxLifecycle

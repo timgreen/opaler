@@ -1,6 +1,5 @@
 package it.timgreen.opal
 
-import android.app.Fragment
 import android.support.v4.widget.SwipeRefreshLayout
 
 import it.timgreen.android.rx.RxFragment

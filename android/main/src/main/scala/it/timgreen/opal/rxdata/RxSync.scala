@@ -3,7 +3,6 @@ package it.timgreen.opal.rxdata
 import android.app.Activity
 import android.content.Context
 
-import rx.lang.scala.Observable
 import rx.lang.scala.subjects.BehaviorSubject
 import rx.lang.scala.subjects.PublishSubject
 

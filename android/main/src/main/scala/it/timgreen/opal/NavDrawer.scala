@@ -1,20 +1,19 @@
 package it.timgreen.opal
 
-import android.content.Intent
-import android.graphics.Bitmap
-import android.support.v4.content.FileProvider
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
+import android.support.v4.content.FileProvider
 import android.support.v7.widget.Toolbar
 import android.view.View
 
 import com.afollestad.materialdialogs.MaterialDialog
 import com.amulyakhare.textdrawable.TextDrawable
 import com.amulyakhare.textdrawable.util.ColorGenerator
-import com.github.johnpersano.supertoasts.SuperCardToast
 import com.github.johnpersano.supertoasts.SuperToast
 import com.mikepenz.materialdrawer.AccountHeader
 import com.mikepenz.materialdrawer.AccountHeaderBuilder
@@ -33,8 +32,8 @@ import java.util.{ List => JList, Date, ArrayList }
 
 import scala.collection.JavaConversions._
 
-import it.timgreen.android.util.Snapshot
 import it.timgreen.android.billing.InAppBilling
+import it.timgreen.android.util.Snapshot
 
 class NavDrawer(mainActivity: MainActivity, savedInstanceState: Bundle) {
   import rxdata.RxCards

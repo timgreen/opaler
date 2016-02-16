@@ -3,13 +3,9 @@ package it.timgreen.opal
 import android.app.Activity
 import android.app.Fragment
 import android.app.FragmentManager
-import android.app.LoaderManager
 import android.content.ContentResolver
-import android.content.CursorLoader
 import android.content.Intent
-import android.content.Loader
 import android.database.ContentObserver
-import android.database.Cursor
 import android.net.Uri
 import android.os.Bundle
 import android.os.Parcelable
@@ -30,12 +26,11 @@ import it.timgreen.android.net.NetworkConnectionChecker
 import it.timgreen.android.rx.RxActivity
 import it.timgreen.opal.AnalyticsSupport._
 import it.timgreen.opal.account.AccountUtil
-import it.timgreen.opal.api.Card
 import it.timgreen.opal.provider.OpalProvider
 import it.timgreen.opal.provider.TransactionTable
-import it.timgreen.opal.sync.{ Observer => SyncObserver }
 import it.timgreen.opal.sync.SyncAdapter
 import it.timgreen.opal.sync.SyncStatus
+import it.timgreen.opal.sync.{ Observer => SyncObserver }
 
 import java.util.{ List => JList, Date, ArrayList }
 

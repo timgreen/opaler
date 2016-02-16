@@ -1,12 +1,5 @@
 package it.timgreen.opal
 
-import android.app.Activity
-import android.app.Fragment
-import android.app.LoaderManager
-import android.content.AsyncTaskLoader
-import android.content.CursorLoader
-import android.content.Loader
-import android.database.Cursor
 import android.os.Bundle
 import android.support.v4.widget.SwipeRefreshLayout
 import android.util.TypedValue
@@ -21,8 +14,6 @@ import rx.lang.scala.Observable
 import it.timgreen.android.rx.RxFragment
 import it.timgreen.opal.AnalyticsSupport._
 import it.timgreen.opal.api.CardTransaction
-import it.timgreen.opal.provider.CardsCache
-import it.timgreen.opal.provider.OpalProvider
 import it.timgreen.opal.rxdata.OverviewData
 import it.timgreen.opal.sync.SyncStatus
 

@@ -5,8 +5,8 @@ import android.text.format.Time
 
 import scala.collection.mutable
 
-import rx.lang.scala.Subscription
 import rx.lang.scala.Observable
+import rx.lang.scala.Subscription
 import rx.lang.scala.subjects.BehaviorSubject
 
 import it.timgreen.opal.DataStatus

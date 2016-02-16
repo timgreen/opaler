@@ -1,11 +1,6 @@
 package it.timgreen.opal
 
-import android.app.Fragment
-import android.app.LoaderManager
 import android.content.Context
-import android.content.CursorLoader
-import android.content.Loader
-import android.database.Cursor
 import android.os.Bundle
 import android.support.v4.widget.SwipeRefreshLayout
 import android.text.Html
