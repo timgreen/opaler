@@ -13,7 +13,10 @@ import it.timgreen.opal.sync.{ Observer => SyncObserver }
 
 object RxSync {
   private val isSyncingSubject = BehaviorSubject(false)
-  val isSyncing = isSyncingSubject.distinctUntilChanged
+  val isSyncing = isSyncingSubject
+    .subscribeOn(BackgroundThread.scheduler)
+    .observeOn(BackgroundThread.scheduler)
+    .distinctUntilChanged
   val syncTrigger = PublishSubject[Int]()
   val dataReloadTrigger = PublishSubject[Context]()
 

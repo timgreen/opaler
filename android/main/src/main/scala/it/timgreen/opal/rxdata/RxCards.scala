@@ -13,10 +13,15 @@ object RxCards {
   val currentCardIndex = BehaviorSubject[Int]()
 
   private val cardsSubject = BehaviorSubject[DataStatus[List[Card]]](DataStatus.dataLoading)
-  val cards = cardsSubject.distinctUntilChanged
+  val cards = cardsSubject
+    .subscribeOn(BackgroundThread.scheduler)
+    .observeOn(BackgroundThread.scheduler)
+    .distinctUntilChanged
 
-  val currentCard: Observable[DataStatus[Card]] =
-    currentCardIndex.combineLatestWith(cards) { (cardIndex, cardsData) =>
+  val currentCard: Observable[DataStatus[Card]] = currentCardIndex
+    .subscribeOn(BackgroundThread.scheduler)
+    .observeOn(BackgroundThread.scheduler)
+    .combineLatestWith(cards) { (cardIndex, cardsData) =>
       cardsData.flatMap { cards =>
         cards.lift(cardIndex) match {
           case Some(card) => DataStatus(card)
@@ -32,5 +37,8 @@ object RxCards {
     cardsSubject.onNext(DataStatus(CardsCache.getCards))
   }
 
-  RxSync.dataReloadTrigger subscribe { c => loadData(c) }
+  RxSync.dataReloadTrigger
+    .subscribeOn(BackgroundThread.scheduler)
+    .observeOn(BackgroundThread.scheduler)
+    .subscribe { c => loadData(c) }
 }

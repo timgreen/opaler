@@ -19,12 +19,18 @@ import it.timgreen.opal.provider.TransactionTable
 object RxTransactions {
 
   private val transactions = BehaviorSubject[DataStatus[List[CardTransaction]]](DataStatus.dataLoading)
-  val transactionViewDatas: Observable[DataStatus[List[TransactionViewData]]] = transactions map {
-    _ map processTransaction
-  }
-  val overview: Observable[DataStatus[OverviewData]] = transactions map {
-    _ map processOverview
-  }
+  val transactionViewDatas: Observable[DataStatus[List[TransactionViewData]]] = transactions
+    .subscribeOn(BackgroundThread.scheduler)
+    .observeOn(BackgroundThread.scheduler)
+    .map {
+      _ map processTransaction
+    }
+  val overview: Observable[DataStatus[OverviewData]] = transactions
+    .subscribeOn(BackgroundThread.scheduler)
+    .observeOn(BackgroundThread.scheduler)
+    .map {
+      _ map processOverview
+    }
 
   // TODO(timgreen): better not to hold a reference at all.
   private val contextSubject = BehaviorSubject[Context]();
@@ -90,7 +96,10 @@ object RxTransactions {
   }
 
   // init
-  RxCards.currentCardIndex subscribe { onCardChange _ }
+  RxCards.currentCardIndex
+    .subscribeOn(BackgroundThread.scheduler)
+    .observeOn(BackgroundThread.scheduler)
+    .subscribe { onCardChange _ }
 }
 
 private[rxdata] class TransactionWatcher(cardIndex: Int, context: Observable[Context]) {
@@ -103,10 +112,16 @@ private[rxdata] class TransactionWatcher(cardIndex: Int, context: Observable[Con
   }
 
   // TODO(timgreen): use scheduler
-  context subscribe { loadData _ }
-  RxSync.dataReloadTrigger.combineLatest(RxCards.currentCardIndex).filter(_._2 == cardIndex) subscribe { d =>
-    loadData(d._1)
-  }
+  context
+    .subscribeOn(BackgroundThread.scheduler)
+    .observeOn(BackgroundThread.scheduler)
+    .subscribe { loadData _ }
+  RxSync.dataReloadTrigger
+    .subscribeOn(BackgroundThread.scheduler)
+    .observeOn(BackgroundThread.scheduler)
+    .combineLatest(RxCards.currentCardIndex).filter(_._2 == cardIndex) subscribe { d =>
+      loadData(d._1)
+    }
 }
 
 case class TransactionViewData(
