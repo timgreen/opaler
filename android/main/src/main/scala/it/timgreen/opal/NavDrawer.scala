@@ -25,6 +25,8 @@ import com.mikepenz.materialdrawer.model.SectionDrawerItem
 import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem
 import com.mikepenz.materialdrawer.model.interfaces.IProfile
 
+import rx.android.schedulers.AndroidSchedulers
+import rx.lang.scala.JavaConversions._
 import rx.lang.scala.Observable
 
 import java.io.File
@@ -34,6 +36,7 @@ import scala.collection.JavaConversions._
 
 import it.timgreen.android.billing.InAppBilling
 import it.timgreen.android.util.Snapshot
+import it.timgreen.opal.rxdata.BackgroundThread
 
 class NavDrawer(mainActivity: MainActivity, savedInstanceState: Bundle) {
   import rxdata.RxCards
@@ -72,28 +75,34 @@ class NavDrawer(mainActivity: MainActivity, savedInstanceState: Bundle) {
 
   def bindToLifecycleAndSubscribe() {
     //// Update drawer profiles
-    mainActivity.toRichObservable(profiles.combineLatest(currentCardIndex)).bindToLifecycle subscribe { pair =>
-      val Tuple2(profilesData, cardIndex) = pair
-      // TODO(timgreen): show loading / no data
-      val profiles = profilesData getOrElse new ArrayList[IProfile[_]]()
-      if (header != null) {
-        header.setProfiles(profiles)
-        if (cardIndex < profiles.size) {
-          header.setActiveProfile(cardIndex)
+    mainActivity.toRichObservable(profiles.combineLatest(currentCardIndex)).bindToLifecycle
+      .subscribeOn(BackgroundThread.scheduler)
+      .observeOn(AndroidSchedulers.mainThread)
+      .subscribe { pair =>
+        val Tuple2(profilesData, cardIndex) = pair
+        // TODO(timgreen): show loading / no data
+        val profiles = profilesData getOrElse new ArrayList[IProfile[_]]()
+        if (header != null) {
+          header.setProfiles(profiles)
+          if (cardIndex < profiles.size) {
+            header.setActiveProfile(cardIndex)
+          }
         }
       }
-    }
     //// Update drawer background
-    mainActivity.toRichObservable(currentCardIndex).bindToLifecycle subscribe { cardIndex =>
-      if (header != null) {
-        header.setBackgroundRes(cardIndex % 4 match {
-          case 0 => R.drawable.header_leaf
-          case 1 => R.drawable.header_sun
-          case 2 => R.drawable.header_aurora
-          case 3 => R.drawable.header_ice
-        })
+    mainActivity.toRichObservable(currentCardIndex).bindToLifecycle
+      .subscribeOn(BackgroundThread.scheduler)
+      .observeOn(AndroidSchedulers.mainThread)
+      .subscribe { cardIndex =>
+        if (header != null) {
+          header.setBackgroundRes(cardIndex % 4 match {
+            case 0 => R.drawable.header_leaf
+            case 1 => R.drawable.header_sun
+            case 2 => R.drawable.header_aurora
+            case 3 => R.drawable.header_ice
+          })
+        }
       }
-    }
   }
 
   def drawerSnapshot(filename: String): Option[Uri] = {

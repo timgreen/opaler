@@ -2,8 +2,12 @@ package it.timgreen.opal
 
 import android.support.v4.widget.SwipeRefreshLayout
 
+import rx.android.schedulers.AndroidSchedulers
+import rx.lang.scala.JavaConversions._
+
 import it.timgreen.android.rx.RxFragment
 import it.timgreen.opal.AnalyticsSupport._
+import it.timgreen.opal.rxdata.BackgroundThread
 
 trait SwipeRefreshSupport extends RxFragment {
   import rxdata.RxSync.isSyncing
@@ -27,13 +31,16 @@ trait SwipeRefreshSupport extends RxFragment {
 
   override def onResume() {
     super.onResume
-    isSyncing.bindToLifecycle subscribe { syncing =>
-      if (syncing) {
-        onRefreshStart
-      } else {
-        onRefreshEnd
+    isSyncing.bindToLifecycle
+      .subscribeOn(BackgroundThread.scheduler)
+      .observeOn(AndroidSchedulers.mainThread)
+      .subscribe { syncing =>
+        if (syncing) {
+          onRefreshStart
+        } else {
+          onRefreshEnd
+        }
       }
-    }
   }
 
   private def setAppearance() {
