@@ -90,6 +90,7 @@ class NavDrawer(mainActivity: MainActivity, savedInstanceState: Bundle) {
         }
       }
     //// Update drawer background
+    //// & close drawer after switch account.
     mainActivity.toRichObservable(currentCardIndex).bindToLifecycle
       .subscribeOn(BackgroundThread.scheduler)
       .observeOn(AndroidSchedulers.mainThread)
@@ -102,6 +103,8 @@ class NavDrawer(mainActivity: MainActivity, savedInstanceState: Bundle) {
             case 3 => R.drawable.header_ice
           })
         }
+
+        drawer.closeDrawer
       }
   }
 
