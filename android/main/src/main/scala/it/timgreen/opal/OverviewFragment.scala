@@ -62,11 +62,11 @@ class OverviewFragment extends RxFragment with SwipeRefreshSupport with Snapshot
     rxBalance.bindToLifecycle
       .subscribeOn(BackgroundThread.scheduler)
       .observeOn(AndroidSchedulers.mainThread)
-      .subscribe {b => renderBalance(b)}
+      .subscribe { renderBalance _ }
     rxdata.RxTransactions.overview.bindToLifecycle
       .subscribeOn(BackgroundThread.scheduler)
       .observeOn(AndroidSchedulers.mainThread)
-      .subscribe { s => renderSpending(s) }
+      .subscribe { renderSpending _ }
   }
 
   private def renderBalance(balanceData: DataStatus[(String, String)]) {

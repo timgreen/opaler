@@ -39,5 +39,5 @@ object RxCards {
   RxSync.dataReloadTrigger
     .subscribeOn(BackgroundThread.scheduler)
     .observeOn(BackgroundThread.scheduler)
-    .subscribe { c => loadData(c) }
+    .subscribe { loadData(_) }
 }

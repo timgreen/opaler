@@ -85,9 +85,7 @@ class TripFragment extends RxFragment with SwipeRefreshSupport with SnapshotAwar
     rxdata.RxTransactions.transactionViewDatas.bindToLifecycle
       .subscribeOn(BackgroundThread.scheduler)
       .observeOn(AndroidSchedulers.mainThread)
-      .subscribe { d =>
-        renderList(d)
-      }
+      .subscribe { renderList _ }
   }
 
   private def updateEmptyView() {

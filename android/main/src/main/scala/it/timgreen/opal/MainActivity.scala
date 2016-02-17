@@ -191,12 +191,12 @@ class MainActivity extends ThemedActivity
     isSyncing
       .subscribeOn(BackgroundThread.scheduler)
       .observeOn(BackgroundThread.scheduler)
-      .subscribe(syncing =>
+      .subscribe { syncing =>
         if (!syncing) {
           // TODO(timgreen): optimise it
           dataReloadTrigger.onNext(this)
         }
-      )
+      }
 
     setCustomDimensions(
       dimensionAd                   -> (if (PrefUtil.isAdDisabled) "disabled" else "enabled"),
