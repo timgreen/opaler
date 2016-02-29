@@ -3,7 +3,7 @@ package it.timgreen.opal.api
 import org.json.JSONArray
 import org.json.JSONObject
 
-case class CardDetails(
+case class Card(
   index: Int,
   active: Boolean,
   cardBalance: Int,
@@ -19,16 +19,16 @@ case class CardDetails(
   def formatedCardNumber = cardNumber.grouped(4).mkString(" ")
 }
 
-object CardDetails {
-  def parseList(jsonArray: JSONArray): List[CardDetails] = {
+object Card {
+  def parseList(jsonArray: JSONArray): List[Card] = {
     val len = jsonArray.length
     0 until len map { i =>
-      parseCardDetails(jsonArray.getJSONObject(i), i)
+      parseCard(jsonArray.getJSONObject(i), i)
     } toList
   }
 
-  private def parseCardDetails(json: JSONObject, index: Int) = {
-    val card = CardDetails(
+  private def parseCard(json: JSONObject, index: Int) = {
+    val card = Card(
       index = index,
       active = json.getBoolean("active"),
       cardBalance = json.getInt("cardBalance"),
@@ -51,27 +51,27 @@ object CardDetails {
     )
   }
 
-  def toJsonArray(cardDetailsList: List[CardDetails]): JSONArray = {
+  def toJsonArray(cards: List[Card]): JSONArray = {
     val array = new JSONArray
-    cardDetailsList foreach { cardDetails =>
-      array.put(toJsonObject(cardDetails))
+    cards foreach { card =>
+      array.put(toJsonObject(card))
     }
     array
   }
 
-  private def toJsonObject(cardDetails: CardDetails): JSONObject = {
+  private def toJsonObject(card: Card): JSONObject = {
     val json = new JSONObject
-    json.put("active", cardDetails.active)
-    json.put("cardBalance", cardDetails.cardBalance)
-    json.put("cardBalanceInDollars", cardDetails.cardBalanceInDollars)
-    json.put("cardNickName", cardDetails.cardNickName)
-    json.put("cardNumber", cardDetails.cardNumber)
-    json.put("cardState", cardDetails.cardState)
-    json.put("currentCardBalanceInDollars", cardDetails.currentCardBalanceInDollars)
-    json.put("displayName", cardDetails.displayName)
-    json.put("svPending", cardDetails.svPending)
-    json.put("svPendingInDollars", cardDetails.svPendingInDollars)
-    json.put("toBeActivated", cardDetails.toBeActivated)
+    json.put("active", card.active)
+    json.put("cardBalance", card.cardBalance)
+    json.put("cardBalanceInDollars", card.cardBalanceInDollars)
+    json.put("cardNickName", card.cardNickName)
+    json.put("cardNumber", card.cardNumber)
+    json.put("cardState", card.cardState)
+    json.put("currentCardBalanceInDollars", card.currentCardBalanceInDollars)
+    json.put("displayName", card.displayName)
+    json.put("svPending", card.svPending)
+    json.put("svPendingInDollars", card.svPendingInDollars)
+    json.put("toBeActivated", card.toBeActivated)
 
     json
   }

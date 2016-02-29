@@ -1,11 +1,6 @@
 package it.timgreen.opal
 
-import android.app.Fragment
-import android.app.LoaderManager
 import android.content.Context
-import android.content.CursorLoader
-import android.content.Loader
-import android.database.Cursor
 import android.os.Bundle
 import android.support.v4.widget.SwipeRefreshLayout
 import android.text.Html
@@ -23,150 +18,95 @@ import android.widget.TextView
 import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter
 import se.emilsjolander.stickylistheaders.StickyListHeadersListView
 
+import rx.android.schedulers.AndroidSchedulers
+import rx.lang.scala.JavaConversions._
+
 import it.timgreen.android.conversion.View._
+import it.timgreen.android.rx.RxFragment
 import it.timgreen.opal.AnalyticsSupport._
 import it.timgreen.opal.api.CardTransaction
 import it.timgreen.opal.api.Model
 import it.timgreen.opal.api.TransactionDetails
-import it.timgreen.opal.provider.OpalProvider
-import it.timgreen.opal.provider.TransactionTable
+import it.timgreen.opal.rxdata.BackgroundThread
+import it.timgreen.opal.rxdata.TransactionViewData
 
 import scala.collection.mutable
 
-class TripFragment extends Fragment with SwipeRefreshSupport with SnapshotAware {
-
-  import Bus._
+class TripFragment extends RxFragment with SwipeRefreshSupport with SnapshotAware {
 
   var adapter: TransactionListAdapter = _
-  var rootView: Option[View] = None
+  var rootView: View = _
   var swipeRefreshLayout: List[SwipeRefreshLayout] = Nil
+
+  object ui {
+    lazy val listView: StickyListHeadersListView = get(android.R.id.list)
+    def get[T](id: Int): T = {
+      rootView.findViewById(id).asInstanceOf[T]
+    }
+  }
 
   override def onCreateView(inflater: LayoutInflater, container: ViewGroup,
                             savedInstanceState: Bundle): View = {
 
-    val rootView = inflater.inflate(R.layout.fragment_trip, container, false)
-    this.rootView = Some(rootView)
-    val listView = rootView.findViewById(android.R.id.list).asInstanceOf[StickyListHeadersListView]
+    this.rootView = inflater.inflate(R.layout.fragment_trip, container, false)
     adapter = new TransactionListAdapter(getActivity)
-    listView.setAdapter(adapter)
+    ui.listView.setAdapter(adapter)
     updateEmptyView
 
-    setupLoader
-
-    rootView
-  }
-
-  private var loaderCallbacks: LoaderManager.LoaderCallbacks[Cursor] = _
-  private def setupLoader() {
-    loaderCallbacks = new LoaderManager.LoaderCallbacks[Cursor]() {
-      override def onCreateLoader(id: Int, args: Bundle): Loader[Cursor] = {
-        Util.debug("trip, create loader " + id)
-        new CursorLoader(getActivity, OpalProvider.Uris.activities(id), null, null, null, null) {
-          override def loadInBackground: Cursor = {
-            trackBlockTiming("UI", Some("Loading"), Some("TripView")) {
-              super.loadInBackground
-            } (getActivity)
-          }
-        }
-      }
-      override def onLoadFinished(loader: Loader[Cursor], cursor: Cursor) {
-        Util.debug("trip, load finished " + loader.getId)
-        if (currentCardIndex() == Some(loader.getId)) {
-          adapter.setNotifyOnChange(false)
-          adapter.clear
-          adapter.addAll(processCursor(cursor): _*)
-          adapter.setNotifyOnChange(true)
-          adapter.notifyDataSetChanged
-
-          updateEmptyView
-        } else {
-          Util.debug(s"trip($currentCardIndex), ignore loader result(${loader.getId})")
-        }
-      }
-      override def onLoaderReset(loader: Loader[Cursor]) {
-        Util.debug("trip, load reset " + loader.getId)
-        if (currentCardIndex() == Some(loader.getId)) {
-          adapter.clear
-
-          updateEmptyView
-        }
-      }
-    }
-    getLoaderManager.initLoader(0, null, loaderCallbacks)
-  }
-
-  private def updateEmptyView() {
-    val emptyView = rootView.map(_.findViewById(android.R.id.empty))
-    if (adapter.isEmpty) {
-      emptyView.foreach(_.setVisibility(View.VISIBLE))
-    } else {
-      emptyView.foreach(_.setVisibility(View.GONE))
-    }
-  }
-
-  private def processCursor(cursor: Cursor): List[TransactionViewData] = {
-    var lastColor = false
-    var lastJourneyNumber: Option[Int] = None
-
-    TransactionTable.convert(cursor).toList.reverse map { cardTransaction =>
-      val alternateColor = if (lastJourneyNumber == cardTransaction.journeyNumber || cardTransaction.journeyNumber == None) {
-        lastColor
-      } else {
-        !lastColor
-      }
-
-      if (cardTransaction.journeyNumber != None) {
-        lastJourneyNumber = cardTransaction.journeyNumber
-      }
-      lastColor = alternateColor
-
-      TransactionViewData(cardTransaction, alternateColor)
-    } reverse
+    this.rootView
   }
 
   override def onViewCreated(view: View, savedInstanceState: Bundle) {
     super.onViewCreated(view, savedInstanceState)
     swipeRefreshLayout =
-      rootView.map(_.findViewById(R.id.swipe_container).asInstanceOf[SwipeRefreshLayout]).toList :::
-      rootView.map(_.findViewById(android.R.id.empty).asInstanceOf[SwipeRefreshLayout]).toList
+      ui.get[SwipeRefreshLayout](R.id.swipe_container) ::
+      ui.get[SwipeRefreshLayout](android.R.id.empty) ::
+      Nil
     initSwipeOptions
   }
 
-  private def refresh() {
-    currentCardIndex() foreach { cardIndex =>
-      // TODO(timgreen): change to initLoader
-      getLoaderManager.restartLoader(cardIndex, null, loaderCallbacks)
-    }
-  }
-
   override def preSnapshot() {
-    rootView foreach { rv =>
-      val listView = rv.findViewById(android.R.id.list).asInstanceOf[StickyListHeadersListView].getWrappedList
-      0 to listView.getChildCount foreach { i =>
-        val v = listView.getChildAt(i)
-        Option(v).map(_.findViewById(R.id.amount)) foreach { vv =>
-          val tv = vv.asInstanceOf[TextView]
-          tv.setText(tv.getText.toString.replaceAll("[0-9]", "0"))
-        }
-        Option(v).map(_.findViewById(R.id.details)) foreach { vv =>
-          val tv = vv.asInstanceOf[TextView]
-          tv.setTextColor(0x00000000)
-        }
+    val listView = ui.listView.getWrappedList
+    0 to listView.getChildCount foreach { i =>
+      val v = listView.getChildAt(i)
+      Option(v).map(_.findViewById(R.id.amount)) foreach { vv =>
+        val tv = vv.asInstanceOf[TextView]
+        tv.setText(tv.getText.toString.replaceAll("[0-9]", "0"))
+      }
+      Option(v).map(_.findViewById(R.id.details)) foreach { vv =>
+        val tv = vv.asInstanceOf[TextView]
+        tv.setTextColor(0x00000000)
       }
     }
   }
 
   override def onStart() {
     super.onStart
-    currentCardIndex.on(tag = this) { _ => refresh }
-    fragmentRefreshTrigger.on(tag = this) { () => refresh }
+    rxdata.RxTransactions.transactionViewDatas.bindToLifecycle
+      .subscribeOn(BackgroundThread.scheduler)
+      .observeOn(AndroidSchedulers.mainThread)
+      .subscribe { renderList _ }
   }
 
-  override def onStop() {
-    currentCardIndex.removeByTag(this)
-    fragmentRefreshTrigger.removeByTag(this)
-    super.onStop
+  private def updateEmptyView() {
+    val emptyView: View = ui.get(android.R.id.empty)
+    if (adapter.isEmpty) {
+      emptyView.setVisibility(View.VISIBLE)
+    } else {
+      emptyView.setVisibility(View.GONE)
+    }
   }
+
+  private def renderList(data: DataStatus[List[TransactionViewData]]) {
+    adapter.setNotifyOnChange(false)
+    adapter.clear
+    adapter.addAll(data.getOrElse(List()): _*)
+    adapter.setNotifyOnChange(true)
+    adapter.notifyDataSetChanged
+
+    updateEmptyView
+  }
+
 }
 
 class TransactionListAdapter(context: Context)
@@ -401,8 +341,3 @@ case class WeekGroup(
   var numOfTrip: Int = 0,
   var amount: Double = 0) {
 }
-
-case class TransactionViewData(
-  trip: CardTransaction,
-  alternateColor: Boolean
-)

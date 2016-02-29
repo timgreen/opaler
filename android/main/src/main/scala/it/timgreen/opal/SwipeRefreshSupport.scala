@@ -1,13 +1,17 @@
 package it.timgreen.opal
 
-import android.app.Fragment
 import android.support.v4.widget.SwipeRefreshLayout
 
-import it.timgreen.opal.AnalyticsSupport._
+import rx.android.schedulers.AndroidSchedulers
+import rx.lang.scala.JavaConversions._
 
-trait SwipeRefreshSupport extends Fragment {
-  import it.timgreen.opal.Bus.isSyncing
-  import it.timgreen.opal.Bus.syncTrigger
+import it.timgreen.android.rx.RxFragment
+import it.timgreen.opal.AnalyticsSupport._
+import it.timgreen.opal.rxdata.BackgroundThread
+
+trait SwipeRefreshSupport extends RxFragment {
+  import rxdata.RxSync.isSyncing
+  import rxdata.RxSync.syncTrigger
 
   var swipeRefreshLayout: List[SwipeRefreshLayout]
 
@@ -18,7 +22,8 @@ trait SwipeRefreshSupport extends Fragment {
         def onRefresh {
           Util.debug(s"swipe refresh")
           trackEvent("UI", "pullToRefresh", Some(this.getClass.getSimpleName))(getActivity)
-          syncTrigger.fire
+          rxdata.RxSync.markIsSyncing(true)
+          syncTrigger.onNext(0)
         }
       })
     }
@@ -26,18 +31,16 @@ trait SwipeRefreshSupport extends Fragment {
 
   override def onResume() {
     super.onResume
-    isSyncing.on(tag = this) { syncing =>
-      if (syncing) {
-        onRefreshStart
-      } else {
-        onRefreshEnd
+    isSyncing.bindToLifecycle
+      .subscribeOn(BackgroundThread.scheduler)
+      .observeOn(AndroidSchedulers.mainThread)
+      .subscribe { syncing =>
+        if (syncing) {
+          onRefreshStart
+        } else {
+          onRefreshEnd
+        }
       }
-    }
-  }
-
-  override def onPause() {
-    isSyncing.removeByTag(this)
-    super.onPause
   }
 
   private def setAppearance() {

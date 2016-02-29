@@ -168,10 +168,11 @@ android {
 }
 
 dependencies {
-    compile 'org.scala-lang:scala-library:2.12.0-M1'
-    compile 'org.scala-lang.modules:scala-xml_2.12.0-M1:1.0.5'
+    compile 'org.scala-lang:scala-library:2.11.7'
+    compile 'org.scala-lang:scala-xml:2.11.0-M4'
     compile 'com.google.android.gms:play-services:7.8.0'
-    compile 'com.android.support:support-v13:23.0.0'
+    compile 'com.android.support:support-v13:23.1.1'
+    compile 'com.android.support:support-annotations:23.1.1'
 
     compile 'com.squareup.okhttp:okhttp:2.5.0'
     compile 'com.github.hotchemi:android-rate:0.5.3'
@@ -182,6 +183,10 @@ dependencies {
     }
     compile 'com.amulyakhare:com.amulyakhare.textdrawable:1.0.1'
     compile 'com.robbypond:material-dialogs:1.0.0'
+
+    compile 'io.reactivex:rxscala_2.11:0.26.0'
+    compile 'io.reactivex:rxandroid:1.1.0'
+    compile 'com.trello:rxlifecycle:0.4.0'
 }
 
 

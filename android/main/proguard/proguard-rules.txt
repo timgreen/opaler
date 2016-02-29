@@ -74,6 +74,9 @@
 # OkHttp
 -dontwarn okio.**
 
+# rx
+-dontwarn sun.misc.Unsafe
+
 # this app
 -keep public class it.timgreen.opal.OverviewFragment
 -keep public class it.timgreen.opal.TripFragment
