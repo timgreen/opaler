@@ -104,6 +104,7 @@ class TripFragment extends RxFragment with SwipeRefreshSupport with SnapshotAwar
     adapter.setNotifyOnChange(true)
     adapter.notifyDataSetChanged
 
+    ui.listView.smoothScrollToPosition(0);
     updateEmptyView
   }
 
