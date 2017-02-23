@@ -50,13 +50,16 @@ class OverviewFragment extends RxFragment with SwipeRefreshSupport with Snapshot
     swipeRefreshLayout = ui.get[SwipeRefreshLayout](R.id.swipe_container) :: Nil
     initSwipeOptions
 
-    val rxBalance: Observable[DataStatus[(String, String)]] = currentCard
+    val rxBalance: Observable[DataStatus[(String, String, String)]] = currentCard
       .subscribeOn(BackgroundThread.scheduler)
       .observeOn(BackgroundThread.scheduler)
       .map { cardData =>
         cardData map { card =>
-          (card.cardBalance / 100).toString ->
-          f".${(card.cardBalance % 100)}%02d"
+          val sign = if (card.cardBalance < 0) "-$" else "$"
+          val b = (Math.abs(card.cardBalance) / 100).toString
+          val bf = f".${Math.abs(card.cardBalance % 100)}%02d"
+
+          (sign, b, bf)
         }
       }
     rxBalance.bindToLifecycle
@@ -69,9 +72,10 @@ class OverviewFragment extends RxFragment with SwipeRefreshSupport with Snapshot
       .subscribe { renderSpending _ }
   }
 
-  private def renderBalance(balanceData: DataStatus[(String, String)]) {
-    val (balance, balanceSmall) = balanceData getOrElse ("-" -> ".--")
+  private def renderBalance(balanceData: DataStatus[(String, String, String)]) {
+    val (sign, balance, balanceSmall) = balanceData getOrElse ( ("$", "-", ".--") )
 
+    ui.balanceIcon.setText(sign)
     ui.balance.setText(balance)
     ui.balanceSmall.setText(balanceSmall)
     ui.lastSuccessfulSync.setText("Last Sync " + SyncStatus.getLastSuccessfulSyncTime(getActivity))
